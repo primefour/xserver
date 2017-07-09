@@ -2,7 +2,7 @@ package store
 
 import (
 	"github.com/go-gorp/gorp"
-	"github.com/primefour/xservers/model"
+	"github.com/primefour/xserver/model"
 	"net/http"
 	"strings"
 )

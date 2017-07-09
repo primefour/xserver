@@ -1,6 +1,3 @@
-// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
-
 package store
 
 import (
@@ -27,8 +24,8 @@ import (
 	"github.com/go-gorp/gorp"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
-	"github.com/primefour/servers/model"
-	"github.com/primefour/servers/utils"
+	"github.com/primefour/xservers/model"
+	"github.com/primefour/xservers/utils"
 )
 
 const (
