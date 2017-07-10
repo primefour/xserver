@@ -1,7 +1,4 @@
-// Copyright (c) 2017-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
-
-package api4
+package api
 
 import (
 	"fmt"
@@ -13,10 +10,10 @@ import (
 	l4g "github.com/alecthomas/log4go"
 	goi18n "github.com/nicksnyder/go-i18n/i18n"
 
-	"github.com/primefour/servers/app"
-	"github.com/primefour/servers/einterfaces"
-	"github.com/primefour/servers/model"
-	"github.com/primefour/servers/utils"
+	"github.com/primefour/xserver/app"
+	"github.com/primefour/xserver/einterfaces"
+	"github.com/primefour/xserver/model"
+	"github.com/primefour/xserver/utils"
 )
 
 type Context struct {
@@ -28,6 +25,13 @@ type Context struct {
 	IpAddress     string
 	Path          string
 	siteURLHeader string
+}
+
+type handler struct {
+	handleFunc     func(*Context, http.ResponseWriter, *http.Request)
+	requireSession bool
+	trustRequester bool
+	requireMfa     bool
 }
 
 func AppHandlerIndependent(h func(*Context, http.ResponseWriter, *http.Request)) http.Handler {
@@ -81,13 +85,6 @@ func ApiSessionRequiredTrustRequester(h func(*Context, http.ResponseWriter, *htt
 		trustRequester: true,
 		requireMfa:     true,
 	}
-}
-
-type handler struct {
-	handleFunc     func(*Context, http.ResponseWriter, *http.Request)
-	requireSession bool
-	trustRequester bool
-	requireMfa     bool
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
