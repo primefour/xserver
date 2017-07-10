@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	l4g "github.com/alecthomas/log4go"
-	"github.com/primefour/servers/model"
 	"github.com/nicksnyder/go-i18n/i18n"
+	"github.com/primefour/xserver/model"
 )
 
 var T i18n.TranslateFunc
@@ -20,8 +20,8 @@ var settings model.LocalizationSettings
 // and assign english while loading server config
 func TranslationsPreInit() {
 	InitTranslationsWithDir("i18n")
-	T = TfuncWithFallback("en")
-	TDefault = TfuncWithFallback("en")
+	T = TfuncWithFallback("zh-CN")
+	TDefault = TfuncWithFallback("zh-CN")
 }
 
 func InitTranslations(localizationSettings model.LocalizationSettings) {

@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"github.com/primefour/xserver/model"
 	"math/rand"
 	"net"
@@ -113,4 +115,11 @@ func RandIntFromRange(r Range) int {
 		return r.Begin
 	}
 	return rand.Intn((r.End-r.Begin)+1) + r.Begin
+}
+
+func HashSha256(text string) string {
+	hash := sha256.New()
+	hash.Write([]byte(text))
+
+	return fmt.Sprintf("%x", hash.Sum(nil))
 }

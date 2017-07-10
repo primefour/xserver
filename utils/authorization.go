@@ -248,28 +248,8 @@ func SetDefaultRolesBasedOnConfig() {
 		)
 	}
 
-	if IsLicensed {
-		switch *Cfg.ServiceSettings.RestrictPostDelete {
-		case model.PERMISSIONS_DELETE_POST_ALL:
-			model.ROLE_CHANNEL_USER.Permissions = append(
-				model.ROLE_CHANNEL_USER.Permissions,
-				model.PERMISSION_DELETE_POST.Id,
-			)
-			model.ROLE_TEAM_ADMIN.Permissions = append(
-				model.ROLE_TEAM_ADMIN.Permissions,
-				model.PERMISSION_DELETE_POST.Id,
-				model.PERMISSION_DELETE_OTHERS_POSTS.Id,
-			)
-			break
-		case model.PERMISSIONS_DELETE_POST_TEAM_ADMIN:
-			model.ROLE_TEAM_ADMIN.Permissions = append(
-				model.ROLE_TEAM_ADMIN.Permissions,
-				model.PERMISSION_DELETE_POST.Id,
-				model.PERMISSION_DELETE_OTHERS_POSTS.Id,
-			)
-			break
-		}
-	} else {
+	switch *Cfg.ServiceSettings.RestrictPostDelete {
+	case model.PERMISSIONS_DELETE_POST_ALL:
 		model.ROLE_CHANNEL_USER.Permissions = append(
 			model.ROLE_CHANNEL_USER.Permissions,
 			model.PERMISSION_DELETE_POST.Id,
@@ -279,7 +259,20 @@ func SetDefaultRolesBasedOnConfig() {
 			model.PERMISSION_DELETE_POST.Id,
 			model.PERMISSION_DELETE_OTHERS_POSTS.Id,
 		)
+		break
+	case model.PERMISSIONS_DELETE_POST_TEAM_ADMIN:
+		model.ROLE_TEAM_ADMIN.Permissions = append(
+			model.ROLE_TEAM_ADMIN.Permissions,
+			model.PERMISSION_DELETE_POST.Id,
+			model.PERMISSION_DELETE_OTHERS_POSTS.Id,
+		)
+		break
 	}
+
+	model.ROLE_CHANNEL_USER.Permissions = append(
+		model.ROLE_CHANNEL_USER.Permissions,
+		model.PERMISSION_DELETE_POST.Id,
+	)
 
 	if Cfg.TeamSettings.EnableTeamCreation {
 		model.ROLE_SYSTEM_USER.Permissions = append(
