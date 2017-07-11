@@ -2,22 +2,20 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	l4g "github.com/alecthomas/log4go"
+	"github.com/primefour/xserver/utils"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	l4g "github.com/alecthomas/log4go"
-	"github.com/primefour/xserver/api"
-	"github.com/primefour/xserver/app"
-	"github.com/primefour/xserver/einterfaces"
-	"github.com/primefour/xserver/model"
-	"github.com/primefour/xserver/utils"
-	"github.com/primefour/xserver/web"
-	"github.com/primefour/xserver/wsapi"
+	//	"github.com/primefour/xserver/api"
+	//	"github.com/primefour/xserver/app"
+	//	"github.com/primefour/xserver/einterfaces"
+	//	"github.com/primefour/xserver/model"
+	//	"github.com/primefour/xserver/web"
+	//	"github.com/primefour/xserver/wsapi"
 )
-
-var MaxNotificationsPerChannelDefault int64 = 1000000
 
 func doLoadConfig(fileName string) (err string) {
 	defer func() {
@@ -167,10 +165,17 @@ func doTokenCleanup() {
 var config_dir string
 
 func init() {
-	flag.StringVar(&config_dir, "config", "./config", "config file for server")
+	flag.StringVar(&config_dir, "config", "./config", "config dir where config file locals for server")
 }
 
 func main() {
+	flag.Parse()
+	lw := l4g.NewConsoleLogWriter()
+	lw.SetFormat("[%D %T] [%L] %M")
+	l4g.AddFilter("stdout", l4g.FINE, lw)
 	fileName := config_dir + "/config.json"
-	runServer(fileName)
+	l4g.Debug("file name is %s ", fileName)
+	fmt.Printf("file name is %s \n", fileName)
+	l4g.Close()
+	//	runServer(fileName)
 }

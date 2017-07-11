@@ -7,17 +7,6 @@ import (
 )
 
 const (
-	CONN_SECURITY_NONE     = ""
-	CONN_SECURITY_PLAIN    = "PLAIN"
-	CONN_SECURITY_TLS      = "TLS"
-	CONN_SECURITY_STARTTLS = "STARTTLS"
-
-	IMAGE_DRIVER_LOCAL = "local"
-	IMAGE_DRIVER_S3    = "amazons3"
-
-	DATABASE_DRIVER_MYSQL    = "mysql"
-	DATABASE_DRIVER_POSTGRES = "postgres"
-
 	PASSWORD_MAXIMUM_LENGTH = 64
 	PASSWORD_MINIMUM_LENGTH = 5
 
@@ -383,27 +372,10 @@ type WebrtcSettings struct {
 
 type Config struct {
 	ServiceSettings      ServiceSettings
-	TeamSettings         TeamSettings
 	SqlSettings          SqlSettings
 	LogSettings          LogSettings
-	PasswordSettings     PasswordSettings
-	FileSettings         FileSettings
-	EmailSettings        EmailSettings
-	RateLimitSettings    RateLimitSettings
-	PrivacySettings      PrivacySettings
-	SupportSettings      SupportSettings
-	GitLabSettings       SSOSettings
-	GoogleSettings       SSOSettings
-	Office365Settings    SSOSettings
-	LdapSettings         LdapSettings
-	ComplianceSettings   ComplianceSettings
 	LocalizationSettings LocalizationSettings
-	SamlSettings         SamlSettings
-	NativeAppSettings    NativeAppSettings
-	ClusterSettings      ClusterSettings
 	MetricsSettings      MetricsSettings
-	AnalyticsSettings    AnalyticsSettings
-	WebrtcSettings       WebrtcSettings
 }
 
 func (o *Config) ToJson() string {
