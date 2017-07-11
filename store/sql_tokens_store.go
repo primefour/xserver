@@ -1,6 +1,3 @@
-// Copyright (c) 2017 Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
-
 package store
 
 import (
@@ -9,7 +6,7 @@ import (
 
 	l4g "github.com/alecthomas/log4go"
 
-	"github.com/primefour/servers/model"
+	"github.com/primefour/xserver/model"
 )
 
 type SqlTokenStore struct {

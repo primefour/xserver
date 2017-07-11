@@ -1,14 +1,11 @@
-// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
-
 package store
 
 import (
 	"strings"
 	"testing"
 
-	"github.com/primefour/servers/model"
-	"github.com/primefour/servers/utils"
+	"github.com/primefour/xserver/model"
+	"github.com/primefour/xserver/utils"
 )
 
 var store Store

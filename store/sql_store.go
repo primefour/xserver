@@ -24,8 +24,8 @@ import (
 	"github.com/go-gorp/gorp"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
-	"github.com/primefour/xservers/model"
-	"github.com/primefour/xservers/utils"
+	"github.com/primefour/xserver/model"
+	"github.com/primefour/xserver/utils"
 )
 
 const (
@@ -130,24 +130,11 @@ func NewSqlStore() Store {
 
 	sqlStore := initConnection()
 
-	sqlStore.team = NewSqlTeamStore(sqlStore)
-	sqlStore.channel = NewSqlChannelStore(sqlStore)
-	sqlStore.post = NewSqlPostStore(sqlStore)
 	sqlStore.user = NewSqlUserStore(sqlStore)
-	sqlStore.audit = NewSqlAuditStore(sqlStore)
-	sqlStore.compliance = NewSqlComplianceStore(sqlStore)
 	sqlStore.session = NewSqlSessionStore(sqlStore)
 	sqlStore.oauth = NewSqlOAuthStore(sqlStore)
 	sqlStore.system = NewSqlSystemStore(sqlStore)
-	sqlStore.webhook = NewSqlWebhookStore(sqlStore)
-	sqlStore.command = NewSqlCommandStore(sqlStore)
-	sqlStore.preference = NewSqlPreferenceStore(sqlStore)
-	sqlStore.license = NewSqlLicenseStore(sqlStore)
 	sqlStore.token = NewSqlTokenStore(sqlStore)
-	sqlStore.emoji = NewSqlEmojiStore(sqlStore)
-	sqlStore.status = NewSqlStatusStore(sqlStore)
-	sqlStore.fileInfo = NewSqlFileInfoStore(sqlStore)
-	sqlStore.reaction = NewSqlReactionStore(sqlStore)
 
 	err := sqlStore.master.CreateTablesIfNotExists()
 	if err != nil {
@@ -158,26 +145,11 @@ func NewSqlStore() Store {
 
 	UpgradeDatabase(sqlStore)
 
-	sqlStore.team.(*SqlTeamStore).CreateIndexesIfNotExists()
-	sqlStore.channel.(*SqlChannelStore).CreateIndexesIfNotExists()
-	sqlStore.post.(*SqlPostStore).CreateIndexesIfNotExists()
 	sqlStore.user.(*SqlUserStore).CreateIndexesIfNotExists()
-	sqlStore.audit.(*SqlAuditStore).CreateIndexesIfNotExists()
-	sqlStore.compliance.(*SqlComplianceStore).CreateIndexesIfNotExists()
 	sqlStore.session.(*SqlSessionStore).CreateIndexesIfNotExists()
 	sqlStore.oauth.(*SqlOAuthStore).CreateIndexesIfNotExists()
 	sqlStore.system.(*SqlSystemStore).CreateIndexesIfNotExists()
-	sqlStore.webhook.(*SqlWebhookStore).CreateIndexesIfNotExists()
-	sqlStore.command.(*SqlCommandStore).CreateIndexesIfNotExists()
-	sqlStore.preference.(*SqlPreferenceStore).CreateIndexesIfNotExists()
-	sqlStore.license.(*SqlLicenseStore).CreateIndexesIfNotExists()
 	sqlStore.token.(*SqlTokenStore).CreateIndexesIfNotExists()
-	sqlStore.emoji.(*SqlEmojiStore).CreateIndexesIfNotExists()
-	sqlStore.status.(*SqlStatusStore).CreateIndexesIfNotExists()
-	sqlStore.fileInfo.(*SqlFileInfoStore).CreateIndexesIfNotExists()
-	sqlStore.reaction.(*SqlReactionStore).CreateIndexesIfNotExists()
-
-	sqlStore.preference.(*SqlPreferenceStore).DeleteUnusedFeatures()
 
 	return sqlStore
 }

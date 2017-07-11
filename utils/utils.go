@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"github.com/primefour/xserver/model"
+	"io/ioutil"
 	"math/rand"
 	"net"
 	"net/http"
@@ -122,4 +123,11 @@ func HashSha256(text string) string {
 	hash.Write([]byte(text))
 
 	return fmt.Sprintf("%x", hash.Sum(nil))
+}
+
+func CloseBody(r *http.Response) {
+	if r.Body != nil {
+		ioutil.ReadAll(r.Body)
+		r.Body.Close()
+	}
 }

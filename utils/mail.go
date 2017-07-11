@@ -69,7 +69,7 @@ func newSMTPClient(conn net.Conn, config *model.Config) (*smtp.Client, *model.Ap
 	return c, nil
 }
 
-func TestConnection(config *model.Config) {
+func TestMailConnection(config *model.Config) {
 	if !config.EmailSettings.SendEmailNotifications {
 		return
 	}

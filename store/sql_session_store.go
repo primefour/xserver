@@ -1,12 +1,9 @@
-// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
-
 package store
 
 import (
 	l4g "github.com/alecthomas/log4go"
-	"github.com/primefour/servers/model"
-	"github.com/primefour/servers/utils"
+	"github.com/primefour/xserver/model"
+	"github.com/primefour/xserver/utils"
 )
 
 type SqlSessionStore struct {

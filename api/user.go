@@ -7,10 +7,10 @@ import (
 	"time"
 
 	l4g "github.com/alecthomas/log4go"
-	"github.com/primefour/servers/app"
-	"github.com/primefour/servers/model"
-	"github.com/primefour/servers/store"
-	"github.com/primefour/servers/utils"
+	"github.com/primefour/xserver/app"
+	"github.com/primefour/xserver/model"
+	"github.com/primefour/xserver/store"
+	"github.com/primefour/xserver/utils"
 )
 
 func InitUser() {

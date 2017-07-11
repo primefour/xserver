@@ -164,12 +164,6 @@ func SaveConfig(fileName string, config *model.Config) *model.AppError {
 	return nil
 }
 
-func EnableConfigFromEnviromentVars() {
-	viper.SetEnvPrefix("xs")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.AutomaticEnv()
-}
-
 func InitializeConfigWatch() {
 	cfgMutex.Lock()
 	defer cfgMutex.Unlock()
@@ -236,6 +230,12 @@ func DisableConfigWatch() {
 	}
 }
 
+func EnableConfigFromEnviromentVars() {
+	viper.SetEnvPrefix("xs")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv()
+}
+
 // LoadConfig will try to search around for the corresponding config file.
 // It will search /tmp/fileName then attempt ./config/fileName,
 // then ../config/fileName and last it will look at fileName
@@ -267,7 +267,7 @@ func LoadConfig(fileName string) {
 	configReadErr := viper.ReadInConfig()
 	if configReadErr != nil {
 		errMsg := T("utils.config.load_config.opening.panic", map[string]interface{}{"Filename": fileName, "Error": configReadErr.Error()})
-		fmt.Fprintln(os.Stderr, errMsg)
+		l4g.Error("%s ", errMsg)
 		os.Exit(1)
 	}
 
@@ -275,16 +275,17 @@ func LoadConfig(fileName string) {
 	unmarshalErr := viper.Unmarshal(&config)
 	if unmarshalErr != nil {
 		errMsg := T("utils.config.load_config.decoding.panic", map[string]interface{}{"Filename": fileName, "Error": unmarshalErr.Error()})
-		fmt.Fprintln(os.Stderr, errMsg)
+		l4g.Error("%s", errMsg)
 		os.Exit(1)
 	}
 
 	CfgFileName = viper.ConfigFileUsed()
 
+	l4g.Debug("use config file is %s ", CfgFileName)
+
 	needSave := len(config.SqlSettings.AtRestEncryptKey) == 0 || len(*config.FileSettings.PublicLinkSalt) == 0 ||
 		len(config.EmailSettings.InviteSalt) == 0
 
-	l4g.Debug("xpanic configure file fail")
 	config.SetDefaults()
 
 	if err := config.IsValid(); err != nil {
@@ -305,14 +306,8 @@ func LoadConfig(fileName string) {
 		panic(T(err.Id))
 	}
 
-	if err := ValidateLdapFilter(&config); err != nil {
-		l4g.Debug("panic configure file fail")
-		panic(T(err.Id))
-	}
-
 	configureLog(&config.LogSettings)
 
-	l4g.Debug("panic configure file fail")
 	if config.FileSettings.DriverName == model.IMAGE_DRIVER_LOCAL {
 		dir := config.FileSettings.Directory
 		if len(dir) > 0 && dir[len(dir)-1:] != "/" {
@@ -326,20 +321,8 @@ func LoadConfig(fileName string) {
 	clientCfgJson, _ := json.Marshal(ClientCfg)
 	ClientCfgHash = fmt.Sprintf("%x", md5.Sum(clientCfgJson))
 
-	// Actions that need to run every time the config is loaded
-	if ldapI := einterfaces.GetLdapInterface(); ldapI != nil {
-		// This restarts the job if nessisary (works for config reloads)
-		ldapI.StartLdapSyncJob()
-	}
-
-	if samlI := einterfaces.GetSamlInterface(); samlI != nil {
-		samlI.ConfigureSP()
-	}
-
-	l4g.Debug("panic configure file fail")
 	SetDefaultRolesBasedOnConfig()
 
-	l4g.Debug("panic configure file fail")
 	SetSiteURL(*Cfg.ServiceSettings.SiteURL)
 }
 

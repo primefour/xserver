@@ -1,6 +1,3 @@
-// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
-
 package store
 
 import (
@@ -8,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/primefour/servers/model"
+	"github.com/primefour/xserver/model"
 )
 
 func TestUserStoreSave(t *testing.T) {

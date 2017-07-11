@@ -1,10 +1,9 @@
 package api
 
 import (
+	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
 const (

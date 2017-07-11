@@ -16,6 +16,22 @@ import (
 	"github.com/primefour/xserver/utils"
 )
 
+const (
+	HEADER_REQUEST_ID         = "X-Request-ID"
+	HEADER_VERSION_ID         = "X-Version-ID"
+	HEADER_CLUSTER_ID         = "X-Cluster-ID"
+	HEADER_ETAG_SERVER        = "ETag"
+	HEADER_ETAG_CLIENT        = "If-None-Match"
+	HEADER_FORWARDED          = "X-Forwarded-For"
+	HEADER_REAL_IP            = "X-Real-IP"
+	HEADER_FORWARDED_PROTO    = "X-Forwarded-Proto"
+	HEADER_TOKEN              = "token"
+	HEADER_BEARER             = "BEARER"
+	HEADER_AUTH               = "Authorization"
+	HEADER_REQUESTED_WITH     = "X-Requested-With"
+	HEADER_REQUESTED_WITH_XML = "XMLHttpRequest"
+)
+
 type Context struct {
 	Session       model.Session
 	Params        *ApiParams
@@ -101,12 +117,12 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	isTokenFromQueryString := false
 
 	// Attempt to parse token out of the header
-	authHeader := r.Header.Get(model.HEADER_AUTH)
-	if len(authHeader) > 6 && strings.ToUpper(authHeader[0:6]) == model.HEADER_BEARER {
+	authHeader := r.Header.Get(HEADER_AUTH)
+	if len(authHeader) > 6 && strings.ToUpper(authHeader[0:6]) == HEADER_BEARER {
 		// Default session token
 		token = authHeader[7:]
 
-	} else if len(authHeader) > 5 && strings.ToLower(authHeader[0:5]) == model.HEADER_TOKEN {
+	} else if len(authHeader) > 5 && strings.ToLower(authHeader[0:5]) == HEADER_TOKEN {
 		// OAuth token
 		token = authHeader[6:]
 	}
@@ -117,7 +133,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			token = cookie.Value
 
 			if h.requireSession && !h.trustRequester {
-				if r.Header.Get(model.HEADER_REQUESTED_WITH) != model.HEADER_REQUESTED_WITH_XML {
+				if r.Header.Get(HEADER_REQUESTED_WITH) != HEADER_REQUESTED_WITH_XML {
 					c.Err = model.NewLocAppError("ServeHTTP", "api.context.session_expired.app_error", nil, "token="+token+" Appears to be a CSRF attempt")
 					token = ""
 				}
@@ -128,13 +144,15 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Attempt to parse token out of the query string
 	if len(token) == 0 {
 		token = r.URL.Query().Get("access_token")
-		isTokenFromQueryString = true
+		if token != "" {
+			isTokenFromQueryString = true
+		}
 	}
 
 	c.SetSiteURLHeader(app.GetProtocol(r) + "://" + r.Host)
 
-	w.Header().Set(model.HEADER_REQUEST_ID, c.RequestId)
-	w.Header().Set(model.HEADER_VERSION_ID, fmt.Sprintf("%v.%v.%v.%v", model.CurrentVersion, model.BuildNumber, utils.ClientCfgHash, utils.IsLicensed))
+	w.Header().Set(HEADER_REQUEST_ID, c.RequestId)
+	w.Header().Set(HEADER_VERSION_ID, fmt.Sprintf("%v.%v", model.CurrentVersion, utils.ClientCfgHash))
 	if einterfaces.GetClusterInterface() != nil {
 		w.Header().Set(model.HEADER_CLUSTER_ID, einterfaces.GetClusterInterface().GetClusterId())
 	}
@@ -168,10 +186,6 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if c.Err == nil && h.requireSession {
 		c.SessionRequired()
-	}
-
-	if c.Err == nil && h.requireMfa {
-		c.MfaRequired()
 	}
 
 	if c.Err == nil {
@@ -228,9 +242,8 @@ func (c *Context) LogAuditWithUserId(userId, extraInfo string) {
 }
 
 func (c *Context) LogError(err *model.AppError) {
-
 	// filter out endless reconnects
-	if c.Path == "/api/v3/users/websocket" && err.StatusCode == 401 || err.Id == "web.check_browser_compatibility.app_error" {
+	if c.Path == "/api/v1/users/websocket" && err.StatusCode == 401 || err.Id == "web.check_browser_compatibility.app_error" {
 		c.LogDebug(err)
 	} else {
 		l4g.Error(utils.TDefault("api.context.log.error"), c.Path, err.Where, err.StatusCode,
@@ -251,41 +264,6 @@ func (c *Context) SessionRequired() {
 	if len(c.Session.UserId) == 0 {
 		c.Err = model.NewAppError("", "api.context.session_expired.app_error", nil, "UserRequired", http.StatusUnauthorized)
 		return
-	}
-}
-
-func (c *Context) MfaRequired() {
-	// Must be licensed for MFA and have it configured for enforcement
-	if !utils.IsLicensed || !*utils.License.Features.MFA || !*utils.Cfg.ServiceSettings.EnableMultifactorAuthentication || !*utils.Cfg.ServiceSettings.EnforceMultifactorAuthentication {
-		return
-	}
-
-	// OAuth integrations are excepted
-	if c.Session.IsOAuth {
-		return
-	}
-
-	if user, err := app.GetUser(c.Session.UserId); err != nil {
-		c.Err = model.NewLocAppError("", "api.context.session_expired.app_error", nil, "MfaRequired")
-		c.Err.StatusCode = http.StatusUnauthorized
-		return
-	} else {
-		// Only required for email and ldap accounts
-		if user.AuthService != "" &&
-			user.AuthService != model.USER_AUTH_SERVICE_EMAIL &&
-			user.AuthService != model.USER_AUTH_SERVICE_LDAP {
-			return
-		}
-
-		// Special case to let user get themself
-		if c.Path == "/api/v4/users/me" {
-			return
-		}
-
-		if !user.MfaActive {
-			c.Err = model.NewAppError("", "api.context.mfa_required.app_error", nil, "MfaRequired", http.StatusForbidden)
-			return
-		}
 	}
 }
 

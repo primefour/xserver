@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	l4g "github.com/alecthomas/log4go"
-	"github.com/primefour/servers/app"
-	"github.com/primefour/servers/model"
-	"github.com/primefour/servers/utils"
+	"github.com/primefour/xserver/app"
+	"github.com/primefour/xserver/model"
+	"github.com/primefour/xserver/utils"
 )
 
 func InitOAuth() {
@@ -35,7 +35,7 @@ func InitOAuth() {
 	BaseRoutes.Root.Handle("/oauth/{service:[A-Za-z0-9]+}/signup", ApiHandler(signupWithOAuth)).Methods("GET")
 
 	// Old endpoints for backwards compatibility, needed to not break SSO for any old setups
-	BaseRoutes.Root.Handle("/api/v3/oauth/{service:[A-Za-z0-9]+}/complete", ApiHandler(completeOAuth)).Methods("GET")
+	BaseRoutes.Root.Handle("/api/v1/oauth/{service:[A-Za-z0-9]+}/complete", ApiHandler(completeOAuth)).Methods("GET")
 	BaseRoutes.Root.Handle("/signup/{service:[A-Za-z0-9]+}/complete", ApiHandler(completeOAuth)).Methods("GET")
 	BaseRoutes.Root.Handle("/login/{service:[A-Za-z0-9]+}/complete", ApiHandler(completeOAuth)).Methods("GET")
 }
