@@ -11,25 +11,8 @@ import (
 	goi18n "github.com/nicksnyder/go-i18n/i18n"
 
 	"github.com/primefour/xserver/app"
-	"github.com/primefour/xserver/einterfaces"
 	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/utils"
-)
-
-const (
-	HEADER_REQUEST_ID         = "X-Request-ID"
-	HEADER_VERSION_ID         = "X-Version-ID"
-	HEADER_CLUSTER_ID         = "X-Cluster-ID"
-	HEADER_ETAG_SERVER        = "ETag"
-	HEADER_ETAG_CLIENT        = "If-None-Match"
-	HEADER_FORWARDED          = "X-Forwarded-For"
-	HEADER_REAL_IP            = "X-Real-IP"
-	HEADER_FORWARDED_PROTO    = "X-Forwarded-Proto"
-	HEADER_TOKEN              = "token"
-	HEADER_BEARER             = "BEARER"
-	HEADER_AUTH               = "Authorization"
-	HEADER_REQUESTED_WITH     = "X-Requested-With"
-	HEADER_REQUESTED_WITH_XML = "XMLHttpRequest"
 )
 
 type Context struct {
@@ -153,9 +136,6 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(HEADER_REQUEST_ID, c.RequestId)
 	w.Header().Set(HEADER_VERSION_ID, fmt.Sprintf("%v.%v", model.CurrentVersion, utils.ClientCfgHash))
-	if einterfaces.GetClusterInterface() != nil {
-		w.Header().Set(model.HEADER_CLUSTER_ID, einterfaces.GetClusterInterface().GetClusterId())
-	}
 
 	w.Header().Set("Content-Type", "application/json")
 	//w.Header().Set("Content-Type", "text/html")
@@ -207,18 +187,6 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(c.Err.StatusCode)
 		w.Write([]byte(c.Err.ToJson()))
 
-		if einterfaces.GetMetricsInterface() != nil {
-			einterfaces.GetMetricsInterface().IncrementHttpError()
-		}
-	}
-
-	if einterfaces.GetMetricsInterface() != nil {
-		einterfaces.GetMetricsInterface().IncrementHttpRequest()
-
-		if r.URL.Path != model.API_URL_SUFFIX+"/users/websocket" {
-			elapsed := float64(time.Since(now)) / float64(time.Second)
-			einterfaces.GetMetricsInterface().ObserveHttpRequestDuration(elapsed)
-		}
 	}
 }
 

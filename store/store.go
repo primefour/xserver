@@ -26,7 +26,6 @@ func Must(sc StoreChannel) interface{} {
 type Store interface {
 	User() UserStore
 	Session() SessionStore
-	OAuth() OAuthStore
 	Token() TokenStore
 	Close()
 	DropAllTables()
@@ -97,27 +96,6 @@ type SessionStore interface {
 	UpdateRoles(userId string, roles string) StoreChannel
 	UpdateDeviceId(id string, deviceId string, expiresAt int64) StoreChannel
 	AnalyticsSessionCount() StoreChannel
-}
-
-type OAuthStore interface {
-	SaveApp(app *model.OAuthApp) StoreChannel
-	UpdateApp(app *model.OAuthApp) StoreChannel
-	GetApp(id string) StoreChannel
-	GetAppByUser(userId string, offset, limit int) StoreChannel
-	GetApps(offset, limit int) StoreChannel
-	GetAuthorizedApps(userId string, offset, limit int) StoreChannel
-	DeleteApp(id string) StoreChannel
-	SaveAuthData(authData *model.AuthData) StoreChannel
-	GetAuthData(code string) StoreChannel
-	RemoveAuthData(code string) StoreChannel
-	PermanentDeleteAuthDataByUser(userId string) StoreChannel
-	SaveAccessData(accessData *model.AccessData) StoreChannel
-	UpdateAccessData(accessData *model.AccessData) StoreChannel
-	GetAccessData(token string) StoreChannel
-	GetAccessDataByUserForApp(userId, clientId string) StoreChannel
-	GetAccessDataByRefreshToken(token string) StoreChannel
-	GetPreviousAccessData(userId, clientId string) StoreChannel
-	RemoveAccessData(token string) StoreChannel
 }
 
 type TokenStore interface {

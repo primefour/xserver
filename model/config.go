@@ -695,54 +695,20 @@ func (o *Config) SetDefaults() {
 		*o.EmailSettings.SkipServerCertificateVerification = false
 	}
 
-	if !IsSafeLink(o.SupportSettings.TermsOfServiceLink) {
-		*o.SupportSettings.TermsOfServiceLink = SUPPORT_SETTINGS_DEFAULT_TERMS_OF_SERVICE_LINK
-	}
-
-	if o.SupportSettings.TermsOfServiceLink == nil {
-		o.SupportSettings.TermsOfServiceLink = new(string)
-		*o.SupportSettings.TermsOfServiceLink = SUPPORT_SETTINGS_DEFAULT_TERMS_OF_SERVICE_LINK
-	}
-
 	if !IsSafeLink(o.SupportSettings.PrivacyPolicyLink) {
 		*o.SupportSettings.PrivacyPolicyLink = ""
-	}
-
-	if o.SupportSettings.PrivacyPolicyLink == nil {
-		o.SupportSettings.PrivacyPolicyLink = new(string)
-		*o.SupportSettings.PrivacyPolicyLink = SUPPORT_SETTINGS_DEFAULT_PRIVACY_POLICY_LINK
 	}
 
 	if !IsSafeLink(o.SupportSettings.AboutLink) {
 		*o.SupportSettings.AboutLink = ""
 	}
 
-	if o.SupportSettings.AboutLink == nil {
-		o.SupportSettings.AboutLink = new(string)
-		*o.SupportSettings.AboutLink = SUPPORT_SETTINGS_DEFAULT_ABOUT_LINK
-	}
-
 	if !IsSafeLink(o.SupportSettings.HelpLink) {
 		*o.SupportSettings.HelpLink = ""
 	}
 
-	if o.SupportSettings.HelpLink == nil {
-		o.SupportSettings.HelpLink = new(string)
-		*o.SupportSettings.HelpLink = SUPPORT_SETTINGS_DEFAULT_HELP_LINK
-	}
-
 	if !IsSafeLink(o.SupportSettings.ReportAProblemLink) {
 		*o.SupportSettings.ReportAProblemLink = ""
-	}
-
-	if o.SupportSettings.ReportAProblemLink == nil {
-		o.SupportSettings.ReportAProblemLink = new(string)
-		*o.SupportSettings.ReportAProblemLink = SUPPORT_SETTINGS_DEFAULT_REPORT_A_PROBLEM_LINK
-	}
-
-	if o.SupportSettings.SupportEmail == nil {
-		o.SupportSettings.SupportEmail = new(string)
-		*o.SupportSettings.SupportEmail = SUPPORT_SETTINGS_DEFAULT_SUPPORT_EMAIL
 	}
 
 	if o.LdapSettings.Enable == nil {
@@ -1031,11 +997,6 @@ func (o *Config) SetDefaults() {
 		*o.SamlSettings.AssertionConsumerServiceURL = ""
 	}
 
-	if o.SamlSettings.LoginButtonText == nil || *o.SamlSettings.LoginButtonText == "" {
-		o.SamlSettings.LoginButtonText = new(string)
-		*o.SamlSettings.LoginButtonText = USER_AUTH_SERVICE_SAML_TEXT
-	}
-
 	if o.SamlSettings.FirstNameAttribute == nil {
 		o.SamlSettings.FirstNameAttribute = new(string)
 		*o.SamlSettings.FirstNameAttribute = SAML_SETTINGS_DEFAULT_FIRST_NAME_ATTRIBUTE
@@ -1069,21 +1030,6 @@ func (o *Config) SetDefaults() {
 	if o.SamlSettings.LocaleAttribute == nil {
 		o.SamlSettings.LocaleAttribute = new(string)
 		*o.SamlSettings.LocaleAttribute = SAML_SETTINGS_DEFAULT_LOCALE_ATTRIBUTE
-	}
-
-	if o.NativeAppSettings.AppDownloadLink == nil {
-		o.NativeAppSettings.AppDownloadLink = new(string)
-		*o.NativeAppSettings.AppDownloadLink = NATIVEAPP_SETTINGS_DEFAULT_APP_DOWNLOAD_LINK
-	}
-
-	if o.NativeAppSettings.AndroidAppDownloadLink == nil {
-		o.NativeAppSettings.AndroidAppDownloadLink = new(string)
-		*o.NativeAppSettings.AndroidAppDownloadLink = NATIVEAPP_SETTINGS_DEFAULT_ANDROID_APP_DOWNLOAD_LINK
-	}
-
-	if o.NativeAppSettings.IosAppDownloadLink == nil {
-		o.NativeAppSettings.IosAppDownloadLink = new(string)
-		*o.NativeAppSettings.IosAppDownloadLink = NATIVEAPP_SETTINGS_DEFAULT_IOS_APP_DOWNLOAD_LINK
 	}
 
 	if o.RateLimitSettings.Enable == nil {

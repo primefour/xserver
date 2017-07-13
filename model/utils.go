@@ -294,11 +294,6 @@ func IsValidChannelIdentifier(s string) bool {
 	if !IsValidAlphaNumHyphenUnderscore(s, true) {
 		return false
 	}
-
-	if len(s) < CHANNEL_NAME_MIN_LENGTH {
-		return false
-	}
-
 	return true
 }
 

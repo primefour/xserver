@@ -431,8 +431,7 @@ func IsValidUserRoles(userRoles string) bool {
 }
 
 func isValidRole(roleId string) bool {
-	_, ok := BuiltInRoles[roleId]
-	return ok
+	return true
 }
 
 // Make sure you acually want to use this function. In context.go there are functions to check permissions

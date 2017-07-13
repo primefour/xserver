@@ -10,14 +10,9 @@ import (
 	l4g "github.com/alecthomas/log4go"
 	"github.com/primefour/xserver/api"
 	"github.com/primefour/xserver/app"
-	"github.com/primefour/xserver/einterfaces"
 	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/utils"
-	"github.com/primefour/xserver/web"
-	"github.com/primefour/xserver/wsapi"
 )
-
-var MaxNotificationsPerChannelDefault int64 = 1000000
 
 func doLoadConfig(fileName string) (err string) {
 	defer func() {
@@ -42,7 +37,6 @@ func runServer(configFile string) {
 	}
 
 	utils.InitTranslations(utils.Cfg.LocalizationSettings)
-	utils.TestMailConnection(utils.Cfg)
 
 	pwd, _ := os.Getwd()
 	l4g.Info(utils.T("mattermost.current_version"), model.CurrentVersion, model.BuildNumber, model.BuildDate, model.BuildHash, model.BuildHashEnterprise)
@@ -85,31 +79,11 @@ func runServer(configFile string) {
 
 	go runTokenCleanupJob()
 
-	if complianceI := einterfaces.GetComplianceInterface(); complianceI != nil {
-		complianceI.StartComplianceDailyJob()
-	}
-
-	if einterfaces.GetClusterInterface() != nil {
-		einterfaces.GetClusterInterface().StartInterNodeCommunication()
-	}
-
-	if einterfaces.GetMetricsInterface() != nil {
-		einterfaces.GetMetricsInterface().StartServer()
-	}
-
 	// wait for kill signal before attempting to gracefully shutdown
 	// the running service
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	<-c
-
-	if einterfaces.GetClusterInterface() != nil {
-		einterfaces.GetClusterInterface().StopInterNodeCommunication()
-	}
-
-	if einterfaces.GetMetricsInterface() != nil {
-		einterfaces.GetMetricsInterface().StopServer()
-	}
 
 	app.StopServer()
 }
@@ -171,6 +145,7 @@ func init() {
 }
 
 func main() {
+	flag.Parse()
 	fileName := config_dir + "/config.json"
 	runServer(fileName)
 }

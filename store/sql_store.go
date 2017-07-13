@@ -66,24 +66,9 @@ type SqlStore struct {
 	master         *gorp.DbMap
 	replicas       []*gorp.DbMap
 	searchReplicas []*gorp.DbMap
-	team           TeamStore
-	channel        ChannelStore
-	post           PostStore
 	user           UserStore
-	audit          AuditStore
-	compliance     ComplianceStore
 	session        SessionStore
-	oauth          OAuthStore
-	system         SystemStore
-	webhook        WebhookStore
-	command        CommandStore
-	preference     PreferenceStore
-	license        LicenseStore
 	token          TokenStore
-	emoji          EmojiStore
-	status         StatusStore
-	fileInfo       FileInfoStore
-	reaction       ReactionStore
 	SchemaVersion  string
 	rrCounter      int64
 	srCounter      int64
@@ -127,30 +112,7 @@ func initConnection() *SqlStore {
 }
 
 func NewSqlStore() Store {
-
 	sqlStore := initConnection()
-
-	sqlStore.user = NewSqlUserStore(sqlStore)
-	sqlStore.session = NewSqlSessionStore(sqlStore)
-	sqlStore.oauth = NewSqlOAuthStore(sqlStore)
-	sqlStore.system = NewSqlSystemStore(sqlStore)
-	sqlStore.token = NewSqlTokenStore(sqlStore)
-
-	err := sqlStore.master.CreateTablesIfNotExists()
-	if err != nil {
-		l4g.Critical(utils.T("store.sql.creating_tables.critical"), err)
-		time.Sleep(time.Second)
-		os.Exit(EXIT_CREATE_TABLE)
-	}
-
-	UpgradeDatabase(sqlStore)
-
-	sqlStore.user.(*SqlUserStore).CreateIndexesIfNotExists()
-	sqlStore.session.(*SqlSessionStore).CreateIndexesIfNotExists()
-	sqlStore.oauth.(*SqlOAuthStore).CreateIndexesIfNotExists()
-	sqlStore.system.(*SqlSystemStore).CreateIndexesIfNotExists()
-	sqlStore.token.(*SqlTokenStore).CreateIndexesIfNotExists()
-
 	return sqlStore
 }
 
@@ -230,17 +192,6 @@ func (ss *SqlStore) TotalSearchDbConnections() int {
 func (ss *SqlStore) GetCurrentSchemaVersion() string {
 	version, _ := ss.GetMaster().SelectStr("SELECT Value FROM Systems WHERE Name='Version'")
 	return version
-}
-
-func (ss *SqlStore) MarkSystemRanUnitTests() {
-	if result := <-ss.System().Get(); result.Err == nil {
-		props := result.Data.(model.StringMap)
-		unitTests := props[model.SYSTEM_RAN_UNIT_TESTS]
-		if len(unitTests) == 0 {
-			systemTests := &model.System{Name: model.SYSTEM_RAN_UNIT_TESTS, Value: "1"}
-			<-ss.System().Save(systemTests)
-		}
-	}
 }
 
 func (ss *SqlStore) DoesTableExist(tableName string) bool {
@@ -632,18 +583,6 @@ func (ss *SqlStore) Close() {
 	}
 }
 
-func (ss *SqlStore) Team() TeamStore {
-	return ss.team
-}
-
-func (ss *SqlStore) Channel() ChannelStore {
-	return ss.channel
-}
-
-func (ss *SqlStore) Post() PostStore {
-	return ss.post
-}
-
 func (ss *SqlStore) User() UserStore {
 	return ss.user
 }
@@ -652,56 +591,8 @@ func (ss *SqlStore) Session() SessionStore {
 	return ss.session
 }
 
-func (ss *SqlStore) Audit() AuditStore {
-	return ss.audit
-}
-
-func (ss *SqlStore) Compliance() ComplianceStore {
-	return ss.compliance
-}
-
-func (ss *SqlStore) OAuth() OAuthStore {
-	return ss.oauth
-}
-
-func (ss *SqlStore) System() SystemStore {
-	return ss.system
-}
-
-func (ss *SqlStore) Webhook() WebhookStore {
-	return ss.webhook
-}
-
-func (ss *SqlStore) Command() CommandStore {
-	return ss.command
-}
-
-func (ss *SqlStore) Preference() PreferenceStore {
-	return ss.preference
-}
-
-func (ss *SqlStore) License() LicenseStore {
-	return ss.license
-}
-
 func (ss *SqlStore) Token() TokenStore {
 	return ss.token
-}
-
-func (ss *SqlStore) Emoji() EmojiStore {
-	return ss.emoji
-}
-
-func (ss *SqlStore) Status() StatusStore {
-	return ss.status
-}
-
-func (ss *SqlStore) FileInfo() FileInfoStore {
-	return ss.fileInfo
-}
-
-func (ss *SqlStore) Reaction() ReactionStore {
-	return ss.reaction
 }
 
 func (ss *SqlStore) DropAllTables() {

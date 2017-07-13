@@ -7,12 +7,6 @@ package model
  **        Create: 2017-07-07 16:26:35
  ** Last Modified: 2017-07-07 16:26:35
  ******************************************************************************/
-import (
-	"fmt"
-	"strconv"
-	"strings"
-)
-
 // This is a list of all the current viersions including any patches.
 // It should be maitained in chronological order with most current
 // release at the front of the list.

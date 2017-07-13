@@ -5,7 +5,6 @@ import (
 	"github.com/gorilla/mux"
 	_ "github.com/nicksnyder/go-i18n/i18n"
 	"github.com/primefour/xserver/app"
-	"github.com/primefour/xserver/einterfaces"
 	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/utils"
 	"net/http"
@@ -65,22 +64,13 @@ func InitApi(full bool) {
 }
 
 func HandleEtag(etag string, routeName string, w http.ResponseWriter, r *http.Request) bool {
-	metrics := einterfaces.GetMetricsInterface()
 	if et := r.Header.Get(model.HEADER_ETAG_CLIENT); len(etag) > 0 {
 		if et == etag {
 			w.Header().Set(model.HEADER_ETAG_SERVER, etag)
 			w.WriteHeader(http.StatusNotModified)
-			if metrics != nil {
-				metrics.IncrementEtagHitCounter(routeName)
-			}
 			return true
 		}
 	}
-
-	if metrics != nil {
-		metrics.IncrementEtagMissCounter(routeName)
-	}
-
 	return false
 }
 

@@ -21,7 +21,6 @@ import (
 	l4g "github.com/alecthomas/log4go"
 	"github.com/disintegration/imaging"
 	"github.com/golang/freetype"
-	"github.com/primefour/xserver/einterfaces"
 	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/store"
 	"github.com/primefour/xserver/utils"
@@ -373,37 +372,6 @@ func GetUserByAuth(authData *string, authService string) (*model.User, *model.Ap
 	}
 }
 
-func GetUserForLogin(loginId string, onlyLdap bool) (*model.User, *model.AppError) {
-	ldapAvailable := *utils.Cfg.LdapSettings.Enable && einterfaces.GetLdapInterface() != nil && utils.IsLicensed && *utils.License.Features.LDAP
-
-	if result := <-Srv.Store.User().GetForLogin(
-		loginId,
-		*utils.Cfg.EmailSettings.EnableSignInWithUsername && !onlyLdap,
-		*utils.Cfg.EmailSettings.EnableSignInWithEmail && !onlyLdap,
-		ldapAvailable,
-	); result.Err != nil && result.Err.Id == "store.sql_user.get_for_login.multiple_users" {
-		// don't fall back to LDAP in this case since we already know there's an LDAP user, but that it shouldn't work
-		result.Err.StatusCode = http.StatusBadRequest
-		return nil, result.Err
-	} else if result.Err != nil {
-		if !ldapAvailable {
-			// failed to find user and no LDAP server to fall back on
-			result.Err.StatusCode = http.StatusBadRequest
-			return nil, result.Err
-		}
-
-		// fall back to LDAP server to see if we can find a user
-		if ldapUser, ldapErr := einterfaces.GetLdapInterface().GetUser(loginId); ldapErr != nil {
-			ldapErr.StatusCode = http.StatusBadRequest
-			return nil, ldapErr
-		} else {
-			return ldapUser, nil
-		}
-	} else {
-		return result.Data.(*model.User), nil
-	}
-}
-
 func GetUsers(offset int, limit int) ([]*model.User, *model.AppError) {
 	if result := <-Srv.Store.User().GetAllProfiles(offset, limit); result.Err != nil {
 		return nil, result.Err
@@ -606,68 +574,6 @@ func sanitizeProfiles(users []*model.User, asAdmin bool) []*model.User {
 	}
 
 	return users
-}
-
-func GenerateMfaSecret(userId string) (*model.MfaSecret, *model.AppError) {
-	mfaInterface := einterfaces.GetMfaInterface()
-	if mfaInterface == nil {
-		return nil, model.NewAppError("generateMfaSecret", "api.user.generate_mfa_qr.not_available.app_error", nil, "", http.StatusNotImplemented)
-	}
-
-	var user *model.User
-	var err *model.AppError
-	if user, err = GetUser(userId); err != nil {
-		return nil, err
-	}
-
-	secret, img, err := mfaInterface.GenerateSecret(user)
-	if err != nil {
-		return nil, err
-	}
-
-	mfaSecret := &model.MfaSecret{Secret: secret, QRCode: b64.StdEncoding.EncodeToString(img)}
-	return mfaSecret, nil
-}
-
-func ActivateMfa(userId, token string) *model.AppError {
-	mfaInterface := einterfaces.GetMfaInterface()
-	if mfaInterface == nil {
-		err := model.NewLocAppError("ActivateMfa", "api.user.update_mfa.not_available.app_error", nil, "")
-		err.StatusCode = http.StatusNotImplemented
-		return err
-	}
-
-	var user *model.User
-	if result := <-Srv.Store.User().Get(userId); result.Err != nil {
-		return result.Err
-	} else {
-		user = result.Data.(*model.User)
-	}
-
-	if len(user.AuthService) > 0 && user.AuthService != model.USER_AUTH_SERVICE_LDAP {
-		return model.NewLocAppError("ActivateMfa", "api.user.activate_mfa.email_and_ldap_only.app_error", nil, "")
-	}
-
-	if err := mfaInterface.Activate(user, token); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func DeactivateMfa(userId string) *model.AppError {
-	mfaInterface := einterfaces.GetMfaInterface()
-	if mfaInterface == nil {
-		err := model.NewLocAppError("DeactivateMfa", "api.user.update_mfa.not_available.app_error", nil, "")
-		err.StatusCode = http.StatusNotImplemented
-		return err
-	}
-
-	if err := mfaInterface.Deactivate(userId); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func CreateProfileImage(username string, userId string) ([]byte, *model.AppError) {

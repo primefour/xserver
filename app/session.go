@@ -1,11 +1,9 @@
 package app
 
 import (
-	"net/http"
-
-	"github.com/primefour/xserver/einterfaces"
 	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/utils"
+	"net/http"
 
 	l4g "github.com/alecthomas/log4go"
 )
@@ -25,7 +23,6 @@ func CreateSession(session *model.Session) (*model.Session, *model.AppError) {
 }
 
 func GetSession(token string) (*model.Session, *model.AppError) {
-	metrics := einterfaces.GetMetricsInterface()
 
 	var session *model.Session
 	if ts, ok := sessionCache.Get(token); ok {
@@ -96,10 +93,6 @@ func RevokeAllSessions(userId string) *model.AppError {
 func ClearSessionCacheForUser(userId string) {
 
 	ClearSessionCacheForUserSkipClusterSend(userId)
-
-	if einterfaces.GetClusterInterface() != nil {
-		einterfaces.GetClusterInterface().ClearSessionCacheForUser(userId)
-	}
 }
 
 func ClearSessionCacheForUserSkipClusterSend(userId string) {

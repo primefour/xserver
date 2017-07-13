@@ -3,14 +3,15 @@ package utils
 import (
 	"crypto/sha256"
 	"fmt"
-	"github.com/primefour/xserver/model"
 	"io/ioutil"
 	"math/rand"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 )
 
 const (
@@ -18,6 +19,22 @@ const (
 	UPPERCASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	NUMBERS           = "0123456789"
 	SYMBOLS           = " !\"\\#$%&'()*+,-./:;<=>?@[]^_`|~"
+)
+
+const (
+	HEADER_REQUEST_ID         = "X-Request-ID"
+	HEADER_VERSION_ID         = "X-Version-ID"
+	HEADER_CLUSTER_ID         = "X-Cluster-ID"
+	HEADER_ETAG_SERVER        = "ETag"
+	HEADER_ETAG_CLIENT        = "If-None-Match"
+	HEADER_FORWARDED          = "X-Forwarded-For"
+	HEADER_REAL_IP            = "X-Real-IP"
+	HEADER_FORWARDED_PROTO    = "X-Forwarded-Proto"
+	HEADER_TOKEN              = "token"
+	HEADER_BEARER             = "BEARER"
+	HEADER_AUTH               = "Authorization"
+	HEADER_REQUESTED_WITH     = "X-Requested-With"
+	HEADER_REQUESTED_WITH_XML = "XMLHttpRequest"
 )
 
 func StringArrayIntersection(arr1, arr2 []string) []string {
@@ -52,10 +69,10 @@ func RemoveDuplicatesFromStringArray(arr []string) []string {
 }
 
 func GetIpAddress(r *http.Request) string {
-	address := r.Header.Get(model.HEADER_FORWARDED)
+	address := r.Header.Get(HEADER_FORWARDED)
 
 	if len(address) == 0 {
-		address = r.Header.Get(model.HEADER_REAL_IP)
+		address = r.Header.Get(HEADER_REAL_IP)
 	}
 
 	if len(address) == 0 {

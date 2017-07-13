@@ -13,7 +13,6 @@ import (
 
 	l4g "github.com/alecthomas/log4go"
 	"github.com/fsnotify/fsnotify"
-	"github.com/primefour/xserver/einterfaces"
 	"github.com/primefour/xserver/model"
 	"github.com/spf13/viper"
 )
@@ -321,8 +320,6 @@ func LoadConfig(fileName string) {
 	clientCfgJson, _ := json.Marshal(ClientCfg)
 	ClientCfgHash = fmt.Sprintf("%x", md5.Sum(clientCfgJson))
 
-	SetDefaultRolesBasedOnConfig()
-
 	SetSiteURL(*Cfg.ServiceSettings.SiteURL)
 }
 
@@ -334,12 +331,6 @@ func getClientConfig(c *model.Config) map[string]string {
 	props := make(map[string]string)
 
 	props["Version"] = model.CurrentVersion
-	props["BuildNumber"] = model.BuildNumber
-	props["BuildDate"] = model.BuildDate
-	props["BuildHash"] = model.BuildHash
-	props["BuildHashEnterprise"] = model.BuildHashEnterprise
-	props["BuildEnterpriseReady"] = model.BuildEnterpriseReady
-
 	props["SiteURL"] = strings.TrimRight(*c.ServiceSettings.SiteURL, "/")
 	props["SiteName"] = c.TeamSettings.SiteName
 	props["EnableTeamCreation"] = strconv.FormatBool(c.TeamSettings.EnableTeamCreation)
@@ -419,71 +410,10 @@ func getClientConfig(c *model.Config) map[string]string {
 	props["DiagnosticId"] = CfgDiagnosticId
 	props["DiagnosticsEnabled"] = strconv.FormatBool(*c.LogSettings.EnableDiagnostics)
 
-	if *License.Features.CustomBrand {
-		props["EnableCustomBrand"] = strconv.FormatBool(*c.TeamSettings.EnableCustomBrand)
-		props["CustomBrandText"] = *c.TeamSettings.CustomBrandText
-		props["CustomDescriptionText"] = *c.TeamSettings.CustomDescriptionText
-	}
-
-	if *License.Features.LDAP {
-		props["EnableLdap"] = strconv.FormatBool(*c.LdapSettings.Enable)
-		props["LdapLoginFieldName"] = *c.LdapSettings.LoginFieldName
-		props["NicknameAttributeSet"] = strconv.FormatBool(*c.LdapSettings.NicknameAttribute != "")
-		props["FirstNameAttributeSet"] = strconv.FormatBool(*c.LdapSettings.FirstNameAttribute != "")
-		props["LastNameAttributeSet"] = strconv.FormatBool(*c.LdapSettings.LastNameAttribute != "")
-	}
-
-	if *License.Features.MFA {
-		props["EnableMultifactorAuthentication"] = strconv.FormatBool(*c.ServiceSettings.EnableMultifactorAuthentication)
-		props["EnforceMultifactorAuthentication"] = strconv.FormatBool(*c.ServiceSettings.EnforceMultifactorAuthentication)
-	}
-
-	if *License.Features.Compliance {
-		props["EnableCompliance"] = strconv.FormatBool(*c.ComplianceSettings.Enable)
-	}
-
-	if *License.Features.SAML {
-		props["EnableSaml"] = strconv.FormatBool(*c.SamlSettings.Enable)
-		props["SamlLoginButtonText"] = *c.SamlSettings.LoginButtonText
-		props["FirstNameAttributeSet"] = strconv.FormatBool(*c.SamlSettings.FirstNameAttribute != "")
-		props["LastNameAttributeSet"] = strconv.FormatBool(*c.SamlSettings.LastNameAttribute != "")
-		props["NicknameAttributeSet"] = strconv.FormatBool(*c.SamlSettings.NicknameAttribute != "")
-	}
-
-	if *License.Features.Cluster {
-		props["EnableCluster"] = strconv.FormatBool(*c.ClusterSettings.Enable)
-	}
-
-	if *License.Features.Cluster {
-		props["EnableMetrics"] = strconv.FormatBool(*c.MetricsSettings.Enable)
-	}
-
-	if *License.Features.GoogleOAuth {
-		props["EnableSignUpWithGoogle"] = strconv.FormatBool(c.GoogleSettings.Enable)
-	}
-
-	if *License.Features.Office365OAuth {
-		props["EnableSignUpWithOffice365"] = strconv.FormatBool(c.Office365Settings.Enable)
-	}
-
-	if *License.Features.PasswordRequirements {
-		props["PasswordMinimumLength"] = fmt.Sprintf("%v", *c.PasswordSettings.MinimumLength)
-		props["PasswordRequireLowercase"] = strconv.FormatBool(*c.PasswordSettings.Lowercase)
-		props["PasswordRequireUppercase"] = strconv.FormatBool(*c.PasswordSettings.Uppercase)
-		props["PasswordRequireNumber"] = strconv.FormatBool(*c.PasswordSettings.Number)
-		props["PasswordRequireSymbol"] = strconv.FormatBool(*c.PasswordSettings.Symbol)
-	}
-
 	return props
 }
 
 func ValidateLdapFilter(cfg *model.Config) *model.AppError {
-	ldapInterface := einterfaces.GetLdapInterface()
-	if *cfg.LdapSettings.Enable && ldapInterface != nil && *cfg.LdapSettings.UserFilter != "" {
-		if err := ldapInterface.ValidateFilter(*cfg.LdapSettings.UserFilter); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 
