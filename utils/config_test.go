@@ -8,6 +8,111 @@ import (
 	"testing"
 )
 
+func SaveConfig(fileName string, config interface{}) *AppError {
+	/*
+		cfgMutex.Lock()
+		defer cfgMutex.Unlock()
+
+		b, err := json.MarshalIndent(config, "", "    ")
+		if err != nil {
+			return model.NewLocAppError("SaveConfig", "utils.config.save_config.saving.app_error",
+				map[string]interface{}{"Filename": fileName}, err.Error())
+		}
+
+		err = ioutil.WriteFile(fileName, b, 0644)
+		if err != nil {
+			return model.NewLocAppError("SaveConfig", "utils.config.save_config.saving.app_error",
+				map[string]interface{}{"Filename": fileName}, err.Error())
+		}
+	*/
+	return nil
+}
+
+func LoadConfig(fileName string) interface{} {
+	self.cfgMutex.Lock()
+	defer self.cfgMutex.Unlock()
+
+	fileNameWithExtension := filepath.Base(fileName)
+	fileExtension := filepath.Ext(fileNameWithExtension)
+	fileDir := filepath.Dir(fileName)
+
+	if len(fileNameWithExtension) > 0 {
+		fileNameOnly := fileNameWithExtension[:len(fileNameWithExtension)-len(fileExtension)]
+		viper.SetConfigName(fileNameOnly)
+	} else {
+		viper.SetConfigName("config")
+	}
+
+	if len(fileDir) > 0 {
+		viper.AddConfigPath(fileDir)
+	}
+
+	viper.SetConfigType("json")
+	viper.AddConfigPath("./config")
+	viper.AddConfigPath("../config")
+	viper.AddConfigPath("../../config")
+	viper.AddConfigPath(".")
+
+	configReadErr := viper.ReadInConfig()
+	if configReadErr != nil {
+		errMsg := T("utils.config.load_config.opening.panic", map[string]interface{}{"Filename": fileName, "Error": configReadErr.Error()})
+		l4g.Error("%s ", errMsg)
+		os.Exit(1)
+	}
+
+	var config model.Config
+	unmarshalErr := viper.Unmarshal(&config)
+	if unmarshalErr != nil {
+		errMsg := T("utils.config.load_config.decoding.panic", map[string]interface{}{"Filename": fileName, "Error": unmarshalErr.Error()})
+		l4g.Error("%s", errMsg)
+		os.Exit(1)
+	}
+
+	CfgFileName = viper.ConfigFileUsed()
+
+	l4g.Debug("use config file is %s ", CfgFileName)
+
+	needSave := len(config.SqlSettings.AtRestEncryptKey) == 0 || len(*config.FileSettings.PublicLinkSalt) == 0 ||
+		len(config.EmailSettings.InviteSalt) == 0
+
+	config.SetDefaults()
+
+	if err := config.IsValid(); err != nil {
+		l4g.Debug("panic configure file fail")
+		panic(T(err.Id))
+	}
+
+	if needSave {
+		cfgMutex.Unlock()
+		if err := SaveConfig(CfgFileName, &config); err != nil {
+			l4g.Warn(T(err.Id))
+		}
+		cfgMutex.Lock()
+	}
+
+	if err := ValidateLocales(&config); err != nil {
+		l4g.Debug("panic configure file fail")
+		panic(T(err.Id))
+	}
+
+	configureLog(&config.LogSettings)
+
+	if config.FileSettings.DriverName == model.IMAGE_DRIVER_LOCAL {
+		dir := config.FileSettings.Directory
+		if len(dir) > 0 && dir[len(dir)-1:] != "/" {
+			config.FileSettings.Directory += "/"
+		}
+	}
+
+	Cfg = &config
+	CfgHash = fmt.Sprintf("%x", md5.Sum([]byte(Cfg.ToJson())))
+	ClientCfg = getClientConfig(Cfg)
+	clientCfgJson, _ := json.Marshal(ClientCfg)
+	ClientCfgHash = fmt.Sprintf("%x", md5.Sum(clientCfgJson))
+
+	SetSiteURL(*Cfg.ServiceSettings.SiteURL)
+}
+
 func TestConfig(t *testing.T) {
 	TranslationsPreInit()
 	LoadConfig("config.json")

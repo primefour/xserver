@@ -22,7 +22,6 @@ const (
 	PUSH_NOTIFY_PROP        = "push"
 	EMAIL_NOTIFY_PROP       = "email"
 
-	DEFAULT_LOCALE          = "zh-CN"
 	USER_AUTH_SERVICE_EMAIL = "email"
 
 	USER_EMAIL_MAX_LENGTH     = 128
