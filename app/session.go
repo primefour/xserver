@@ -1,11 +1,10 @@
 package app
 
 import (
+	l4g "github.com/alecthomas/log4go"
 	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/utils"
 	"net/http"
-
-	l4g "github.com/alecthomas/log4go"
 )
 
 var sessionCache *utils.Cache = utils.NewLru(model.SESSION_CACHE_SIZE)
@@ -27,13 +26,7 @@ func GetSession(token string) (*model.Session, *model.AppError) {
 	var session *model.Session
 	if ts, ok := sessionCache.Get(token); ok {
 		session = ts.(*model.Session)
-		if metrics != nil {
-			metrics.IncrementMemCacheHitCounterSession()
-		}
 	} else {
-		if metrics != nil {
-			metrics.IncrementMemCacheMissCounterSession()
-		}
 	}
 
 	if session == nil {
@@ -74,14 +67,13 @@ func RevokeAllSessions(userId string) *model.AppError {
 
 		for _, session := range sessions {
 			if session.IsOAuth {
-				RevokeAccessToken(session.Token)
+
 			} else {
 				if result := <-Srv.Store.Session().Remove(session.Id); result.Err != nil {
 					return result.Err
 				}
 			}
 
-			RevokeWebrtcToken(session.Id)
 		}
 	}
 
@@ -106,8 +98,6 @@ func ClearSessionCacheForUserSkipClusterSend(userId string) {
 			}
 		}
 	}
-
-	InvalidateWebConnSessionCacheForUser(userId)
 
 }
 
@@ -149,16 +139,12 @@ func RevokeSessionById(sessionId string) *model.AppError {
 
 func RevokeSession(session *model.Session) *model.AppError {
 	if session.IsOAuth {
-		if err := RevokeAccessToken(session.Token); err != nil {
-			return err
-		}
 	} else {
 		if result := <-Srv.Store.Session().Remove(session.Id); result.Err != nil {
 			return result.Err
 		}
 	}
 
-	RevokeWebrtcToken(session.Id)
 	ClearSessionCacheForUser(session.UserId)
 
 	return nil

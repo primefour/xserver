@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"time"
+	//	"time"
 
 	l4g "github.com/alecthomas/log4go"
 	goi18n "github.com/nicksnyder/go-i18n/i18n"
@@ -87,7 +87,7 @@ func ApiSessionRequiredTrustRequester(h func(*Context, http.ResponseWriter, *htt
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	now := time.Now()
+	//	now := time.Now()
 	l4g.Debug("%v - %v", r.Method, r.URL.Path)
 
 	c := &Context{}
@@ -100,12 +100,12 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	isTokenFromQueryString := false
 
 	// Attempt to parse token out of the header
-	authHeader := r.Header.Get(HEADER_AUTH)
-	if len(authHeader) > 6 && strings.ToUpper(authHeader[0:6]) == HEADER_BEARER {
+	authHeader := r.Header.Get(utils.HEADER_AUTH)
+	if len(authHeader) > 6 && strings.ToUpper(authHeader[0:6]) == utils.HEADER_BEARER {
 		// Default session token
 		token = authHeader[7:]
 
-	} else if len(authHeader) > 5 && strings.ToLower(authHeader[0:5]) == HEADER_TOKEN {
+	} else if len(authHeader) > 5 && strings.ToLower(authHeader[0:5]) == utils.HEADER_TOKEN {
 		// OAuth token
 		token = authHeader[6:]
 	}
@@ -116,7 +116,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			token = cookie.Value
 
 			if h.requireSession && !h.trustRequester {
-				if r.Header.Get(HEADER_REQUESTED_WITH) != HEADER_REQUESTED_WITH_XML {
+				if r.Header.Get(utils.HEADER_REQUESTED_WITH) != utils.HEADER_REQUESTED_WITH_XML {
 					c.Err = model.NewLocAppError("ServeHTTP", "api.context.session_expired.app_error", nil, "token="+token+" Appears to be a CSRF attempt")
 					token = ""
 				}
@@ -132,10 +132,8 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	c.SetSiteURLHeader(app.GetProtocol(r) + "://" + r.Host)
-
-	w.Header().Set(HEADER_REQUEST_ID, c.RequestId)
-	w.Header().Set(HEADER_VERSION_ID, fmt.Sprintf("%v.%v", model.CurrentVersion, utils.ClientCfgHash))
+	w.Header().Set(utils.HEADER_REQUEST_ID, c.RequestId)
+	w.Header().Set(utils.HEADER_VERSION_ID, fmt.Sprintf("%v.%v", model.CurrentVersion, utils.ClientCfgHash))
 
 	w.Header().Set("Content-Type", "application/json")
 	//w.Header().Set("Content-Type", "text/html")
@@ -191,22 +189,10 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Context) LogAudit(extraInfo string) {
-	audit := &model.Audit{UserId: c.Session.UserId, IpAddress: c.IpAddress, Action: c.Path, ExtraInfo: extraInfo, SessionId: c.Session.Id}
-	if r := <-app.Srv.Store.Audit().Save(audit); r.Err != nil {
-		c.LogError(r.Err)
-	}
 }
 
 func (c *Context) LogAuditWithUserId(userId, extraInfo string) {
 
-	if len(c.Session.UserId) > 0 {
-		extraInfo = strings.TrimSpace(extraInfo + " session_user=" + c.Session.UserId)
-	}
-
-	audit := &model.Audit{UserId: userId, IpAddress: c.IpAddress, Action: c.Path, ExtraInfo: extraInfo, SessionId: c.Session.Id}
-	if r := <-app.Srv.Store.Audit().Save(audit); r.Err != nil {
-		c.LogError(r.Err)
-	}
 }
 
 func (c *Context) LogError(err *model.AppError) {
@@ -225,7 +211,7 @@ func (c *Context) LogDebug(err *model.AppError) {
 }
 
 func (c *Context) IsSystemAdmin() bool {
-	return app.SessionHasPermissionTo(c.Session, model.PERMISSION_MANAGE_SYSTEM)
+	return false
 }
 
 func (c *Context) SessionRequired() {
@@ -264,11 +250,6 @@ func NewInvalidUrlParamError(parameter string) *model.AppError {
 	err := model.NewLocAppError("Context", "api.context.invalid_url_param.app_error", map[string]interface{}{"Name": parameter}, "")
 	err.StatusCode = http.StatusBadRequest
 	return err
-}
-
-func (c *Context) SetPermissionError(permission *model.Permission) {
-	c.Err = model.NewLocAppError("Permissions", "api.context.permissions.app_error", nil, "userId="+c.Session.UserId+", "+"permission="+permission.Id)
-	c.Err.StatusCode = http.StatusForbidden
 }
 
 func (c *Context) SetSiteURLHeader(url string) {
@@ -388,11 +369,6 @@ func (c *Context) RequireTeamName() *Context {
 	if c.Err != nil {
 		return c
 	}
-
-	if !model.IsValidTeamName(c.Params.TeamName) {
-		c.SetInvalidUrlParam("team_name")
-	}
-
 	return c
 }
 

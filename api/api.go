@@ -54,19 +54,13 @@ func InitApi(full bool) {
 
 	BaseRoutes.System = BaseRoutes.ApiRoot.PathPrefix("/system").Subrouter()
 
-	InitUser()
-	InitSystem()
-	InitStatus()
-	InitOAuth()
 	utils.InitHTML()
-
-	app.InitEmailBatching()
 }
 
 func HandleEtag(etag string, routeName string, w http.ResponseWriter, r *http.Request) bool {
-	if et := r.Header.Get(model.HEADER_ETAG_CLIENT); len(etag) > 0 {
+	if et := r.Header.Get(utils.HEADER_ETAG_CLIENT); len(etag) > 0 {
 		if et == etag {
-			w.Header().Set(model.HEADER_ETAG_SERVER, etag)
+			w.Header().Set(utils.HEADER_ETAG_SERVER, etag)
 			w.WriteHeader(http.StatusNotModified)
 			return true
 		}
@@ -87,7 +81,4 @@ func Handle404(w http.ResponseWriter, r *http.Request) {
 }
 
 func ReturnStatusOK(w http.ResponseWriter) {
-	m := make(map[string]string)
-	m[model.STATUS] = model.STATUS_OK
-	w.Write([]byte(model.MapToJson(m)))
 }

@@ -2,16 +2,14 @@ package main
 
 import (
 	"flag"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
+	"fmt"
 	l4g "github.com/alecthomas/log4go"
 	"github.com/primefour/xserver/api"
 	"github.com/primefour/xserver/app"
-	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/utils"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func doLoadConfig(fileName string) (err string) {
@@ -38,16 +36,7 @@ func runServer(configFile string) {
 
 	utils.InitTranslations(utils.Cfg.LocalizationSettings)
 
-	pwd, _ := os.Getwd()
-	l4g.Info(utils.T("mattermost.current_version"), model.CurrentVersion, model.BuildNumber, model.BuildDate, model.BuildHash, model.BuildHashEnterprise)
-	l4g.Info(utils.T("mattermost.entreprise_enabled"), model.BuildEnterpriseReady)
-	l4g.Info(utils.T("mattermost.working_dir"), pwd)
-	l4g.Info(utils.T("mattermost.config_file"), utils.FindConfigFile(configFileLocation))
-
-	// Enable developer settings if this is a "dev" build
-	if model.BuildNumber == "dev" {
-		*utils.Cfg.ServiceSettings.EnableDeveloper = true
-	}
+	//pwd, _ := os.Getwd()
 
 	app.NewServer()
 	app.InitStores()
@@ -59,18 +48,7 @@ func runServer(configFile string) {
 		utils.Cfg.SqlSettings.DataSourceReplicas = utils.Cfg.SqlSettings.DataSourceReplicas[:1]
 	}
 
-	utils.Cfg.TeamSettings.MaxNotificationsPerChannel = &MaxNotificationsPerChannelDefault
-
-	app.ReloadConfig()
-
-	resetStatuses()
-
 	app.StartServer()
-
-	// If we allow testing then listen for manual testing URL hits
-	if utils.Cfg.ServiceSettings.EnableTesting {
-		manualtesting.InitManualTesting()
-	}
 
 	setDiagnosticId()
 	utils.RegenerateClientConfig()
@@ -90,48 +68,26 @@ func runServer(configFile string) {
 
 func runSecurityJob() {
 	doSecurity()
-	model.CreateRecurringTask("Security", doSecurity, time.Hour*4)
 }
 
 func runDiagnosticsJob() {
 	doDiagnostics()
-	model.CreateRecurringTask("Diagnostics", doDiagnostics, time.Hour*24)
 }
 
 func runTokenCleanupJob() {
 	doTokenCleanup()
-	model.CreateRecurringTask("Token Cleanup", doTokenCleanup, time.Hour*1)
 }
 
 func resetStatuses() {
-	if result := <-app.Srv.Store.Status().ResetAll(); result.Err != nil {
-		l4g.Error(utils.T("mattermost.reset_status.error"), result.Err.Error())
-	}
 }
 
 func setDiagnosticId() {
-	if result := <-app.Srv.Store.System().Get(); result.Err == nil {
-		props := result.Data.(model.StringMap)
-
-		id := props[model.SYSTEM_DIAGNOSTIC_ID]
-		if len(id) == 0 {
-			id = model.NewId()
-			systemId := &model.System{Name: model.SYSTEM_DIAGNOSTIC_ID, Value: id}
-			<-app.Srv.Store.System().Save(systemId)
-		}
-
-		utils.CfgDiagnosticId = id
-	}
 }
 
 func doSecurity() {
-	app.DoSecurityUpdateCheck()
 }
 
 func doDiagnostics() {
-	if *utils.Cfg.LogSettings.EnableDiagnostics {
-		app.SendDailyDiagnostics()
-	}
 }
 
 func doTokenCleanup() {

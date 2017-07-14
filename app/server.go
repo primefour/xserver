@@ -20,10 +20,9 @@ import (
 )
 
 type Server struct {
-	Store           store.Store
-	WebSocketRouter *WebSocketRouter
-	Router          *mux.Router
-	GracefulServer  *graceful.Server
+	Store          store.Store
+	Router         *mux.Router
+	GracefulServer *graceful.Server
 }
 
 var allowedMethods []string = []string{
