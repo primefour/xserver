@@ -16,8 +16,10 @@ var fileWatcher *fsnotify.Watcher
 var mutex sync.Mutex = sync.Mutex{}
 var fileNameMap map[string]ConfigUpdateFpn = map[string]ConfigUpdateFpn{}
 var dirMap map[string]int = map[string]int{}
+var watcherNotifyOnce = sync.Once{}
 
 func once_monitor() {
+	go WatcherNotify()
 }
 
 func EnableConfigFromEnviromentVars() {
@@ -76,6 +78,7 @@ func AddConfigWatch(file string, updateFpn ConfigUpdateFpn) {
 		}
 	}
 	fileNameMap[file] = updateFpn
+	watcherNotifyOnce.Do(once_monitor)
 }
 
 func RemoveConfigWatch(file string) {

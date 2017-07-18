@@ -21,6 +21,23 @@ type ConfigIntf interface {
 	SetDefault(config interface{}) interface{}   //set default after verify
 }
 
+type XConfig struct {
+	IsWatch    bool
+	FileDir    string //config file dir
+	AppName    string //app name and config name is appname.json
+	ActivePath string //actually use by server
+	Intf       ConfigIntf
+}
+
+var ConfigInterfaceMap = map[string]XConfig{}
+
+func onUpdateConfig(file string) {
+	xconfig, ok := ConfigInterfaceMap[file]
+	if ok {
+		LoadConfig(xconfig)
+	}
+}
+
 func LoadConfig(config *XConfig) (interface{}, error) {
 	if config == nil {
 		return l4g.Error(fmt.Sprintf("fail to load config for config is nil "))
@@ -46,14 +63,6 @@ func findConfigFile(fileName string) string {
 	}
 
 	return fileName
-}
-
-type XConfig struct {
-	IsWatch    bool
-	FileDir    string //config file dir
-	AppName    string //app name and config name is appname.json
-	ActivePath string //actually use by server
-	Intf       ConfigIntf
 }
 
 func NewXConfig(app, dir, isW, intf ConfigIntf) (*XConfig, error) {
