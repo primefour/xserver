@@ -37,12 +37,6 @@ func LoadConfig(config *XConfig) (interface{}, error) {
 	return config.Intf.SetDefault(config)
 }
 
-func EnableConfigFromEnviromentVars() {
-	viper.SetEnvPrefix("xs")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.AutomaticEnv()
-}
-
 //default is ./config/
 func findConfigFile(fileName string) string {
 	if _, err := os.Stat("./config/" + fileName); err == nil {
@@ -150,25 +144,5 @@ func (self *XConfig) initializeConfigWatch() {
 				}
 			}
 		}()
-	}
-}
-
-func (self *XConfig) EnableConfigWatch() {
-	self.mutex.Lock()
-	defer self.mutex.Unlock()
-	if self.watcher != nil {
-		configDir, _ := filepath.Split(self.ActivePath)
-		if self.watcher != nil {
-			self.watcher.Add(configDir)
-		}
-	}
-}
-
-func (self *XConfig) DisableConfigWatch() {
-	self.mutex.Lock()
-	defer self.mutex.Unlock()
-	if self.watcher != nil {
-		configDir, _ := filepath.Split(self.ActivePath)
-		self.watcher.Remove(configDir)
 	}
 }

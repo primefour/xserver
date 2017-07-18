@@ -113,6 +113,19 @@ func LoadConfig(fileName string) interface{} {
 	SetSiteURL(*Cfg.ServiceSettings.SiteURL)
 }
 
+/*
+	if configReadErr := viper.ReadInConfig(); configReadErr == nil {
+		xj, err := self.Intf.LoadConfig(self)
+		if err == nil {
+			self.Intf.UpdateConfgi(xj)
+		} else {
+			l4g.Error(fmt.Sprintf("Failed to read while watching config file"))
+		}
+	} else {
+		l4g.Error(fmt.Sprintf("Failed to read while watching config file at %v with err=%v", cfn, configReadErr.Error()))
+	}
+*/
+
 func TestConfig(t *testing.T) {
 	TranslationsPreInit()
 	LoadConfig("config.json")
