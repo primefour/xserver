@@ -16,11 +16,9 @@ import (
 )
 
 type ConfigIntf interface {
-	SaveConfig(fileName string, config interface{}) error //backup config
-	LoadConfig(fileName string) (interface{}, error)      //load config from file
-	VerifyConfig(config interface{}) bool                 //verify config file is correct
-	SetDefault(config interface{}) interface{}            //set default after verify
-	UpdateConfig(config interface{})                      //fnotify to update config
+	LoadConfig(buff []byte) (interface{}, error) //load config from file
+	VerifyConfig(config interface{}) bool        //verify config file is correct
+	SetDefault(config interface{}) interface{}   //set default after verify
 }
 
 func LoadConfig(config *XConfig) (interface{}, error) {
@@ -51,26 +49,23 @@ func findConfigFile(fileName string) string {
 }
 
 type XConfig struct {
-	mutex      sync.Mutex        //mutex for loading config file
-	watcher    *fsnotify.Watcher //watcher for config file
-	isWatch    bool
-	FilePath   string //config file path
+	IsWatch    bool
+	FileDir    string //config file dir
 	AppName    string //app name and config name is appname.json
 	ActivePath string //actually use by server
 	Intf       ConfigIntf
 }
 
-func NewXConfig(app, filePath, isW) (*XConfig, error) {
+func NewXConfig(app, dir, isW, intf ConfigIntf) (*XConfig, error) {
 	xc = new(XConfig{
-		isWatch:  isW,
+		IsWatch:  isW,
 		AppName:  app,
-		FilePath: filePath,
+		FilePath: dir,
+		Intf:     intf,
 	})
-
 	if !xc.checkExist() {
 		return nil, l4g.Error(fmt.Sprintf("fail to load config for config file not exist"))
 	}
-	xc.initializeConfigWatch()
 	return xc, nil
 }
 
@@ -100,49 +95,4 @@ func (self *XConfig) checkExist() bool {
 		}
 	}
 	return false
-}
-
-func (self *XConfig) initializeConfigWatch() {
-	self.mutex.Lock()
-	defer self.mutex.Unlock()
-
-	if !self.isWatch {
-		return
-	}
-
-	if self.watcher == nil {
-		var err error
-		self.watcher, err = fsnotify.NewWatcher()
-		if err != nil {
-			l4g.Error(fmt.Sprintf("Failed to watch config file at %v with err=%v", self.ActivePath, err.Error()))
-		}
-
-		go func() {
-			configFile := self.ActivePath
-			for {
-				select {
-				case event := <-self.watcher.Events:
-					// we only care about the config file
-					l4g.Info(fmt.Sprintf("notify file name %s ", event.Name))
-					if filepath.Clean(event.Name) == configFile {
-						if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create {
-							l4g.Info(fmt.Sprintf("Config file watcher detected a change reloading %v", configFile))
-							if configReadErr := viper.ReadInConfig(); configReadErr == nil {
-								xj, err := self.Intf.LoadConfig(self)
-								if err == nil {
-									self.Intf.UpdateConfgi(xj)
-								} else {
-									l4g.Error(fmt.Sprintf("Failed to read while watching config file"))
-								}
-							} else {
-								l4g.Error(fmt.Sprintf("Failed to read while watching config file at %v with err=%v", configFile, configReadErr.Error()))
-							}
-						}
-					}
-				case err := <-self.watcher.Errors:
-					l4g.Error(fmt.Sprintf("Failed while watching config file at %v with err=%v", configFile, err.Error()))
-				}
-			}
-		}()
-	}
 }

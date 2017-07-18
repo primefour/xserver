@@ -17,6 +17,9 @@ var mutex sync.Mutex = sync.Mutex{}
 var fileNameMap map[string]ConfigUpdateFpn = map[string]ConfigUpdateFpn{}
 var dirMap map[string]int = map[string]int{}
 
+func once_monitor() {
+}
+
 func EnableConfigFromEnviromentVars() {
 	viper.SetEnvPrefix("xs")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
