@@ -10,24 +10,26 @@ import (
 )
 
 type ConfigTest struct {
-	config1 int    `json:"Config1"`
-	config2 string `json:"Config2"`
-	config3 bool   `json:"Config3"`
-	config4 string `json:"Config4"`
+	Configx int    `json:"Config1"`
+	Configy string `json:"Config2"`
+	Configz bool   `json:"Config3"`
+	Configi string `json:"Config4"`
 }
 
 var configTest = &ConfigTest{
-	config1: 2,
-	config2: "hello world",
-	config3: true,
-	config4: "true",
+	Configx: 2,
+	Configy: "hello world",
+	Configz: true,
+	Configi: "true",
 }
+
+var configTest2 = &ConfigTest{}
 
 func configTestParser(buff []byte) {
 	x := string(buff)
 	l4g.Info(fmt.Sprintf("get a config buff is %s ", x))
-	//err := json.Unmarshal(buff, configTest)
-	//l4g.Info(fmt.Sprintf("get a config is %v %v ", configTest, err))
+	err := json.Unmarshal(buff, configTest2)
+	l4g.Info(fmt.Sprintf("get a config is %v %v ", configTest, err))
 
 }
 
@@ -45,7 +47,7 @@ func TestConfig(t *testing.T) {
 	}
 	strc := string(buff)
 	l4g.Info("buff info %s ", strc)
-	ferr := ioutil.WriteFile("./world.json", buff, 0664)
+	ferr := ioutil.WriteFile("/home/crazyhorse/go/testGo/src/github.com/primefour/xserver/world.json", buff, 0664)
 	if ferr != nil {
 		t.Error("write file error %v ", err)
 	}
