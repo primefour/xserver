@@ -13,7 +13,7 @@ import (
 type ConfigUpdateFpn func(file string)
 
 var fileWatcher *fsnotify.Watcher
-var mutex sync.Mutex = sync.Mutex{}
+var watcher_mutex sync.Mutex = sync.Mutex{}
 var fileNameMap map[string]ConfigUpdateFpn = map[string]ConfigUpdateFpn{}
 var dirMap map[string]int = map[string]int{}
 var watcherNotifyOnce = sync.Once{}
@@ -37,6 +37,10 @@ func init() {
 		l4g.Error("create config file watcher fail")
 		return
 	}
+}
+
+func watcherOnce() {
+	go WatcherNotify()
 }
 
 func WatcherNotify() {
@@ -65,8 +69,8 @@ func WatcherNotify() {
 }
 
 func AddConfigWatch(file string, updateFpn ConfigUpdateFpn) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	watcher_mutex.Lock()
+	defer watcher_mutex.Unlock()
 	if fileWatcher != nil {
 		configDir, _ := filepath.Split(file)
 		_, ok := dirMap[configDir]
@@ -78,12 +82,12 @@ func AddConfigWatch(file string, updateFpn ConfigUpdateFpn) {
 		}
 	}
 	fileNameMap[file] = updateFpn
-	watcherNotifyOnce.Do(once_monitor)
+	onceNotifyInit.Do(watcherOnce)
 }
 
 func RemoveConfigWatch(file string) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	watcher_mutex.Lock()
+	defer watcher_mutex.Unlock()
 	if fileWatcher != nil {
 		configDir, _ := filepath.Split(file)
 		value, ok := dirMap[configDir]
