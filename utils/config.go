@@ -62,7 +62,6 @@ func NewXConfig(app, dir string, isW bool, parser ConfigParserFpn) (*XConfig, er
 		FileDir: dir,
 		Parser:  parser,
 	}
-
 	if !xc.checkExist() {
 		return nil, l4g.Error(fmt.Sprintf("fail to load config for config file not exist"))
 	}

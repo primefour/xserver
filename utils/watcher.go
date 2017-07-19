@@ -16,11 +16,7 @@ var fileWatcher *fsnotify.Watcher
 var watcher_mutex sync.Mutex = sync.Mutex{}
 var fileNameMap map[string]ConfigUpdateFpn = map[string]ConfigUpdateFpn{}
 var dirMap map[string]int = map[string]int{}
-var watcherNotifyOnce = sync.Once{}
-
-func once_monitor() {
-	go WatcherNotify()
-}
+var onceNotifyInit = sync.Once{}
 
 func EnableConfigFromEnviromentVars() {
 	viper.SetEnvPrefix("xs")
