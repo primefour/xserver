@@ -7,11 +7,6 @@ import (
 )
 
 const (
-	CONN_SECURITY_NONE     = ""
-	CONN_SECURITY_PLAIN    = "PLAIN"
-	CONN_SECURITY_TLS      = "TLS"
-	CONN_SECURITY_STARTTLS = "STARTTLS"
-
 	IMAGE_DRIVER_LOCAL = "local"
 	IMAGE_DRIVER_S3    = "amazons3"
 

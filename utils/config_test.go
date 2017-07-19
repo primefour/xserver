@@ -29,14 +29,16 @@ func configTestParser(buff []byte) {
 	x := string(buff)
 	l4g.Info(fmt.Sprintf("get a config buff is %s ", x))
 	err := json.Unmarshal(buff, configTest2)
-	l4g.Info(fmt.Sprintf("get a config is %v %v ", configTest, err))
+	l4g.Info(fmt.Sprintf("get a config is %v %v ", configTest2, err))
 
 }
+
+var testpwd = "/home/crazyhorse/CodeWork/GoWorkSpace/case/src/github.com/primefour/xserver/"
 
 func TestConfig(t *testing.T) {
 	sg := sync.WaitGroup{}
 	sg.Add(1)
-	_, err := NewXConfig("hello", "/home/crazyhorse/go/testGo/src/github.com/primefour/xserver", true, configTestParser)
+	_, err := NewXConfig("hello", testpwd, true, configTestParser)
 	if err != nil {
 		t.Error(" fail for new Xconfig ")
 	}
@@ -47,7 +49,7 @@ func TestConfig(t *testing.T) {
 	}
 	strc := string(buff)
 	l4g.Info("buff info %s ", strc)
-	ferr := ioutil.WriteFile("/home/crazyhorse/go/testGo/src/github.com/primefour/xserver/world.json", buff, 0664)
+	ferr := ioutil.WriteFile(testpwd+"world.json", buff, 0664)
 	if ferr != nil {
 		t.Error("write file error %v ", err)
 	}
