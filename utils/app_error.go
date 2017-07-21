@@ -1,20 +1,11 @@
 package utils
 
 import (
-	"bytes"
-	"crypto/rand"
-	"encoding/base32"
 	"encoding/json"
-	"fmt"
 	goi18n "github.com/nicksnyder/go-i18n/i18n"
-	"github.com/pborman/uuid"
 	"io"
 	"io/ioutil"
-	"net/mail"
-	"net/url"
-	"regexp"
 	"strings"
-	"time"
 )
 
 type AppError struct {
