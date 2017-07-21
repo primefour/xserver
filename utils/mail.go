@@ -77,7 +77,6 @@ func TestMailConnection(username, password, server, port, ctype string, tlsconfi
 		l4g.Error("utils.mail.test.configured.error", err1.Message, err1.DetailedError)
 		return
 	}
-	defer conn.Close()
 	c, err2 := newSMTPClient(conn, username, password, server, port, ctype, tlsconfig)
 
 	if err2 != nil {
@@ -100,7 +99,6 @@ func GetMailClient(username, password, server, port, ctype string, tlsconfig *tl
 		l4g.Error("utils.mail.test.configured.error", err1.Message, err1.DetailedError)
 		return nil, err1
 	}
-	//defer conn.Close()
 
 	fmt.Printf("sign on server \n")
 	c, err2 := newSMTPClient(conn, username, password, server, port, ctype, tlsconfig)
