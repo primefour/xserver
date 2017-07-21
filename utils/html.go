@@ -2,12 +2,11 @@ package utils
 
 import (
 	"bytes"
-	"html/template"
-	"net/http"
-
 	l4g "github.com/alecthomas/log4go"
 	"github.com/fsnotify/fsnotify"
 	"github.com/nicksnyder/go-i18n/i18n"
+	"html/template"
+	"net/http"
 )
 
 // Global storage for templates
@@ -29,7 +28,6 @@ func InitHTMLWithDir(dir string) {
 	if htmlTemplates != nil {
 		return
 	}
-
 	templatesDir := FindDir(dir)
 	l4g.Debug(T("api.api.init.parsing_templates.debug"), templatesDir)
 	var err error
@@ -81,17 +79,10 @@ func (t *HTMLTemplate) addDefaultProps() {
 	} else {
 		localT = T
 	}
-
 	t.Props["Footer"] = localT("api.templates.email_footer")
-
-	if *Cfg.EmailSettings.FeedbackOrganization != "" {
-		t.Props["Organization"] = localT("api.templates.email_organization") + *Cfg.EmailSettings.FeedbackOrganization
-	} else {
-		t.Props["Organization"] = ""
-	}
-
+	t.Props["Organization"] = localT("api.templates.email_organization")
 	t.Html["EmailInfo"] = template.HTML(localT("api.templates.email_info",
-		map[string]interface{}{"SupportEmail": Cfg.SupportSettings.SupportEmail, "SiteName": Cfg.TeamSettings.SiteName}))
+		map[string]interface{}{"SupportEmail": "primefour@163.com", "SiteName": "www.fpbbc.com"}))
 }
 
 func (t *HTMLTemplate) Render() string {

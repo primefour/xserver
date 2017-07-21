@@ -22,7 +22,6 @@ func DebugReader(reader io.Reader, message string) (io.Reader, error) {
 		}
 
 		reader = bytes.NewReader(content)
-
 		return message + string(content)
 	})
 

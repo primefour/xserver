@@ -1,31 +1,15 @@
 package utils
 
 import (
-	"github.com/primefour/xserver/model"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
-type OriginCheckerProc func(*http.Request) bool
-
-func OriginChecker(r *http.Request) bool {
-	origin := r.Header.Get("Origin")
-	return *Cfg.ServiceSettings.AllowCorsFrom == "*" || strings.Contains(*Cfg.ServiceSettings.AllowCorsFrom, origin)
-}
-
-func GetOriginChecker(r *http.Request) OriginCheckerProc {
-	if len(*Cfg.ServiceSettings.AllowCorsFrom) > 0 {
-		return OriginChecker
-	}
-
-	return nil
-}
-
-func RenderWebError(err *model.AppError, w http.ResponseWriter, r *http.Request) {
+func RenderWebError(err *AppError, w http.ResponseWriter, r *http.Request) {
 	T, _ := GetTranslationsAndLocale(w, r)
 
-	title := T("api.templates.error.title", map[string]interface{}{"SiteName": ClientCfg["SiteName"]})
+	title := T("api.templates.error.title", map[string]interface{}{"SiteName": "www.fpbbc.com"})
 	message := err.Message
 	details := err.DetailedError
 	link := "/"

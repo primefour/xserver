@@ -13,13 +13,15 @@ const (
 	DEFAULT_LOCALE = "zh-CN"
 )
 
+var T i18n.TranslateFunc
+var locales map[string]string = make(map[string]string)
+
 // "zh-CN"
 func tfuncWithFallback(pref string) i18n.TranslateFunc {
 	//try prefer language to translate
-	t, _ := i18n.Tfunc(pref)
-
+	T, _ := i18n.Tfunc(pref)
 	return func(translationID string, args ...interface{}) string {
-		if translated := t(translationID, args...); translated != translationID {
+		if translated := T(translationID, args...); translated != translationID {
 			return translated
 		}
 		//don't support prefer language,use default
@@ -29,7 +31,7 @@ func tfuncWithFallback(pref string) i18n.TranslateFunc {
 	}
 }
 
-func InitTranslationsWithDir(dir string) (locales map[string]string) {
+func InitTranslationsWithDir(dir string) {
 	i18nDirectory := FindDir(dir)
 	files, _ := ioutil.ReadDir(i18nDirectory)
 	for _, f := range files {
@@ -39,10 +41,9 @@ func InitTranslationsWithDir(dir string) (locales map[string]string) {
 			i18n.MustLoadTranslationFile(i18nDirectory + filename)
 		}
 	}
-	return locales
 }
 
-func GetUserTranslations(locale string, locales map[string]string) i18n.TranslateFunc {
+func GetUserTranslations(locale string) i18n.TranslateFunc {
 	if _, ok := locales[locale]; !ok {
 		l4g.Warn("don't support locale %s ", locale)
 		locale = DEFAULT_LOCALE
@@ -51,19 +52,19 @@ func GetUserTranslations(locale string, locales map[string]string) i18n.Translat
 	return translations
 }
 
-func GetTranslationsAndLocale(w http.ResponseWriter, r *http.Request, locales map[string]string) (i18n.TranslateFunc, string) {
+func GetTranslationsAndLocale(w http.ResponseWriter, r *http.Request) (i18n.TranslateFunc, string) {
 	// This is for checking against locales like pt_BR or zn_CN
 	headerLocaleFull := strings.Split(r.Header.Get("Accept-Language"), ",")[0]
 	// This is for checking agains locales like en, es
 	headerLocale := strings.Split(strings.Split(r.Header.Get("Accept-Language"), ",")[0], "-")[0]
 	if locales[headerLocaleFull] != "" {
-		translations := TfuncWithFallback(headerLocaleFull)
+		translations := tfuncWithFallback(headerLocaleFull)
 		return translations, headerLocaleFull
 	} else if locales[headerLocale] != "" {
-		translations := TfuncWithFallback(headerLocale)
+		translations := tfuncWithFallback(headerLocale)
 		return translations, headerLocale
 	}
 
-	translations := TfuncWithFallback(DEFAULT_LOCALE)
+	translations := tfuncWithFallback(DEFAULT_LOCALE)
 	return translations, DEFAULT_LOCALE
 }

@@ -32,6 +32,21 @@ type WebAppIntf interface {
 	GetAppName() string
 }
 
+type OriginCheckerProc func(*http.Request) bool
+
+func OriginChecker(r *http.Request) bool {
+	origin := r.Header.Get("Origin")
+	return *Cfg.ServiceSettings.AllowCorsFrom == "*" || strings.Contains(*Cfg.ServiceSettings.AllowCorsFrom, origin)
+}
+
+func GetOriginChecker(r *http.Request) OriginCheckerProc {
+	if len(*Cfg.ServiceSettings.AllowCorsFrom) > 0 {
+		return OriginChecker
+	}
+
+	return nil
+}
+
 //just for static add
 func AddWebApp(app WebAppIntf) {
 	if app == nil {
