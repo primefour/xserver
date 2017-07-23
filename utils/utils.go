@@ -7,11 +7,10 @@ import (
 	"encoding/base32"
 	"encoding/json"
 	"fmt"
-	goi18n "github.com/nicksnyder/go-i18n/i18n"
 	"github.com/pborman/uuid"
 	"io"
 	"io/ioutil"
-	"math/rand"
+	mrand "math/rand"
 	"net"
 	"net/http"
 	"net/mail"
@@ -153,7 +152,7 @@ func RandIntFromRange(r Range) int {
 	if r.End-r.Begin <= 0 {
 		return r.Begin
 	}
-	return rand.Intn((r.End-r.Begin)+1) + r.Begin
+	return mrand.Intn((r.End-r.Begin)+1) + r.Begin
 }
 
 func HashSha256(text string) string {

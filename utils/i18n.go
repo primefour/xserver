@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	l4g "github.com/alecthomas/log4go"
 	"github.com/nicksnyder/go-i18n/i18n"
 	"io/ioutil"
@@ -19,7 +20,7 @@ var locales map[string]string = make(map[string]string)
 // "zh-CN"
 func tfuncWithFallback(pref string) i18n.TranslateFunc {
 	//try prefer language to translate
-	T, _ := i18n.Tfunc(pref)
+	T, _ = i18n.Tfunc(pref)
 	return func(translationID string, args ...interface{}) string {
 		if translated := T(translationID, args...); translated != translationID {
 			return translated
@@ -35,12 +36,15 @@ func InitTranslationsWithDir(dir string) {
 	i18nDirectory := FindDir(dir)
 	files, _ := ioutil.ReadDir(i18nDirectory)
 	for _, f := range files {
+		l4g.Info(fmt.Sprintf("i18n f %s", f.Name()))
 		if filepath.Ext(f.Name()) == ".json" {
 			filename := f.Name()
 			locales[strings.Split(filename, ".")[0]] = i18nDirectory + filename
 			i18n.MustLoadTranslationFile(i18nDirectory + filename)
 		}
 	}
+
+	GetUserTranslations(DEFAULT_LOCALE)
 }
 
 func GetUserTranslations(locale string) i18n.TranslateFunc {

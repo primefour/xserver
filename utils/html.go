@@ -28,7 +28,12 @@ func InitHTMLWithDir(dir string) {
 	if htmlTemplates != nil {
 		return
 	}
+
 	templatesDir := FindDir(dir)
+	l4g.Debug("api.api.init.parsing_templates.debug", templatesDir)
+	if T == nil {
+		l4g.Error("T is nil ")
+	}
 	l4g.Debug(T("api.api.init.parsing_templates.debug"), templatesDir)
 	var err error
 	if htmlTemplates, err = template.ParseGlob(templatesDir + "*.html"); err != nil {
