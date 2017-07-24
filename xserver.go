@@ -21,6 +21,37 @@ const (
 	LOG_FILENAME    = "xserver.log"
 )
 
+type ServiceSettings struct {
+	SiteURL                                  *string
+	ListenAddress                            string
+	ConnectionSecurity                       *string
+	TLSCertFile                              *string
+	TLSKeyFile                               *string
+	UseLetsEncrypt                           *bool
+	LetsEncryptCertificateCacheFile          *string
+	Forward80To443                           *bool
+	ReadTimeout                              *int
+	WriteTimeout                             *int
+	MaximumLoginAttempts                     int
+	GoogleDeveloperKey                       string
+	EnableOAuthServiceProvider               bool
+	EnableIncomingWebhooks                   bool
+	EnableOutgoingWebhooks                   bool
+	EnableLinkPreviews                       *bool
+	AllowCorsFrom                            *string
+	SessionLengthWebInDays                   *int
+	SessionLengthMobileInDays                *int
+	SessionLengthSSOInDays                   *int
+	SessionCacheInMinutes                    *int
+	WebsocketSecurePort                      *int
+	WebsocketPort                            *int
+	WebserverMode                            *string
+	TimeBetweenUserTypingUpdatesMilliseconds *int64
+	ClusterLogTimeoutMilliseconds            *int
+	LocalePath                               *string
+	ServerLocale                             *string
+}
+
 type WebAppIntf interface {
 	NewServer()
 	InitStores()
@@ -32,15 +63,27 @@ type WebAppIntf interface {
 	GetAppName() string
 }
 
+type XServer struct {
+	configFilePath string
+	xconfig        XConfig
+	apps           map[string]WebAppIntf
+	ss             ServiceSettings
+	t              i18n.TranslateFunc //config
+	tDefault       i18n.TranslateFunc //system
+	locales        map[string]string  //locale list
+}
+
+var xserver = XServer{}
+
 type OriginCheckerProc func(*http.Request) bool
 
 func OriginChecker(r *http.Request) bool {
 	origin := r.Header.Get("Origin")
-	return *Cfg.ServiceSettings.AllowCorsFrom == "*" || strings.Contains(*Cfg.ServiceSettings.AllowCorsFrom, origin)
+	return *xserver.ss.AllowCorsFrom == "*" || strings.Contains(*xserver.ss.AllowCorsFrom, origin)
 }
 
 func GetOriginChecker(r *http.Request) OriginCheckerProc {
-	if len(*Cfg.ServiceSettings.AllowCorsFrom) > 0 {
+	if len(*xserver.ss.AllowCorsFrom) > 0 {
 		return OriginChecker
 	}
 
@@ -53,47 +96,20 @@ func AddWebApp(app WebAppIntf) {
 		return
 	}
 	appName = app.GetAppName()
-	for _, xapp := range webAppList {
-		if xapp.GetAppName == appName {
-			return
-		}
+	_, ok := xserver.apps[appName]
+	if !ok {
+		xserver.apps[appName] = app
 	}
-	webAppList.append(app)
+	//launch app
 }
 
-func loadWebAppConfig() {
-	for _, xapp := range webAppList {
-		appName = xapp.GetAppName()
-		if appName == "" {
-			l4g.Error("Could load webapp for no App Name ")
-			continue
-		}
-		fileName = xapp.GetAppConfigFile()
-		if fileName == "" {
-			l4g.Error("%s webapp no config file ", appName)
-			continue
-		}
-
-		if !xapp.LoadConfig(fileName) {
+func loadWebAppsConfig() {
+	for appName, xapp := range xserver.apps {
+		if !xapp.LoadConfig() {
 			l4g.Error("%s load config file fail ", appName)
 			continue
 		}
 	}
-}
-
-type XServerSettings struct {
-	AppLocale      *string
-	ServerLocale   *string
-	ConfigFilePath *string
-	LocalePath     *string
-}
-
-type XServer struct {
-	t          i18n.TranslateFunc //config
-	tDefault   i18n.TranslateFunc //system
-	locales    map[string]string  //locale list
-	webAppList []WebAppIntf       //webapp interface
-	settings   XServerSettings    //setting from config
 }
 
 func loadConfig(string fileName) {

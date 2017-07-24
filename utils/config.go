@@ -101,3 +101,7 @@ func (self *XConfig) checkExist() bool {
 	}
 	return false
 }
+
+func (self *XConfig) UpdateForce() {
+	onFileUpdate(self.ActivePath)
+}
