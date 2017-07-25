@@ -53,27 +53,36 @@ type ServiceSettings struct {
 }
 
 type WebAppIntf interface {
-	NewServer()
+	NewInstance()
 	InitStores()
 	InitRouter()
 	InitApi()
 	StartServer()
 	StopServer()
-	LoadConfig(fileName string) bool
+	LoadConfig() bool
 	GetAppName() string
 }
 
 type XServer struct {
 	configFilePath string
-	xconfig        XConfig
+	xconfig        *utils.XConfig
+	xconfigOK      bool
 	apps           map[string]WebAppIntf
 	ss             ServiceSettings
-	t              i18n.TranslateFunc //config
 	tDefault       i18n.TranslateFunc //system
-	locales        map[string]string  //locale list
 }
 
-var xserver = XServer{}
+func xserverConfigParser(buff []byte) {
+	x := string(buff)
+	l4g.Info(fmt.Sprintf("get xserver config buff is %s ", x))
+	err := json.Unmarshal(buff, &xserver.ss)
+	l4g.Info(fmt.Sprintf("get xserver config is %v %v ", xserver.ss, err))
+	if err != nil {
+		xserver.xconfigOK = false
+	} else {
+		xserver.xconfigOK = true
+	}
+}
 
 type OriginCheckerProc func(*http.Request) bool
 
@@ -82,11 +91,18 @@ func OriginChecker(r *http.Request) bool {
 	return *xserver.ss.AllowCorsFrom == "*" || strings.Contains(*xserver.ss.AllowCorsFrom, origin)
 }
 
+var xserver = XServer{
+	configFilePath: "./xserver.json",
+	xconfig:        utils.NewXConfig("xserver", "./", true, xserverConfigParser),
+	xconfigOK:      false,
+	apps:           map[string]WebAppIntf{},
+	ss:             ServiceSettings{},
+}
+
 func GetOriginChecker(r *http.Request) OriginCheckerProc {
 	if len(*xserver.ss.AllowCorsFrom) > 0 {
 		return OriginChecker
 	}
-
 	return nil
 }
 
@@ -99,59 +115,30 @@ func AddWebApp(app WebAppIntf) {
 	_, ok := xserver.apps[appName]
 	if !ok {
 		xserver.apps[appName] = app
-	}
-	//launch app
-}
-
-func loadWebAppsConfig() {
-	for appName, xapp := range xserver.apps {
-		if !xapp.LoadConfig() {
-			l4g.Error("%s load config file fail ", appName)
-			continue
-		}
+		//launch app
+	} else {
+		//only update config
 	}
 }
 
-func loadConfig(string fileName) {
+func initServer() {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Sprintf("%v", r)
 		}
 	}()
-	utils.EnableConfigFromEnviromentVars()
-	utils.LoadConfig(fileName)
-	utils.InitializeConfigWatch()
-	utils.EnableConfigWatch()
-}
-
-func ValidateLocales(cfg *model.Config) *model.AppError {
-	locales := GetSupportedLocales()
-	l4g.Debug("lens of locales is %d ==> %v ", len(locales), locales)
-
-	if cfg.LocalizationSettings.DefaultServerLocale != nil {
-		l4g.Debug(" cfg.LocalizationSettings.DefaultServerLocale = %s ", *cfg.LocalizationSettings.DefaultServerLocale)
+	//init locale
+	utils.InitTranslationsWithDir("i18n")
+	//init html templates
+	utils.InitHTMLWithDir("templates")
+	//load config
+	xserver.xconfig.UpdateForce()
+	if !xserver.xconfigOK {
+		l4g.Error("xserver load config file fail ")
+		return
 	}
+	xserver.tDefault = utils.GetUserTranslations(utils.DEFAULT_LOCALE)
 
-	if _, ok := locales[*cfg.LocalizationSettings.DefaultServerLocale]; !ok {
-		return model.NewLocAppError("ValidateLocales", "utils.config.supported_server_locale.app_error", nil, "")
-	}
-
-	if _, ok := locales[*cfg.LocalizationSettings.DefaultClientLocale]; !ok {
-		return model.NewLocAppError("ValidateLocales", "utils.config.supported_client_locale.app_error", nil, "")
-	}
-
-	if len(*cfg.LocalizationSettings.AvailableLocales) > 0 {
-		for _, word := range strings.Split(*cfg.LocalizationSettings.AvailableLocales, ",") {
-			l4g.Debug("word %s ", word)
-			if word == *cfg.LocalizationSettings.DefaultClientLocale {
-				return nil
-			}
-		}
-
-		return model.NewLocAppError("ValidateLocales", "utils.config.validate_locale.app_error", nil, "")
-	}
-
-	return nil
 }
 
 func (self *XServer) initLocale() {

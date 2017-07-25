@@ -30,7 +30,6 @@ func configTestParser(buff []byte) {
 	l4g.Info(fmt.Sprintf("get a config buff is %s ", x))
 	err := json.Unmarshal(buff, configTest2)
 	l4g.Info(fmt.Sprintf("get a config is %v %v ", configTest2, err))
-
 }
 
 var testpwd = "/home/crazyhorse/CodeWork/GoWorkSpace/case/src/github.com/primefour/xserver/"
