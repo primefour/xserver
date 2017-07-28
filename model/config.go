@@ -2,8 +2,9 @@ package model
 
 import (
 	"encoding/json"
+	//	"github.com/primefour/xserver/utils"
 	"io"
-	"net/url"
+	//	"net/url"
 )
 
 const (
@@ -91,53 +92,6 @@ const (
 	ANALYTICS_SETTINGS_DEFAULT_MAX_USERS_FOR_STATISTICS = 2500
 )
 
-type ServiceSettings struct {
-	SiteURL                                  *string
-	ListenAddress                            string
-	ConnectionSecurity                       *string
-	TLSCertFile                              *string
-	TLSKeyFile                               *string
-	UseLetsEncrypt                           *bool
-	LetsEncryptCertificateCacheFile          *string
-	Forward80To443                           *bool
-	ReadTimeout                              *int
-	WriteTimeout                             *int
-	MaximumLoginAttempts                     int
-	GoogleDeveloperKey                       string
-	EnableOAuthServiceProvider               bool
-	EnableIncomingWebhooks                   bool
-	EnableOutgoingWebhooks                   bool
-	EnableCommands                           *bool
-	EnableOnlyAdminIntegrations              *bool
-	EnablePostUsernameOverride               bool
-	EnablePostIconOverride                   bool
-	EnableLinkPreviews                       *bool
-	EnableTesting                            bool
-	EnableDeveloper                          *bool
-	EnableSecurityFixAlert                   *bool
-	EnableInsecureOutgoingConnections        *bool
-	EnableMultifactorAuthentication          *bool
-	EnforceMultifactorAuthentication         *bool
-	AllowCorsFrom                            *string
-	SessionLengthWebInDays                   *int
-	SessionLengthMobileInDays                *int
-	SessionLengthSSOInDays                   *int
-	SessionCacheInMinutes                    *int
-	WebsocketSecurePort                      *int
-	WebsocketPort                            *int
-	WebserverMode                            *string
-	EnableCustomEmoji                        *bool
-	RestrictCustomEmojiCreation              *string
-	RestrictPostDelete                       *string
-	AllowEditPost                            *string
-	PostEditTimeLimit                        *int
-	TimeBetweenUserTypingUpdatesMilliseconds *int64
-	EnablePostSearch                         *bool
-	EnableUserTypingMessages                 *bool
-	EnableUserStatuses                       *bool
-	ClusterLogTimeoutMilliseconds            *int
-}
-
 type ClusterSettings struct {
 	Enable                 *bool
 	InterNodeListenAddress *string
@@ -173,17 +127,6 @@ type SqlSettings struct {
 	MaxOpenConns             int
 	Trace                    bool
 	AtRestEncryptKey         string
-}
-
-type LogSettings struct {
-	EnableConsole          bool
-	ConsoleLevel           string
-	EnableFile             bool
-	FileLevel              string
-	FileFormat             string
-	FileLocation           string
-	EnableWebhookDebugging bool
-	EnableDiagnostics      *bool
 }
 
 type PasswordSettings struct {
@@ -434,10 +377,11 @@ func ConfigFromJson(data io.Reader) *Config {
 	}
 }
 
+/*
 func (o *Config) SetDefaults() {
 
 	if len(o.SqlSettings.AtRestEncryptKey) == 0 {
-		o.SqlSettings.AtRestEncryptKey = NewRandomString(32)
+		o.SqlSettings.AtRestEncryptKey = utils.NewRandomString(32)
 	}
 
 	if o.FileSettings.AmazonS3Endpoint == "" {
@@ -467,7 +411,7 @@ func (o *Config) SetDefaults() {
 
 	if o.FileSettings.PublicLinkSalt == nil || len(*o.FileSettings.PublicLinkSalt) == 0 {
 		o.FileSettings.PublicLinkSalt = new(string)
-		*o.FileSettings.PublicLinkSalt = NewRandomString(32)
+		*o.FileSettings.PublicLinkSalt = utils.NewRandomString(32)
 	}
 
 	if o.FileSettings.InitialFont == "" {
@@ -480,7 +424,7 @@ func (o *Config) SetDefaults() {
 	}
 
 	if len(o.EmailSettings.InviteSalt) == 0 {
-		o.EmailSettings.InviteSalt = NewRandomString(32)
+		o.EmailSettings.InviteSalt = utils.NewRandomString(32)
 	}
 
 	if o.ServiceSettings.SiteURL == nil {
@@ -1110,212 +1054,212 @@ func (o *Config) SetDefaults() {
 	o.defaultWebrtcSettings()
 }
 
-func (o *Config) IsValid() *AppError {
+func (o *Config) IsValid() *utils.AppError {
 
 	if o.ServiceSettings.MaximumLoginAttempts <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.login_attempts.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.login_attempts.app_error", nil, "")
 	}
 
 	if len(*o.ServiceSettings.SiteURL) != 0 {
 		if _, err := url.ParseRequestURI(*o.ServiceSettings.SiteURL); err != nil {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.site_url.app_error", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.site_url.app_error", nil, "")
 		}
 	}
 
 	if len(o.ServiceSettings.ListenAddress) == 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.listen_address.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.listen_address.app_error", nil, "")
 	}
 
 	if *o.ClusterSettings.Enable && *o.EmailSettings.EnableEmailBatching {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.cluster_email_batching.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.cluster_email_batching.app_error", nil, "")
 	}
 
 	if len(*o.ServiceSettings.SiteURL) == 0 && *o.EmailSettings.EnableEmailBatching {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.site_url_email_batching.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.site_url_email_batching.app_error", nil, "")
 	}
 
 	if o.TeamSettings.MaxUsersPerTeam <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.max_users.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.max_users.app_error", nil, "")
 	}
 
 	if *o.TeamSettings.MaxChannelsPerTeam <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.max_channels.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.max_channels.app_error", nil, "")
 	}
 
 	if *o.TeamSettings.MaxNotificationsPerChannel <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.max_notify_per_channel.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.max_notify_per_channel.app_error", nil, "")
 	}
 
 	if !(*o.TeamSettings.RestrictDirectMessage == DIRECT_MESSAGE_ANY || *o.TeamSettings.RestrictDirectMessage == DIRECT_MESSAGE_TEAM) {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.restrict_direct_message.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.restrict_direct_message.app_error", nil, "")
 	}
 
 	if len(o.SqlSettings.AtRestEncryptKey) < 32 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.encrypt_sql.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.encrypt_sql.app_error", nil, "")
 	}
 
 	if !(o.SqlSettings.DriverName == DATABASE_DRIVER_MYSQL || o.SqlSettings.DriverName == DATABASE_DRIVER_POSTGRES) {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.sql_driver.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.sql_driver.app_error", nil, "")
 	}
 
 	if o.SqlSettings.MaxIdleConns <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.sql_idle.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.sql_idle.app_error", nil, "")
 	}
 
 	if len(o.SqlSettings.DataSource) == 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.sql_data_src.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.sql_data_src.app_error", nil, "")
 	}
 
 	if o.SqlSettings.MaxOpenConns <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.sql_max_conn.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.sql_max_conn.app_error", nil, "")
 	}
 
 	if *o.FileSettings.MaxFileSize <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.max_file_size.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.max_file_size.app_error", nil, "")
 	}
 
 	if !(o.FileSettings.DriverName == IMAGE_DRIVER_LOCAL || o.FileSettings.DriverName == IMAGE_DRIVER_S3) {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.file_driver.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.file_driver.app_error", nil, "")
 	}
 
 	if o.FileSettings.PreviewHeight < 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.file_preview_height.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.file_preview_height.app_error", nil, "")
 	}
 
 	if o.FileSettings.PreviewWidth <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.file_preview_width.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.file_preview_width.app_error", nil, "")
 	}
 
 	if o.FileSettings.ProfileHeight <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.file_profile_height.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.file_profile_height.app_error", nil, "")
 	}
 
 	if o.FileSettings.ProfileWidth <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.file_profile_width.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.file_profile_width.app_error", nil, "")
 	}
 
 	if o.FileSettings.ThumbnailHeight <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.file_thumb_height.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.file_thumb_height.app_error", nil, "")
 	}
 
 	if o.FileSettings.ThumbnailWidth <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.file_thumb_width.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.file_thumb_width.app_error", nil, "")
 	}
 
 	if len(*o.FileSettings.PublicLinkSalt) < 32 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.file_salt.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.file_salt.app_error", nil, "")
 	}
 
 	if !(o.EmailSettings.ConnectionSecurity == CONN_SECURITY_NONE || o.EmailSettings.ConnectionSecurity == CONN_SECURITY_TLS || o.EmailSettings.ConnectionSecurity == CONN_SECURITY_STARTTLS || o.EmailSettings.ConnectionSecurity == CONN_SECURITY_PLAIN) {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.email_security.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.email_security.app_error", nil, "")
 	}
 
 	if len(o.EmailSettings.InviteSalt) < 32 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.email_salt.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.email_salt.app_error", nil, "")
 	}
 
 	if *o.EmailSettings.EmailBatchingBufferSize <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.email_batching_buffer_size.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.email_batching_buffer_size.app_error", nil, "")
 	}
 
 	if *o.EmailSettings.EmailBatchingInterval < 30 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.email_batching_interval.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.email_batching_interval.app_error", nil, "")
 	}
 
 	if o.RateLimitSettings.MemoryStoreSize <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.rate_mem.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.rate_mem.app_error", nil, "")
 	}
 
 	if o.RateLimitSettings.PerSec <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.rate_sec.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.rate_sec.app_error", nil, "")
 	}
 
 	if !(*o.LdapSettings.ConnectionSecurity == CONN_SECURITY_NONE || *o.LdapSettings.ConnectionSecurity == CONN_SECURITY_TLS || *o.LdapSettings.ConnectionSecurity == CONN_SECURITY_STARTTLS) {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_security.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_security.app_error", nil, "")
 	}
 
 	if *o.LdapSettings.SyncIntervalMinutes <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_sync_interval.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_sync_interval.app_error", nil, "")
 	}
 
 	if *o.LdapSettings.MaxPageSize < 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_max_page_size.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_max_page_size.app_error", nil, "")
 	}
 
 	if *o.LdapSettings.Enable {
 		if *o.LdapSettings.LdapServer == "" {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_server", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_server", nil, "")
 		}
 
 		if *o.LdapSettings.BaseDN == "" {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_basedn", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_basedn", nil, "")
 		}
 
 		if *o.LdapSettings.EmailAttribute == "" {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_email", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_email", nil, "")
 		}
 
 		if *o.LdapSettings.UsernameAttribute == "" {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_username", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_username", nil, "")
 		}
 
 		if *o.LdapSettings.IdAttribute == "" {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_id", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_id", nil, "")
 		}
 	}
 
 	if *o.SamlSettings.Enable {
 		if len(*o.SamlSettings.IdpUrl) == 0 || !IsValidHttpUrl(*o.SamlSettings.IdpUrl) {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.saml_idp_url.app_error", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_idp_url.app_error", nil, "")
 		}
 
 		if len(*o.SamlSettings.IdpDescriptorUrl) == 0 || !IsValidHttpUrl(*o.SamlSettings.IdpDescriptorUrl) {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.saml_idp_descriptor_url.app_error", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_idp_descriptor_url.app_error", nil, "")
 		}
 
 		if len(*o.SamlSettings.IdpCertificateFile) == 0 {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.saml_idp_cert.app_error", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_idp_cert.app_error", nil, "")
 		}
 
 		if len(*o.SamlSettings.EmailAttribute) == 0 {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.saml_email_attribute.app_error", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_email_attribute.app_error", nil, "")
 		}
 
 		if len(*o.SamlSettings.UsernameAttribute) == 0 {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.saml_username_attribute.app_error", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_username_attribute.app_error", nil, "")
 		}
 
 		if *o.SamlSettings.Verify {
 			if len(*o.SamlSettings.AssertionConsumerServiceURL) == 0 || !IsValidHttpUrl(*o.SamlSettings.AssertionConsumerServiceURL) {
-				return NewLocAppError("Config.IsValid", "model.config.is_valid.saml_assertion_consumer_service_url.app_error", nil, "")
+				return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_assertion_consumer_service_url.app_error", nil, "")
 			}
 		}
 
 		if *o.SamlSettings.Encrypt {
 			if len(*o.SamlSettings.PrivateKeyFile) == 0 {
-				return NewLocAppError("Config.IsValid", "model.config.is_valid.saml_private_key.app_error", nil, "")
+				return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_private_key.app_error", nil, "")
 			}
 
 			if len(*o.SamlSettings.PublicCertificateFile) == 0 {
-				return NewLocAppError("Config.IsValid", "model.config.is_valid.saml_public_cert.app_error", nil, "")
+				return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_public_cert.app_error", nil, "")
 			}
 		}
 
 		if len(*o.SamlSettings.EmailAttribute) == 0 {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.saml_email_attribute.app_error", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_email_attribute.app_error", nil, "")
 		}
 	}
 
 	if *o.PasswordSettings.MinimumLength < PASSWORD_MINIMUM_LENGTH || *o.PasswordSettings.MinimumLength > PASSWORD_MAXIMUM_LENGTH {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.password_length.app_error", map[string]interface{}{"MinLength": PASSWORD_MINIMUM_LENGTH, "MaxLength": PASSWORD_MAXIMUM_LENGTH}, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.password_length.app_error", map[string]interface{}{"MinLength": PASSWORD_MINIMUM_LENGTH, "MaxLength": PASSWORD_MAXIMUM_LENGTH}, "")
 	}
 
 	if len(o.TeamSettings.SiteName) > SITENAME_MAX_LENGTH {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.sitename_length.app_error", map[string]interface{}{"MaxLength": SITENAME_MAX_LENGTH}, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.sitename_length.app_error", map[string]interface{}{"MaxLength": SITENAME_MAX_LENGTH}, "")
 	}
 
 	if *o.RateLimitSettings.MaxBurst <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.max_burst.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.max_burst.app_error", nil, "")
 	}
 
 	if err := o.isValidWebrtcSettings(); err != nil {
@@ -1323,19 +1267,19 @@ func (o *Config) IsValid() *AppError {
 	}
 
 	if !(*o.ServiceSettings.ConnectionSecurity == CONN_SECURITY_NONE || *o.ServiceSettings.ConnectionSecurity == CONN_SECURITY_TLS) {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.webserver_security.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.webserver_security.app_error", nil, "")
 	}
 
 	if *o.ServiceSettings.ReadTimeout <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.read_timeout.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.read_timeout.app_error", nil, "")
 	}
 
 	if *o.ServiceSettings.WriteTimeout <= 0 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.write_timeout.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.write_timeout.app_error", nil, "")
 	}
 
 	if *o.ServiceSettings.TimeBetweenUserTypingUpdatesMilliseconds < 1000 {
-		return NewLocAppError("Config.IsValid", "model.config.is_valid.time_between_user_typing.app_error", nil, "")
+		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.time_between_user_typing.app_error", nil, "")
 	}
 
 	return nil
@@ -1422,24 +1366,24 @@ func (o *Config) defaultWebrtcSettings() {
 	}
 }
 
-func (o *Config) isValidWebrtcSettings() *AppError {
+func (o *Config) isValidWebrtcSettings() *utils.AppError {
 	if *o.WebrtcSettings.Enable {
 		if len(*o.WebrtcSettings.GatewayWebsocketUrl) == 0 || !IsValidWebsocketUrl(*o.WebrtcSettings.GatewayWebsocketUrl) {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_gateway_ws_url.app_error", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_gateway_ws_url.app_error", nil, "")
 		} else if len(*o.WebrtcSettings.GatewayAdminUrl) == 0 || !IsValidHttpUrl(*o.WebrtcSettings.GatewayAdminUrl) {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_gateway_admin_url.app_error", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_gateway_admin_url.app_error", nil, "")
 		} else if len(*o.WebrtcSettings.GatewayAdminSecret) == 0 {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_gateway_admin_secret.app_error", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_gateway_admin_secret.app_error", nil, "")
 		} else if len(*o.WebrtcSettings.StunURI) != 0 && !IsValidTurnOrStunServer(*o.WebrtcSettings.StunURI) {
-			return NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_stun_uri.app_error", nil, "")
+			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_stun_uri.app_error", nil, "")
 		} else if len(*o.WebrtcSettings.TurnURI) != 0 {
 			if !IsValidTurnOrStunServer(*o.WebrtcSettings.TurnURI) {
-				return NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_turn_uri.app_error", nil, "")
+				return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_turn_uri.app_error", nil, "")
 			}
 			if len(*o.WebrtcSettings.TurnUsername) == 0 {
-				return NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_turn_username.app_error", nil, "")
+				return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_turn_username.app_error", nil, "")
 			} else if len(*o.WebrtcSettings.TurnSharedKey) == 0 {
-				return NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_turn_shared_key.app_error", nil, "")
+				return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.webrtc_turn_shared_key.app_error", nil, "")
 			}
 
 		}
@@ -1447,3 +1391,4 @@ func (o *Config) isValidWebrtcSettings() *AppError {
 
 	return nil
 }
+*/

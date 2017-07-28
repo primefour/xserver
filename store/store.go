@@ -3,12 +3,13 @@ package store
 import (
 	l4g "github.com/alecthomas/log4go"
 	"github.com/primefour/xserver/model"
+	"github.com/primefour/xserver/utils"
 	"time"
 )
 
 type StoreResult struct {
 	Data interface{}
-	Err  *model.AppError
+	Err  *utils.AppError
 }
 
 type StoreChannel chan StoreResult

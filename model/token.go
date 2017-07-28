@@ -1,6 +1,9 @@
 package model
 
-import "net/http"
+import (
+	"github.com/primefour/xserver/utils"
+	"net/http"
+)
 
 const (
 	TOKEN_SIZE            = 64
@@ -16,20 +19,20 @@ type Token struct {
 
 func NewToken(tokentype, extra string) *Token {
 	return &Token{
-		Token:    NewRandomString(TOKEN_SIZE),
-		CreateAt: GetMillis(),
+		Token:    utils.NewRandomString(TOKEN_SIZE),
+		CreateAt: utils.GetMillis(),
 		Type:     tokentype,
 		Extra:    extra,
 	}
 }
 
-func (t *Token) IsValid() *AppError {
+func (t *Token) IsValid() *utils.AppError {
 	if len(t.Token) != TOKEN_SIZE {
-		return NewAppError("Token.IsValid", "model.token.is_valid.size", nil, "", http.StatusInternalServerError)
+		return utils.NewAppError("Token.IsValid", "model.token.is_valid.size", nil, "", http.StatusInternalServerError)
 	}
 
 	if t.CreateAt == 0 {
-		return NewAppError("Token.IsValid", "model.token.is_valid.expiry", nil, "", http.StatusInternalServerError)
+		return utils.NewAppError("Token.IsValid", "model.token.is_valid.expiry", nil, "", http.StatusInternalServerError)
 	}
 
 	return nil

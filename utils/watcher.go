@@ -17,7 +17,7 @@ type DirUpdateFpn func(file string)
 var fileWatcher *fsnotify.Watcher = nil
 var watcher_mutex sync.Mutex = sync.Mutex{}
 var fileNameMap map[string]FileUpdateFpn = map[string]FileUpdateFpn{}
-var dirNameMap map[string]DirUpateFpn = map[string]DirUpdateFpn{}
+var dirNameMap map[string]DirUpdateFpn = map[string]DirUpdateFpn{}
 var dirMap map[string]int = map[string]int{}
 var onceNotifyInit = sync.Once{}
 
@@ -132,7 +132,7 @@ func AddDirWatch(dir string, updatefpn DirUpdateFpn) {
 			fileWatcher.Add(fileDir)
 		}
 	}
-	dirNameMap[fileDir] = updateFpn
+	dirNameMap[fileDir] = updatefpn
 	onceNotifyInit.Do(watcherOnce)
 }
 

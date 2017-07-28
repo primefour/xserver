@@ -5,8 +5,10 @@ import (
 	"fmt"
 	l4g "github.com/alecthomas/log4go"
 	"io/ioutil"
+	"os"
 	"sync"
 	"testing"
+	"time"
 )
 
 type ConfigTest struct {
@@ -32,11 +34,20 @@ func configTestParser(buff []byte) {
 	l4g.Info(fmt.Sprintf("get a config is %v %v ", configTest2, err))
 }
 
-var testpwd = "/home/crazyhorse/CodeWork/GoWorkSpace/case/src/github.com/primefour/xserver/"
+var testpwd = "./"
+
+func say(s string) {
+	fmt.Println(s)
+	time.Sleep(time.Second * 500)
+}
 
 func TestConfig(t *testing.T) {
 	sg := sync.WaitGroup{}
 	sg.Add(1)
+	pwd, _ := os.Getwd()
+
+	fmt.Printf("pwd = %s pid %d \n", pwd, os.Getpid())
+
 	_, err := NewXConfig("hello", testpwd, true, configTestParser)
 	if err != nil {
 		t.Error(" fail for new Xconfig ")

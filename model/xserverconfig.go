@@ -1,6 +1,9 @@
 package model
 
 import (
+	"encoding/json"
+	"fmt"
+	l4g "github.com/alecthomas/log4go"
 	"github.com/primefour/xserver/utils"
 )
 
@@ -42,18 +45,18 @@ type ServiceSettings struct {
 }
 
 var XServiceSetting ServiceSettings = ServiceSettings{}
-var XServerConfigResult string = false
+var XServerConfigResult bool = false
 
 func XServerConfigParser(buff []byte) {
 	x := string(buff)
 	l4g.Info(fmt.Sprintf("get xserver config buff is %s ", x))
-	err := json.Unmarshal(buff, &XServiceSettings)
-	l4g.Info(fmt.Sprintf("get xserver config is %v %v ", XServiceSettings, err))
+	err := json.Unmarshal(buff, &XServiceSetting)
+	l4g.Info(fmt.Sprintf("get xserver config is %v %v ", XServiceSetting, err))
 	if err != nil {
 		XServerConfigResult = false
 	} else {
 		XServerConfigResult = true
-		configureLog(XServiceSettings.LogSetting)
+		configureLog(&XServiceSetting.LogSetting)
 	}
 }
 

@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"github.com/primefour/xserver/utils"
 	"io"
 	"strings"
 )
@@ -17,16 +18,16 @@ const (
 )
 
 type Session struct {
-	Id             string    `json:"id"`
-	Token          string    `json:"token"`
-	CreateAt       int64     `json:"create_at"`
-	ExpiresAt      int64     `json:"expires_at"`
-	LastActivityAt int64     `json:"last_activity_at"`
-	UserId         string    `json:"user_id"`
-	DeviceId       string    `json:"device_id"`
-	Roles          string    `json:"roles"`
-	IsOAuth        bool      `json:"is_oauth"`
-	Props          StringMap `json:"props"`
+	Id             string          `json:"id"`
+	Token          string          `json:"token"`
+	CreateAt       int64           `json:"create_at"`
+	ExpiresAt      int64           `json:"expires_at"`
+	LastActivityAt int64           `json:"last_activity_at"`
+	UserId         string          `json:"user_id"`
+	DeviceId       string          `json:"device_id"`
+	Roles          string          `json:"roles"`
+	IsOAuth        bool            `json:"is_oauth"`
+	Props          utils.StringMap `json:"props"`
 	//	TeamMembers    []*TeamMember `json:"team_members" db:"-"`
 }
 
@@ -52,12 +53,12 @@ func SessionFromJson(data io.Reader) *Session {
 
 func (me *Session) PreSave() {
 	if me.Id == "" {
-		me.Id = NewId()
+		me.Id = utils.NewId()
 	}
 
-	me.Token = NewId()
+	me.Token = utils.NewId()
 
-	me.CreateAt = GetMillis()
+	me.CreateAt = utils.GetMillis()
 	me.LastActivityAt = me.CreateAt
 
 	if me.Props == nil {
@@ -75,7 +76,7 @@ func (me *Session) IsExpired() bool {
 		return false
 	}
 
-	if GetMillis() > me.ExpiresAt {
+	if utils.GetMillis() > me.ExpiresAt {
 		return true
 	}
 
@@ -84,7 +85,7 @@ func (me *Session) IsExpired() bool {
 
 func (me *Session) SetExpireInDays(days int) {
 	if me.CreateAt == 0 {
-		me.ExpiresAt = GetMillis() + (1000 * 60 * 60 * 24 * int64(days))
+		me.ExpiresAt = utils.GetMillis() + (1000 * 60 * 60 * 24 * int64(days))
 	} else {
 		me.ExpiresAt = me.CreateAt + (1000 * 60 * 60 * 24 * int64(days))
 	}

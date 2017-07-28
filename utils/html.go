@@ -2,8 +2,8 @@ package utils
 
 import (
 	"bytes"
+	"fmt"
 	l4g "github.com/alecthomas/log4go"
-	"github.com/fsnotify/fsnotify"
 	"github.com/nicksnyder/go-i18n/i18n"
 	"html/template"
 	"net/http"
@@ -26,7 +26,7 @@ func InitHTML() {
 	templatesDir := FindDir(htmlTemplateDirName)
 	htmlTemplatePath, _ = filepath.Abs(templatesDir)
 	l4g.Debug(T("api.api.init.parsing_templates.debug"), htmlTemplatePath)
-	InitHTMLWithDir(htmlTemplatePath)
+	initHTMLWithDir(htmlTemplatePath)
 }
 
 func dirChangeNotify(dir string) {
@@ -35,6 +35,7 @@ func dirChangeNotify(dir string) {
 		return
 	}
 	dir += "/"
+	var err error
 	if htmlTemplates, err = template.ParseGlob(dir + "*.html"); err != nil {
 		l4g.Error(T("web.parsing_templates.error"), err)
 	}

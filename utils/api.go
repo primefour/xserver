@@ -3,7 +3,6 @@ package utils
 import (
 	"net/http"
 	"net/url"
-	"strings"
 )
 
 func RenderWebError(err *AppError, w http.ResponseWriter, r *http.Request) {

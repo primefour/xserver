@@ -80,34 +80,3 @@ func GetTranslationsAndLocale(w http.ResponseWriter, r *http.Request) (i18n.Tran
 	translations := tfuncWithFallback(DEFAULT_LOCALE)
 	return translations, DEFAULT_LOCALE
 }
-
-func ValidateLocales() *AppError {
-	if len(locales) == 0 {
-		return NewAppError("locale not init or empty", "utils.config.supported_server_locale.app_error", nil, "")
-	}
-
-	if cfg.LocalizationSettings.DefaultServerLocale != nil {
-		l4g.Debug(" cfg.LocalizationSettings.DefaultServerLocale = %s ", *cfg.LocalizationSettings.DefaultServerLocale)
-	}
-
-	if _, ok := locales[*cfg.LocalizationSettings.DefaultServerLocale]; !ok {
-		return model.NewLocAppError("ValidateLocales", "utils.config.supported_server_locale.app_error", nil, "")
-	}
-
-	if _, ok := locales[*cfg.LocalizationSettings.DefaultClientLocale]; !ok {
-		return model.NewLocAppError("ValidateLocales", "utils.config.supported_client_locale.app_error", nil, "")
-	}
-
-	if len(*cfg.LocalizationSettings.AvailableLocales) > 0 {
-		for _, word := range strings.Split(*cfg.LocalizationSettings.AvailableLocales, ",") {
-			l4g.Debug("word %s ", word)
-			if word == *cfg.LocalizationSettings.DefaultClientLocale {
-				return nil
-			}
-		}
-
-		return model.NewLocAppError("ValidateLocales", "utils.config.validate_locale.app_error", nil, "")
-	}
-
-	return nil
-}

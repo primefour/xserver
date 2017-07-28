@@ -3,13 +3,13 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/primefour/xserver/utils"
+	"golang.org/x/crypto/bcrypt"
 	"io"
 	"net/http"
 	"regexp"
 	"strings"
 	"unicode/utf8"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -37,48 +37,48 @@ const (
 )
 
 type User struct {
-	Id                 string    `json:"id"`
-	CreateAt           int64     `json:"create_at,omitempty"`
-	UpdateAt           int64     `json:"update_at,omitempty"`
-	DeleteAt           int64     `json:"delete_at"`
-	Username           string    `json:"username"`
-	Password           string    `json:"password,omitempty"`
-	AuthData           *string   `json:"auth_data,omitempty"`
-	AuthService        string    `json:"auth_service"`
-	Email              string    `json:"email"`
-	EmailVerified      bool      `json:"email_verified,omitempty"`
-	Nickname           string    `json:"nickname"`
-	FirstName          string    `json:"first_name"`
-	LastName           string    `json:"last_name"`
-	Position           string    `json:"position"`
-	Roles              string    `json:"roles"`
-	AllowMarketing     bool      `json:"allow_marketing,omitempty"`
-	Props              StringMap `json:"props,omitempty"`
-	NotifyProps        StringMap `json:"notify_props,omitempty"`
-	LastPasswordUpdate int64     `json:"last_password_update,omitempty"`
-	LastPictureUpdate  int64     `json:"last_picture_update,omitempty"`
-	FailedAttempts     int       `json:"failed_attempts,omitempty"`
-	Locale             string    `json:"locale"`
-	MfaActive          bool      `json:"mfa_active,omitempty"`
-	MfaSecret          string    `json:"mfa_secret,omitempty"`
-	LastActivityAt     int64     `db:"-" json:"last_activity_at,omitempty"`
+	Id                 string          `json:"id"`
+	CreateAt           int64           `json:"create_at,omitempty"`
+	UpdateAt           int64           `json:"update_at,omitempty"`
+	DeleteAt           int64           `json:"delete_at"`
+	Username           string          `json:"username"`
+	Password           string          `json:"password,omitempty"`
+	AuthData           *string         `json:"auth_data,omitempty"`
+	AuthService        string          `json:"auth_service"`
+	Email              string          `json:"email"`
+	EmailVerified      bool            `json:"email_verified,omitempty"`
+	Nickname           string          `json:"nickname"`
+	FirstName          string          `json:"first_name"`
+	LastName           string          `json:"last_name"`
+	Position           string          `json:"position"`
+	Roles              string          `json:"roles"`
+	AllowMarketing     bool            `json:"allow_marketing,omitempty"`
+	Props              utils.StringMap `json:"props,omitempty"`
+	NotifyProps        utils.StringMap `json:"notify_props,omitempty"`
+	LastPasswordUpdate int64           `json:"last_password_update,omitempty"`
+	LastPictureUpdate  int64           `json:"last_picture_update,omitempty"`
+	FailedAttempts     int             `json:"failed_attempts,omitempty"`
+	Locale             string          `json:"locale"`
+	MfaActive          bool            `json:"mfa_active,omitempty"`
+	MfaSecret          string          `json:"mfa_secret,omitempty"`
+	LastActivityAt     int64           `db:"-" json:"last_activity_at,omitempty"`
 }
 
 type UserPatch struct {
-	Username    *string   `json:"username"`
-	Nickname    *string   `json:"nickname"`
-	FirstName   *string   `json:"first_name"`
-	LastName    *string   `json:"last_name"`
-	Position    *string   `json:"position"`
-	Email       *string   `json:"email"`
-	Props       StringMap `json:"props,omitempty"`
-	NotifyProps StringMap `json:"notify_props,omitempty"`
-	Locale      *string   `json:"locale"`
+	Username    *string         `json:"username"`
+	Nickname    *string         `json:"nickname"`
+	FirstName   *string         `json:"first_name"`
+	LastName    *string         `json:"last_name"`
+	Position    *string         `json:"position"`
+	Email       *string         `json:"email"`
+	Props       utils.StringMap `json:"props,omitempty"`
+	NotifyProps utils.StringMap `json:"notify_props,omitempty"`
+	Locale      *string         `json:"locale"`
 }
 
 // IsValid validates the user and returns an error if it isn't configured
 // correctly.
-func (u *User) IsValid() *AppError {
+func (u *User) IsValid() *utils.AppError {
 
 	if len(u.Id) != 26 {
 		return InvalidUserError("id", "")
@@ -135,13 +135,13 @@ func (u *User) IsValid() *AppError {
 	return nil
 }
 
-func InvalidUserError(fieldName string, userId string) *AppError {
+func InvalidUserError(fieldName string, userId string) *utils.AppError {
 	id := fmt.Sprintf("model.user.is_valid.%s.app_error", fieldName)
 	details := ""
 	if userId != "" {
 		details = "user_id=" + userId
 	}
-	return NewAppError("User.IsValid", id, nil, details, http.StatusBadRequest)
+	return utils.NewAppError("User.IsValid", id, nil, details, http.StatusBadRequest)
 }
 
 // PreSave will set the Id and Username if missing.  It will also fill
@@ -149,11 +149,11 @@ func InvalidUserError(fieldName string, userId string) *AppError {
 // be run before saving the user to the db.
 func (u *User) PreSave() {
 	if u.Id == "" {
-		u.Id = NewId()
+		u.Id = utils.NewId()
 	}
 
 	if u.Username == "" {
-		u.Username = NewId()
+		u.Username = utils.NewId()
 	}
 
 	if u.AuthData != nil && *u.AuthData == "" {
@@ -163,7 +163,7 @@ func (u *User) PreSave() {
 	u.Username = strings.ToLower(u.Username)
 	u.Email = strings.ToLower(u.Email)
 
-	u.CreateAt = GetMillis()
+	u.CreateAt = utils.GetMillis()
 	u.UpdateAt = u.CreateAt
 
 	u.LastPasswordUpdate = u.CreateAt
@@ -171,7 +171,7 @@ func (u *User) PreSave() {
 	u.MfaActive = false
 
 	if u.Locale == "" {
-		u.Locale = DEFAULT_LOCALE
+		u.Locale = utils.DEFAULT_LOCALE
 	}
 
 	if u.Props == nil {
@@ -191,7 +191,7 @@ func (u *User) PreSave() {
 func (u *User) PreUpdate() {
 	u.Username = strings.ToLower(u.Username)
 	u.Email = strings.ToLower(u.Email)
-	u.UpdateAt = GetMillis()
+	u.UpdateAt = utils.GetMillis()
 
 	if u.AuthData != nil && *u.AuthData == "" {
 		u.AuthData = nil
@@ -302,7 +302,7 @@ func (u *UserPatch) ToJson() string {
 
 // Generate a valid strong etag so the browser can cache the results
 func (u *User) Etag(showFullName, showEmail bool) string {
-	return Etag(u.Id, u.UpdateAt, showFullName, showEmail)
+	return utils.Etag(u.Id, u.UpdateAt, showFullName, showEmail)
 }
 
 // Remove any private data from the user object
@@ -334,8 +334,8 @@ func (u *User) ClearNonProfileFields() {
 	u.MfaSecret = ""
 	u.EmailVerified = false
 	u.AllowMarketing = false
-	u.Props = StringMap{}
-	u.NotifyProps = StringMap{}
+	u.Props = utils.StringMap{}
+	u.NotifyProps = utils.StringMap{}
 	u.LastPasswordUpdate = 0
 	u.LastPictureUpdate = 0
 	u.FailedAttempts = 0
@@ -582,12 +582,13 @@ func IsValidUsername(s string) bool {
 
 func CleanUsername(s string) string {
 	s = strings.ToLower(strings.Replace(s, " ", "-", -1))
-
-	for _, value := range reservedName {
-		if s == value {
-			s = strings.Replace(s, value, "", -1)
+	/*
+		for _, value := range utils.reservedName {
+			if s == value {
+				s = strings.Replace(s, value, "", -1)
+			}
 		}
-	}
+	*/
 
 	s = strings.TrimSpace(s)
 
@@ -601,7 +602,7 @@ func CleanUsername(s string) string {
 	s = strings.Trim(s, "-")
 
 	if !IsValidUsername(s) {
-		s = "a" + NewId()
+		s = "a" + utils.NewId()
 	}
 
 	return s
