@@ -67,7 +67,7 @@ func NewXConfig(app, dir string, isW bool, parser ConfigParserFpn) (*XConfig, er
 	}
 
 	if xc.IsWatch {
-		AddConfigWatch(xc.ActivePath, onFileUpdate)
+		AddFileWatch(xc.ActivePath, onFileUpdate)
 	}
 	l4g.Info("xc.ActivePath is %s ", xc.ActivePath)
 	fileXConfigMap[xc.ActivePath] = xc

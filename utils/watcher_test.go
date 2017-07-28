@@ -17,13 +17,13 @@ func TestWatch(T *testing.T) {
 	var wg = sync.WaitGroup{}
 	wg.Add(1)
 	fmt.Printf("monitor file %s \n", filePath)
-	AddConfigWatch(filePath, update)
+	AddFileWatch(filePath, update)
 	go func() {
 		WatcherNotify()
 		wg.Done()
 	}()
-	RemoveConfigWatch(filePath)
+	RemoveFileWatch(filePath)
 
-	AddConfigWatch(filePath, update)
+	AddFileWatch(filePath, update)
 	wg.Wait()
 }

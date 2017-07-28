@@ -7,10 +7,13 @@ import (
 	"github.com/nicksnyder/go-i18n/i18n"
 	"html/template"
 	"net/http"
+	"path/filepath"
 )
 
 // Global storage for templates
 var htmlTemplates *template.Template
+var htmlTemplatePath string
+var htmlTemplateDirName string = "templates"
 
 type HTMLTemplate struct {
 	TemplateName string
@@ -20,52 +23,32 @@ type HTMLTemplate struct {
 }
 
 func InitHTML() {
-	InitHTMLWithDir("templates")
+	templatesDir := FindDir(htmlTemplateDirName)
+	htmlTemplatePath, _ = filepath.Abs(templatesDir)
+	l4g.Debug(T("api.api.init.parsing_templates.debug"), htmlTemplatePath)
+	InitHTMLWithDir(htmlTemplatePath)
+}
+
+func dirChangeNotify(dir string) {
+	if dir != htmlTemplatePath {
+		l4g.Error(fmt.Sprintf("file watcher has something error"))
+		return
+	}
+	dir += "/"
+	if htmlTemplates, err = template.ParseGlob(dir + "*.html"); err != nil {
+		l4g.Error(T("web.parsing_templates.error"), err)
+	}
 }
 
 func InitHTMLWithDir(dir string) {
-
 	if htmlTemplates != nil {
 		return
 	}
-
-	templatesDir := FindDir(dir)
-	l4g.Debug("api.api.init.parsing_templates.debug", templatesDir)
-	if T == nil {
-		l4g.Error("T is nil ")
-	}
-	l4g.Debug(T("api.api.init.parsing_templates.debug"), templatesDir)
 	var err error
-	if htmlTemplates, err = template.ParseGlob(templatesDir + "*.html"); err != nil {
+	if htmlTemplates, err = template.ParseGlob(dir + "*.html"); err != nil {
 		l4g.Error(T("api.api.init.parsing_templates.error"), err)
 	}
-
-	// Watch the templates folder for changes.
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		l4g.Error(T("web.create_dir.error"), err)
-	}
-
-	go func() {
-		for {
-			select {
-			case event := <-watcher.Events:
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					l4g.Info(T("web.reparse_templates.info"), event.Name)
-					if htmlTemplates, err = template.ParseGlob(templatesDir + "*.html"); err != nil {
-						l4g.Error(T("web.parsing_templates.error"), err)
-					}
-				}
-			case err := <-watcher.Errors:
-				l4g.Error(T("web.dir_fail.error"), err)
-			}
-		}
-	}()
-
-	err = watcher.Add(templatesDir)
-	if err != nil {
-		l4g.Error(T("web.watcher_fail.error"), err)
-	}
+	AddDirWatch(dir, dirChangeNotify)
 }
 
 func NewHTMLTemplate(templateName string, locale string) *HTMLTemplate {
