@@ -14,6 +14,8 @@ const (
 	DEFAULT_LOCALE = "zh-CN"
 )
 
+var localeDirName string = "i18n"
+var locateDirPath string
 var T i18n.TranslateFunc
 var locales map[string]string = make(map[string]string)
 
@@ -32,7 +34,14 @@ func tfuncWithFallback(pref string) i18n.TranslateFunc {
 	}
 }
 
-func InitTranslationsWithDir(dir string) {
+func InitTranslations() {
+	localeDir := FindDir(localeDirName)
+	locateDirPath, _ = filepath.Abs(localeDir)
+	l4g.Debug(fmt.Sprintf("locale dir path is %s ", locateDirPath))
+	initTranslationsWithDir(locateDirPath)
+}
+
+func initTranslationsWithDir(dir string) {
 	i18nDirectory := FindDir(dir)
 	files, _ := ioutil.ReadDir(i18nDirectory)
 	for _, f := range files {

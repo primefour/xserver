@@ -40,7 +40,7 @@ func dirChangeNotify(dir string) {
 	}
 }
 
-func InitHTMLWithDir(dir string) {
+func initHTMLWithDir(dir string) {
 	if htmlTemplates != nil {
 		return
 	}

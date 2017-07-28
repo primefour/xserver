@@ -52,6 +52,7 @@ func WatcherNotify() {
 	for {
 		select {
 		case event := <-fileWatcher.Events:
+			watcher_mutex.Lock()
 			// we only care about the register file
 			cfn := filepath.Clean(event.Name)
 			fpn, ok := fileNameMap[cfn]
@@ -70,6 +71,7 @@ func WatcherNotify() {
 					dpn(edir)
 				}
 			}
+			watcher_mutex.Unlock()
 		case err := <-fileWatcher.Errors:
 			l4g.Error(fmt.Sprintf("Failed while watching file with err=%v", err.Error()))
 		}
