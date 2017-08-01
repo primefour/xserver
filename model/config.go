@@ -183,15 +183,6 @@ type EmailSettings struct {
 	SkipServerCertificateVerification *bool
 }
 
-type RateLimitSettings struct {
-	Enable           *bool
-	PerSec           int
-	MaxBurst         *int
-	MemoryStoreSize  int
-	VaryByRemoteAddr bool
-	VaryByHeader     string
-}
-
 type PrivacySettings struct {
 	ShowEmailAddress bool
 	ShowFullName     bool

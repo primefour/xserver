@@ -65,6 +65,7 @@ func initServer() {
 	utils.InitHTML()
 	//load config
 	xserver.xconfig.UpdateForce()
+
 	if !model.XServerConfigResult {
 		l4g.Error("xserver load config file fail ")
 		return

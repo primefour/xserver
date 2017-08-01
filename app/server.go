@@ -38,10 +38,11 @@ type CorsWrapper struct {
 	router *mux.Router
 }
 
+//html5 for browser visit other domain without domain restict
 func (cw *CorsWrapper) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if len(*utils.Cfg.ServiceSettings.AllowCorsFrom) > 0 {
+	if len(*model.XSS.XServerSetting.AllowCorsFrom) > 0 {
 		origin := r.Header.Get("Origin")
-		if *utils.Cfg.ServiceSettings.AllowCorsFrom == "*" || strings.Contains(*utils.Cfg.ServiceSettings.AllowCorsFrom, origin) {
+		if *model.XSS.XServerSetting.AllowCorsFrom == "*" || strings.Contains(*model.XSS.XServerSetting.AllowCorsFrom, origin) {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 
 			if r.Method == "OPTIONS" {
@@ -85,14 +86,14 @@ func (m *VaryBy) Key(r *http.Request) string {
 func initalizeThrottledVaryBy() *throttled.VaryBy {
 	vary := throttled.VaryBy{}
 
-	if utils.Cfg.RateLimitSettings.VaryByRemoteAddr {
+	if model.XSS.RateLimitSetting.VaryByRemoteAddr {
 		vary.RemoteAddr = true
 	}
 
-	if len(utils.Cfg.RateLimitSettings.VaryByHeader) > 0 {
-		vary.Headers = strings.Fields(utils.Cfg.RateLimitSettings.VaryByHeader)
+	if len(model.XSS.RateLimitSetting.VaryByHeader) > 0 {
+		vary.Headers = strings.Fields(model.XSS.RateLimitSetting.VaryByHeader)
 
-		if utils.Cfg.RateLimitSettings.VaryByRemoteAddr {
+		if model.XSS.RateLimitSetting.VaryByRemoteAddr {
 			l4g.Warn(utils.T("api.server.start_server.rate.warn"))
 			vary.RemoteAddr = false
 		}

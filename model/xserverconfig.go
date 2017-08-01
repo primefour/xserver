@@ -37,26 +37,37 @@ type XServerSettings struct {
 	WriteTimeout                    *int
 	MaximumLoginAttempts            int
 	ServerLocale                    *string
+	AllowCorsFrom                   *string
 }
 
-type ServiceSettings struct {
-	XServerSetting XServerSettings
-	LogSetting     LogSettings
+type RateLimitSettings struct {
+	Enable           *bool
+	PerSec           int
+	MaxBurst         *int
+	MemoryStoreSize  int
+	VaryByRemoteAddr bool
+	VaryByHeader     string
 }
 
-var XServiceSetting ServiceSettings = ServiceSettings{}
-var XServerConfigResult bool = false
+type ServerSettings struct {
+	XServerSetting   XServerSettings
+	LogSetting       LogSettings
+	RateLimitSetting RateLimitSettings
+}
+
+var XSS ServerSettings = ServerSettings{} //xserver settings
+var XSCR bool = false                     //server config parser result
 
 func XServerConfigParser(buff []byte) {
 	x := string(buff)
 	l4g.Info(fmt.Sprintf("get xserver config buff is %s ", x))
-	err := json.Unmarshal(buff, &XServiceSetting)
-	l4g.Info(fmt.Sprintf("get xserver config is %v %v ", XServiceSetting, err))
+	err := json.Unmarshal(buff, &XSS)
+	l4g.Info(fmt.Sprintf("get xserver config is %v %v ", XSS, err))
 	if err != nil {
-		XServerConfigResult = false
+		XSCR = false
 	} else {
-		XServerConfigResult = true
-		configureLog(&XServiceSetting.LogSetting)
+		XSCR = true
+		configureLog(&XSS.LogSetting)
 	}
 }
 

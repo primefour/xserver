@@ -9,7 +9,7 @@ import (
 
 var sessionCache *utils.Cache = utils.NewLru(model.SESSION_CACHE_SIZE)
 
-func CreateSession(session *model.Session) (*model.Session, *model.AppError) {
+func CreateSession(session *model.Session) (*model.Session, *utils.AppError) {
 	if result := <-Srv.Store.Session().Save(session); result.Err != nil {
 		return nil, result.Err
 	} else {

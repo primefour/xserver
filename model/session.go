@@ -28,7 +28,6 @@ type Session struct {
 	Roles          string          `json:"roles"`
 	IsOAuth        bool            `json:"is_oauth"`
 	Props          utils.StringMap `json:"props"`
-	//	TeamMembers    []*TeamMember `json:"team_members" db:"-"`
 }
 
 func (me *Session) ToJson() string {
