@@ -5,6 +5,7 @@ import (
 	l4g "github.com/alecthomas/log4go"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -63,7 +64,9 @@ func WatcherNotify() {
 				}
 			}
 			//we only care about the directory we register
+			l4g.Debug("event.Name = %s ", event.Name)
 			edir, _ := filepath.Split(event.Name)
+			l4g.Debug("event.Name = edir %s ", edir)
 			dpn, eok := dirNameMap[edir]
 			if eok && dpn != nil {
 				if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create {
@@ -92,6 +95,7 @@ func AddFileWatch(file string, updateFpn FileUpdateFpn) {
 			fileWatcher.Add(fileDir)
 		}
 	}
+	l4g.Debug("add watcher for file %s ", file)
 	fileNameMap[file] = updateFpn
 	onceNotifyInit.Do(watcherOnce)
 }
@@ -123,7 +127,17 @@ func AddDirWatch(dir string, updatefpn DirUpdateFpn) {
 	dir, _ = filepath.Abs(dir)
 	var fileDir string
 	if fileWatcher != nil {
-		fileDir, _ = filepath.Split(dir)
+		fileInfo, err := os.Lstat(dir)
+
+		if err != nil {
+			l4g.Warn("the watched file not create or destroy %s ", dir)
+		}
+
+		if fileInfo != nil && !fileInfo.Mode().IsDir() {
+			fileDir, _ = filepath.Split(dir)
+		} else {
+			fileDir = dir
+		}
 		_, ok := dirMap[fileDir]
 		if ok {
 			dirMap[fileDir]++
@@ -132,6 +146,7 @@ func AddDirWatch(dir string, updatefpn DirUpdateFpn) {
 			fileWatcher.Add(fileDir)
 		}
 	}
+	l4g.Debug("watch fileDir = %s ", fileDir)
 	dirNameMap[fileDir] = updatefpn
 	onceNotifyInit.Do(watcherOnce)
 }

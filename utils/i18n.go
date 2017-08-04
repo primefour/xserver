@@ -42,14 +42,14 @@ func InitTranslations() {
 }
 
 func initTranslationsWithDir(dir string) {
-	i18nDirectory := FindDir(dir)
-	files, _ := ioutil.ReadDir(i18nDirectory)
+	dir += "/"
+	files, _ := ioutil.ReadDir(dir)
 	for _, f := range files {
 		l4g.Info(fmt.Sprintf("i18n f %s", f.Name()))
 		if filepath.Ext(f.Name()) == ".json" {
 			filename := f.Name()
-			locales[strings.Split(filename, ".")[0]] = i18nDirectory + filename
-			i18n.MustLoadTranslationFile(i18nDirectory + filename)
+			locales[strings.Split(filename, ".")[0]] = dir + filename
+			i18n.MustLoadTranslationFile(dir + filename)
 		}
 	}
 	GetUserTranslations(DEFAULT_LOCALE)

@@ -25,6 +25,7 @@ type HTMLTemplate struct {
 func InitHTML() {
 	templatesDir := FindDir(htmlTemplateDirName)
 	htmlTemplatePath, _ = filepath.Abs(templatesDir)
+	htmlTemplatePath += "/"
 	l4g.Debug(T("api.api.init.parsing_templates.debug"), htmlTemplatePath)
 	initHTMLWithDir(htmlTemplatePath)
 }
