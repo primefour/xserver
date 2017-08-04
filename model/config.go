@@ -311,7 +311,7 @@ type WebrtcSettings struct {
 }
 
 type Config struct {
-	ServiceSettings      ServiceSettings
+	ServiceSettings      XServerSettings
 	TeamSettings         TeamSettings
 	SqlSettings          SqlSettings
 	LogSettings          LogSettings

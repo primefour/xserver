@@ -1,12 +1,8 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	l4g "github.com/alecthomas/log4go"
-	"github.com/primefour/xserver/api"
-	"github.com/primefour/xserver/app"
-	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/utils"
 	"os"
 	"os/signal"
@@ -31,57 +27,24 @@ type WebAppIntf interface {
 	GetAppName() string
 }
 
-type XServer struct {
-	configFilePath string
-	xconfig        *utils.XConfig
-	apps           map[string]WebAppIntf
-	tDefault       i18n.TranslateFunc //system
-}
-
-type OriginCheckerProc func(*http.Request) bool
-
-func OriginChecker(r *http.Request) bool {
-	origin := r.Header.Get("Origin")
-	return *model.XServiceSetting.AllowCorsFrom == "*" || strings.Contains(*model.XServiceSetting.AllowCorsFrom, origin)
-}
-
-func GetOriginChecker(r *http.Request) OriginCheckerProc {
-	if len(*model.XServiceSetting.AllowCorsFrom) > 0 {
-		return OriginChecker
-	}
-	return nil
-}
+var xserver_apps = map[string]WebAppIntf{}
 
 func initServer() {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Sprintf("%v", r)
+			err := fmt.Sprintf("%v", r)
+			l4g.Error(err)
 		}
 	}()
-	xserver.xconfig = utils.NewXConfig("xserver", xserver.configFilePath, true, model.XServerConfigParser)
+	utils.InitLogSystem()
 	//init locale
 	utils.InitTranslations()
 	//init html templates
 	utils.InitHTML()
-	//load config
-	xserver.xconfig.UpdateForce()
-
-	if !model.XServerConfigResult {
-		l4g.Error("xserver load config file fail ")
-		return
-	}
-
-	//get translate function
-	if len(*model.XServiceSetting.ServerLocale) != 0 {
-		xserver.tDefault = utils.GetUserTranslations(*model.XServiceSetting.ServerLocale)
-	} else {
-		xserver.tDefault = utils.GetUserTranslations(utils.DEFAULT_LOCALE)
-	}
-
 }
 
 func runApps() {
-	for appName, appIntf := range xserver.apps {
+	for appName, appIntf := range xserver_apps {
 		name = appIntf.GetAppName()
 		if appName != name {
 			l4g.Error("Register Name is not consistent with actual name")
@@ -118,7 +81,7 @@ func runApps() {
 }
 
 func stopApps() {
-	for appName, appIntf := range xserver.apps {
+	for appName, appIntf := range xserver_apps {
 		l4g.Info("stop service of %s ", appName)
 		appIntf.StopServer()
 	}
@@ -127,9 +90,6 @@ func stopApps() {
 //init locale and log system before start server
 func runServer() {
 	runApps()
-	go runSecurityJob()
-	go runDiagnosticsJob()
-	go runTokenCleanupJob()
 	// wait for kill signal before attempting to gracefully shutdown
 	// the running service
 	c := make(chan os.Signal)
@@ -138,45 +98,7 @@ func runServer() {
 	stopApps()
 }
 
-func runSecurityJob() {
-	doSecurity()
-}
-
-func runDiagnosticsJob() {
-	doDiagnostics()
-}
-
-func runTokenCleanupJob() {
-	doTokenCleanup()
-}
-
-func resetStatuses() {
-}
-
-func setDiagnosticId() {
-}
-
-func doSecurity() {
-}
-
-func doDiagnostics() {
-}
-
-func doTokenCleanup() {
-	app.Srv.Store.Token().Cleanup()
-}
-
-//static add app
-var xserver = XServer{
-	apps: map[string]WebAppIntf{},
-}
-
-func init() {
-	flag.StringVar(&xserver.configFilePath, "config", "./config", "config file for server")
-}
-
 func main() {
-	flag.Parse()
 	initServer()
 	runServer()
 }

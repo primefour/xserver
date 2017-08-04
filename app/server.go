@@ -19,6 +19,23 @@ import (
 	"gopkg.in/throttled/throttled.v2/store/memstore"
 )
 
+type OriginCheckerProc func(*http.Request) bool
+
+func OriginChecker(r *http.Request) bool {
+	origin := r.Header.Get("Origin")
+	xserver.xconfig = utils.NewXConfig("xserver", xserver.configFilePath, true, model.XServerConfigParser)
+	//load config
+	xserver.xconfig.UpdateForce()
+	return *model.XServiceSetting.AllowCorsFrom == "*" || strings.Contains(*model.XServiceSetting.AllowCorsFrom, origin)
+}
+
+func GetOriginChecker(r *http.Request) OriginCheckerProc {
+	if len(*model.XServiceSetting.AllowCorsFrom) > 0 {
+		return OriginChecker
+	}
+	return nil
+}
+
 type Server struct {
 	Store          store.Store
 	Router         *mux.Router
@@ -60,7 +77,6 @@ func (cw *CorsWrapper) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "OPTIONS" {
 		return
 	}
-
 	cw.router.ServeHTTP(w, r)
 }
 
