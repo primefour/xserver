@@ -17,11 +17,11 @@ const (
 )
 
 type WebAppIntf interface {
-	NewInstance()
-	InitStores()
-	InitRouter()
-	InitApi()
-	StartServer()
+	NewInstance() bool
+	InitStores() bool
+	InitRouter() bool
+	InitApi() bool
+	StartServer() bool
 	StopServer()
 	LoadConfig() bool
 	GetAppName() string
@@ -45,7 +45,7 @@ func initServer() {
 
 func runApps() {
 	for appName, appIntf := range xserver_apps {
-		name = appIntf.GetAppName()
+		name := appIntf.GetAppName()
 		if appName != name {
 			l4g.Error("Register Name is not consistent with actual name")
 			continue
@@ -73,10 +73,15 @@ func runApps() {
 			l4g.Error(fmt.Sprintf("%s init api fail ", appName))
 			continue
 		}
-		if !appIntf.StartServer() {
-			l4g.Error(fmt.Sprintf("%s start server fail ", appName))
-			continue
-		}
+
+		//start a service
+		go func() {
+			if !appIntf.StartServer() {
+				l4g.Error(fmt.Sprintf("%s start server fail ", appName))
+				return
+			}
+			appIntf.StopServer()
+		}()
 	}
 }
 

@@ -96,7 +96,7 @@ func configureLog(s *LogSettings) {
 
 func getLogFileLocation(fileLocation string) string {
 	if fileLocation == "" {
-		return utils.FindDir(LOG_DIRNAME) + LOG_FILENAME
+		return FindDir(LOG_DIRNAME) + LOG_FILENAME
 	} else {
 		return fileLocation + LOG_FILENAME
 	}
