@@ -24,11 +24,28 @@ type LogSettings struct {
 	EnableDiagnostics      *bool
 }
 
-var defaultLogSetting = LogSettings{
-	EnableConsole: true,
-	ConsoleLevel:  "DEBUG",
-	EnableFile:    true,
-	FileLevel:     "DEBUG",
+func (self *LogSettings) setDefault() {
+	if self.LogSettings.EnableDiagnostics == nil {
+		self.LogSettings.EnableDiagnostics = new(bool)
+		*self.LogSettings.EnableDiagnostics = true
+	}
+	self.EnableConsole = true
+	self.ConsoleLevel = "DEBUG"
+	self.EnableFile = true
+	self.FileLevel = "DEBUG"
+
+}
+
+func (self *LogSettings) isValidate() *AppError {
+	if self.FileLevel != "DEBUG" || self.FileLevel != "INFO" || self.FileLevel != "WARN" || self.FileLevel != "ERROR" {
+		return NewLocAppError("Config.IsValid", "utils.logconfig.is_valid.level_error", nil, "")
+	}
+}
+
+var defaultLogSetting = LogSettings{}
+
+func init() {
+	defaultLogSetting.setDefault()
 }
 
 func InitLogSystem() {

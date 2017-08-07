@@ -2,11 +2,6 @@ package app
 
 import (
 	"crypto/tls"
-	"net"
-	"net/http"
-	"strings"
-	"time"
-
 	l4g "github.com/alecthomas/log4go"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -17,6 +12,10 @@ import (
 	"github.com/tylerb/graceful"
 	"gopkg.in/throttled/throttled.v2"
 	"gopkg.in/throttled/throttled.v2/store/memstore"
+	"net"
+	"net/http"
+	"strings"
+	"time"
 )
 
 type OriginCheckerProc func(*http.Request) bool

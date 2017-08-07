@@ -6134,5 +6134,9 @@
   {
     "id": "wsapi.webrtc.init.debug",
     "translation": "正在初始化 webrtc Websocket API 路由"
+  },
+  {
+      "id":"utils.logconfig.is_valid.level_error",
+      "translation":"log leve config error"
   }
 ]
