@@ -10,6 +10,14 @@ type PrivacySettings struct {
 	ShowFullName     bool
 }
 
+func (self *PrivacySettings) setDefault() {
+
+}
+
+func (self *PrivacySettings) IsValidate() *utils.AppError {
+	return nil
+}
+
 type SupportSettings struct {
 	TermsOfServiceLink *string
 	PrivacyPolicyLink  *string
@@ -20,55 +28,59 @@ type SupportSettings struct {
 }
 
 func (self *SupportSettings) setDefault() {
-	if !utils.IsSafeLink(self.SupportSettings.TermsOfServiceLink) {
-		*self.SupportSettings.TermsOfServiceLink = SUPPORT_SETTINGS_DEFAULT_TERMS_OF_SERVICE_LINK
+	if !utils.IsSafeLink(self.TermsOfServiceLink) {
+		*self.TermsOfServiceLink = SUPPORT_SETTINGS_DEFAULT_TERMS_OF_SERVICE_LINK
 	}
 
-	if self.SupportSettings.TermsOfServiceLink == nil {
-		self.SupportSettings.TermsOfServiceLink = new(string)
-		*self.SupportSettings.TermsOfServiceLink = SUPPORT_SETTINGS_DEFAULT_TERMS_OF_SERVICE_LINK
+	if self.TermsOfServiceLink == nil {
+		self.TermsOfServiceLink = new(string)
+		*self.TermsOfServiceLink = SUPPORT_SETTINGS_DEFAULT_TERMS_OF_SERVICE_LINK
 	}
 
-	if !utils.IsSafeLink(self.SupportSettings.PrivacyPolicyLink) {
-		*self.SupportSettings.PrivacyPolicyLink = ""
+	if !utils.IsSafeLink(self.PrivacyPolicyLink) {
+		*self.PrivacyPolicyLink = ""
 	}
 
-	if self.SupportSettings.PrivacyPolicyLink == nil {
-		self.SupportSettings.PrivacyPolicyLink = new(string)
-		*self.SupportSettings.PrivacyPolicyLink = SUPPORT_SETTINGS_DEFAULT_PRIVACY_POLICY_LINK
+	if self.PrivacyPolicyLink == nil {
+		self.PrivacyPolicyLink = new(string)
+		*self.PrivacyPolicyLink = SUPPORT_SETTINGS_DEFAULT_PRIVACY_POLICY_LINK
 	}
 
-	if !utils.IsSafeLink(self.SupportSettings.AboutLink) {
-		*self.SupportSettings.AboutLink = ""
+	if !utils.IsSafeLink(self.AboutLink) {
+		*self.AboutLink = ""
 	}
 
-	if self.SupportSettings.AboutLink == nil {
-		self.SupportSettings.AboutLink = new(string)
-		*self.SupportSettings.AboutLink = SUPPORT_SETTINGS_DEFAULT_ABOUT_LINK
+	if self.AboutLink == nil {
+		self.AboutLink = new(string)
+		*self.AboutLink = SUPPORT_SETTINGS_DEFAULT_ABOUT_LINK
 	}
 
-	if !utils.IsSafeLink(self.SupportSettings.HelpLink) {
-		*self.SupportSettings.HelpLink = ""
+	if !utils.IsSafeLink(self.HelpLink) {
+		*self.HelpLink = ""
 	}
 
-	if self.SupportSettings.HelpLink == nil {
-		self.SupportSettings.HelpLink = new(string)
-		*self.SupportSettings.HelpLink = SUPPORT_SETTINGS_DEFAULT_HELP_LINK
+	if self.HelpLink == nil {
+		self.HelpLink = new(string)
+		*self.HelpLink = SUPPORT_SETTINGS_DEFAULT_HELP_LINK
 	}
 
-	if !utils.IsSafeLink(self.SupportSettings.ReportAProblemLink) {
-		*self.SupportSettings.ReportAProblemLink = ""
+	if !utils.IsSafeLink(self.ReportAProblemLink) {
+		*self.ReportAProblemLink = ""
 	}
 
-	if self.SupportSettings.ReportAProblemLink == nil {
-		self.SupportSettings.ReportAProblemLink = new(string)
-		*self.SupportSettings.ReportAProblemLink = SUPPORT_SETTINGS_DEFAULT_REPORT_A_PROBLEM_LINK
+	if self.ReportAProblemLink == nil {
+		self.ReportAProblemLink = new(string)
+		*self.ReportAProblemLink = SUPPORT_SETTINGS_DEFAULT_REPORT_A_PROBLEM_LINK
 	}
 
-	if self.SupportSettings.SupportEmail == nil {
-		self.SupportSettings.SupportEmail = new(string)
-		*self.SupportSettings.SupportEmail = SUPPORT_SETTINGS_DEFAULT_SUPPORT_EMAIL
+	if self.SupportEmail == nil {
+		self.SupportEmail = new(string)
+		*self.SupportEmail = SUPPORT_SETTINGS_DEFAULT_SUPPORT_EMAIL
 	}
+}
+
+func (self *SupportSettings) IsValidate() *utils.AppError {
+	return nil
 }
 
 type TeamSettings struct {
@@ -96,119 +108,154 @@ type TeamSettings struct {
 }
 
 func (self *TeamSettings) setDefault() {
-	if self.TeamSettings.EnableCustomBrand == nil {
-		self.TeamSettings.EnableCustomBrand = new(bool)
-		*self.TeamSettings.EnableCustomBrand = false
+	if self.EnableCustomBrand == nil {
+		self.EnableCustomBrand = new(bool)
+		*self.EnableCustomBrand = false
 	}
 
-	if self.TeamSettings.CustomBrandText == nil {
-		self.TeamSettings.CustomBrandText = new(string)
-		*self.TeamSettings.CustomBrandText = TEAM_SETTINGS_DEFAULT_CUSTOM_BRAND_TEXT
+	if self.CustomBrandText == nil {
+		self.CustomBrandText = new(string)
+		*self.CustomBrandText = TEAM_SETTINGS_DEFAULT_CUSTOM_BRAND_TEXT
 	}
 
-	if self.TeamSettings.CustomDescriptionText == nil {
-		self.TeamSettings.CustomDescriptionText = new(string)
-		*self.TeamSettings.CustomDescriptionText = TEAM_SETTINGS_DEFAULT_CUSTOM_DESCRIPTION_TEXT
+	if self.CustomDescriptionText == nil {
+		self.CustomDescriptionText = new(string)
+		*self.CustomDescriptionText = TEAM_SETTINGS_DEFAULT_CUSTOM_DESCRIPTION_TEXT
 	}
 
-	if self.TeamSettings.EnableOpenServer == nil {
-		self.TeamSettings.EnableOpenServer = new(bool)
-		*self.TeamSettings.EnableOpenServer = false
+	if self.EnableOpenServer == nil {
+		self.EnableOpenServer = new(bool)
+		*self.EnableOpenServer = false
 	}
 
-	if self.TeamSettings.RestrictDirectMessage == nil {
-		self.TeamSettings.RestrictDirectMessage = new(string)
-		*self.TeamSettings.RestrictDirectMessage = DIRECT_MESSAGE_ANY
+	if self.RestrictDirectMessage == nil {
+		self.RestrictDirectMessage = new(string)
+		*self.RestrictDirectMessage = DIRECT_MESSAGE_ANY
 	}
 
-	if self.TeamSettings.RestrictTeamInvite == nil {
-		self.TeamSettings.RestrictTeamInvite = new(string)
-		*self.TeamSettings.RestrictTeamInvite = PERMISSIONS_ALL
+	if self.RestrictTeamInvite == nil {
+		self.RestrictTeamInvite = new(string)
+		*self.RestrictTeamInvite = PERMISSIONS_ALL
 	}
 
-	if self.TeamSettings.RestrictPublicChannelManagement == nil {
-		self.TeamSettings.RestrictPublicChannelManagement = new(string)
-		*self.TeamSettings.RestrictPublicChannelManagement = PERMISSIONS_ALL
+	if self.RestrictPublicChannelManagement == nil {
+		self.RestrictPublicChannelManagement = new(string)
+		*self.RestrictPublicChannelManagement = PERMISSIONS_ALL
 	}
 
-	if self.TeamSettings.RestrictPrivateChannelManagement == nil {
-		self.TeamSettings.RestrictPrivateChannelManagement = new(string)
-		*self.TeamSettings.RestrictPrivateChannelManagement = PERMISSIONS_ALL
+	if self.RestrictPrivateChannelManagement == nil {
+		self.RestrictPrivateChannelManagement = new(string)
+		*self.RestrictPrivateChannelManagement = PERMISSIONS_ALL
 	}
 
-	if self.TeamSettings.RestrictPublicChannelCreation == nil {
-		self.TeamSettings.RestrictPublicChannelCreation = new(string)
+	if self.RestrictPublicChannelCreation == nil {
+		self.RestrictPublicChannelCreation = new(string)
 		// If this setting does not exist, assume migration from <3.6, so use management setting as default.
-		if *self.TeamSettings.RestrictPublicChannelManagement == PERMISSIONS_CHANNEL_ADMIN {
-			*self.TeamSettings.RestrictPublicChannelCreation = PERMISSIONS_TEAM_ADMIN
+		if *self.RestrictPublicChannelManagement == PERMISSIONS_CHANNEL_ADMIN {
+			*self.RestrictPublicChannelCreation = PERMISSIONS_TEAM_ADMIN
 		} else {
-			*self.TeamSettings.RestrictPublicChannelCreation = *self.TeamSettings.RestrictPublicChannelManagement
+			*self.RestrictPublicChannelCreation = *self.RestrictPublicChannelManagement
 		}
 	}
 
-	if self.TeamSettings.RestrictPrivateChannelCreation == nil {
-		self.TeamSettings.RestrictPrivateChannelCreation = new(string)
+	if self.RestrictPrivateChannelCreation == nil {
+		self.RestrictPrivateChannelCreation = new(string)
 		// If this setting does not exist, assume migration from <3.6, so use management setting as default.
-		if *self.TeamSettings.RestrictPrivateChannelManagement == PERMISSIONS_CHANNEL_ADMIN {
-			*self.TeamSettings.RestrictPrivateChannelCreation = PERMISSIONS_TEAM_ADMIN
+		if *self.RestrictPrivateChannelManagement == PERMISSIONS_CHANNEL_ADMIN {
+			*self.RestrictPrivateChannelCreation = PERMISSIONS_TEAM_ADMIN
 		} else {
-			*self.TeamSettings.RestrictPrivateChannelCreation = *self.TeamSettings.RestrictPrivateChannelManagement
+			*self.RestrictPrivateChannelCreation = *self.RestrictPrivateChannelManagement
 		}
 	}
 
-	if self.TeamSettings.RestrictPublicChannelDeletion == nil {
-		self.TeamSettings.RestrictPublicChannelDeletion = new(string)
+	if self.RestrictPublicChannelDeletion == nil {
+		self.RestrictPublicChannelDeletion = new(string)
 		// If this setting does not exist, assume migration from <3.6, so use management setting as default.
-		*self.TeamSettings.RestrictPublicChannelDeletion = *self.TeamSettings.RestrictPublicChannelManagement
+		*self.RestrictPublicChannelDeletion = *self.RestrictPublicChannelManagement
 	}
 
-	if self.TeamSettings.RestrictPrivateChannelDeletion == nil {
-		self.TeamSettings.RestrictPrivateChannelDeletion = new(string)
+	if self.RestrictPrivateChannelDeletion == nil {
+		self.RestrictPrivateChannelDeletion = new(string)
 		// If this setting does not exist, assume migration from <3.6, so use management setting as default.
-		*self.TeamSettings.RestrictPrivateChannelDeletion = *self.TeamSettings.RestrictPrivateChannelManagement
+		*self.RestrictPrivateChannelDeletion = *self.RestrictPrivateChannelManagement
 	}
 
-	if self.TeamSettings.RestrictPrivateChannelManageMembers == nil {
-		self.TeamSettings.RestrictPrivateChannelManageMembers = new(string)
-		*self.TeamSettings.RestrictPrivateChannelManageMembers = PERMISSIONS_ALL
+	if self.RestrictPrivateChannelManageMembers == nil {
+		self.RestrictPrivateChannelManageMembers = new(string)
+		*self.RestrictPrivateChannelManageMembers = PERMISSIONS_ALL
 	}
 
-	if self.TeamSettings.UserStatusAwayTimeout == nil {
-		self.TeamSettings.UserStatusAwayTimeout = new(int64)
-		*self.TeamSettings.UserStatusAwayTimeout = TEAM_SETTINGS_DEFAULT_USER_STATUS_AWAY_TIMEOUT
+	if self.UserStatusAwayTimeout == nil {
+		self.UserStatusAwayTimeout = new(int64)
+		*self.UserStatusAwayTimeout = TEAM_SETTINGS_DEFAULT_USER_STATUS_AWAY_TIMEOUT
 	}
 
-	if self.TeamSettings.MaxChannelsPerTeam == nil {
-		self.TeamSettings.MaxChannelsPerTeam = new(int64)
-		*self.TeamSettings.MaxChannelsPerTeam = 2000
+	if self.MaxChannelsPerTeam == nil {
+		self.MaxChannelsPerTeam = new(int64)
+		*self.MaxChannelsPerTeam = 2000
 	}
 
-	if self.TeamSettings.MaxNotificationsPerChannel == nil {
-		self.TeamSettings.MaxNotificationsPerChannel = new(int64)
-		*self.TeamSettings.MaxNotificationsPerChannel = 1000
+	if self.MaxNotificationsPerChannel == nil {
+		self.MaxNotificationsPerChannel = new(int64)
+		*self.MaxNotificationsPerChannel = 1000
 	}
 }
 
 func (self *TeamSettings) IsValidate() *utils.AppError {
 
-	if self.TeamSettings.MaxUsersPerTeam <= 0 {
+	if self.MaxUsersPerTeam <= 0 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.max_users.app_error", nil, "")
 	}
 
-	if *self.TeamSettings.MaxChannelsPerTeam <= 0 {
+	if *self.MaxChannelsPerTeam <= 0 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.max_channels.app_error", nil, "")
 	}
 
-	if *self.TeamSettings.MaxNotificationsPerChannel <= 0 {
+	if *self.MaxNotificationsPerChannel <= 0 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.max_notify_per_channel.app_error", nil, "")
 	}
 
-	if !(*self.TeamSettings.RestrictDirectMessage == DIRECT_MESSAGE_ANY || *self.TeamSettings.RestrictDirectMessage == DIRECT_MESSAGE_TEAM) {
+	if !(*self.RestrictDirectMessage == DIRECT_MESSAGE_ANY || *self.RestrictDirectMessage == DIRECT_MESSAGE_TEAM) {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.restrict_direct_message.app_error", nil, "")
 	}
 
-	if len(self.TeamSettings.SiteName) > SITENAME_MAX_LENGTH {
+	if len(self.SiteName) > SITENAME_MAX_LENGTH {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.sitename_length.app_error", map[string]interface{}{"MaxLength": SITENAME_MAX_LENGTH}, "")
 	}
 
 }
+
+/*
+func (o *Config) ToJson() string {
+	b, err := json.Marshal(o)
+	if err != nil {
+		return ""
+	} else {
+		return string(b)
+	}
+}
+
+func (o *Config) GetSSOService(service string) *SSOSettings {
+	switch service {
+	case SERVICE_GITLAB:
+		return &o.GitLabSettings
+	case SERVICE_GOOGLE:
+		return &o.GoogleSettings
+	case SERVICE_OFFICE365:
+		return &o.Office365Settings
+	}
+
+	return nil
+}
+
+func ConfigFromJson(data io.Reader) *Config {
+	decoder := json.NewDecoder(data)
+	var o Config
+	err := decoder.Decode(&o)
+	if err == nil {
+		return &o
+	} else {
+		return nil
+	}
+}
+*/
