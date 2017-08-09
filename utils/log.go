@@ -25,9 +25,9 @@ type LogSettings struct {
 }
 
 func (self *LogSettings) setDefault() {
-	if self.LogSettings.EnableDiagnostics == nil {
-		self.LogSettings.EnableDiagnostics = new(bool)
-		*self.LogSettings.EnableDiagnostics = true
+	if self.EnableDiagnostics == nil {
+		self.EnableDiagnostics = new(bool)
+		*self.EnableDiagnostics = true
 	}
 	self.EnableConsole = true
 	self.ConsoleLevel = "DEBUG"
@@ -37,9 +37,11 @@ func (self *LogSettings) setDefault() {
 }
 
 func (self *LogSettings) isValidate() *AppError {
-	if self.FileLevel != "DEBUG" || self.FileLevel != "INFO" || self.FileLevel != "WARN" || self.FileLevel != "ERROR" {
+	if self.FileLevel != "DEBUG" || self.FileLevel != "INFO" ||
+		self.FileLevel != "WARN" || self.FileLevel != "ERROR" {
 		return NewLocAppError("Config.IsValid", "utils.logconfig.is_valid.level_error", nil, "")
 	}
+	return nil
 }
 
 var defaultLogSetting = LogSettings{}

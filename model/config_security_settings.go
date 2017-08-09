@@ -1,5 +1,9 @@
 package model
 
+import (
+	"github.com/primefour/xserver/utils"
+)
+
 type SamlSettings struct {
 	// Basic
 	Enable  *bool
@@ -117,11 +121,11 @@ func (self *SamlSettings) setDefault() {
 func (self *SamlSettings) IsValidate() *utils.AppError {
 
 	if *self.Enable {
-		if len(*self.IdpUrl) == 0 || !IsValidHttpUrl(*self.IdpUrl) {
+		if len(*self.IdpUrl) == 0 || !utils.IsValidHttpUrl(*self.IdpUrl) {
 			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_idp_url.app_error", nil, "")
 		}
 
-		if len(*self.IdpDescriptorUrl) == 0 || !IsValidHttpUrl(*self.IdpDescriptorUrl) {
+		if len(*self.IdpDescriptorUrl) == 0 || !utils.IsValidHttpUrl(*self.IdpDescriptorUrl) {
 			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_idp_descriptor_url.app_error", nil, "")
 		}
 
@@ -138,7 +142,7 @@ func (self *SamlSettings) IsValidate() *utils.AppError {
 		}
 
 		if *self.Verify {
-			if len(*self.AssertionConsumerServiceURL) == 0 || !IsValidHttpUrl(*self.AssertionConsumerServiceURL) {
+			if len(*self.AssertionConsumerServiceURL) == 0 || !utils.IsValidHttpUrl(*self.AssertionConsumerServiceURL) {
 				return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.saml_assertion_consumer_service_url.app_error", nil, "")
 			}
 		}
@@ -332,6 +336,7 @@ func (self *LdapSettings) IsValidate() *utils.AppError {
 			return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.ldap_id", nil, "")
 		}
 	}
+	return nil
 
 }
 
@@ -349,5 +354,5 @@ func (self *SSOSettings) setDefault() {
 }
 
 func (self *SSOSettings) IsValidate() *utils.AppError {
-
+	return nil
 }

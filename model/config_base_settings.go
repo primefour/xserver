@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"github.com/primefour/xserver/utils"
 )
 
@@ -16,33 +15,33 @@ type SqlSettings struct {
 	AtRestEncryptKey         string
 }
 
-func (self *SqlSettings) setDefault() {
-
-	if len(self.SqlSettings.AtRestEncryptKey) == 0 {
-		self.SqlSettings.AtRestEncryptKey = NewRandomString(32)
+func (self *SqlSettings) SetDefault() {
+	if len(self.AtRestEncryptKey) == 0 {
+		self.AtRestEncryptKey = utils.NewRandomString(32)
 	}
 }
 
 func (self *SqlSettings) IsValidate() *utils.AppError {
-	if len(self.SqlSettings.AtRestEncryptKey) < 32 {
+	if len(self.AtRestEncryptKey) < 32 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.encrypt_sql.app_error", nil, "")
 	}
 
-	if !(self.SqlSettings.DriverName == DATABASE_DRIVER_MYSQL || self.SqlSettings.DriverName == DATABASE_DRIVER_POSTGRES) {
+	if !(self.DriverName == DATABASE_DRIVER_MYSQL || self.DriverName == DATABASE_DRIVER_POSTGRES) {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.sql_driver.app_error", nil, "")
 	}
 
-	if self.SqlSettings.MaxIdleConns <= 0 {
+	if self.MaxIdleConns <= 0 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.sql_idle.app_error", nil, "")
 	}
 
-	if len(self.SqlSettings.DataSource) == 0 {
+	if len(self.DataSource) == 0 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.sql_data_src.app_error", nil, "")
 	}
 
-	if self.SqlSettings.MaxOpenConns <= 0 {
+	if self.MaxOpenConns <= 0 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.sql_max_conn.app_error", nil, "")
 	}
+	return nil
 }
 
 type PasswordSettings struct {
@@ -53,37 +52,38 @@ type PasswordSettings struct {
 	Symbol        *bool
 }
 
-func (self *PasswordSettings) setDefault() {
-	if self.PasswordSettings.MinimumLength == nil {
-		self.PasswordSettings.MinimumLength = new(int)
-		*self.PasswordSettings.MinimumLength = PASSWORD_MINIMUM_LENGTH
+func (self *PasswordSettings) SetDefault() {
+	if self.MinimumLength == nil {
+		self.MinimumLength = new(int)
+		*self.MinimumLength = PASSWORD_MINIMUM_LENGTH
 	}
 
-	if self.PasswordSettings.Lowercase == nil {
-		self.PasswordSettings.Lowercase = new(bool)
-		*self.PasswordSettings.Lowercase = false
+	if self.Lowercase == nil {
+		self.Lowercase = new(bool)
+		*self.Lowercase = false
 	}
 
-	if self.PasswordSettings.Number == nil {
-		self.PasswordSettings.Number = new(bool)
-		*self.PasswordSettings.Number = false
+	if self.Number == nil {
+		self.Number = new(bool)
+		*self.Number = false
 	}
 
-	if self.PasswordSettings.Uppercase == nil {
-		self.PasswordSettings.Uppercase = new(bool)
-		*self.PasswordSettings.Uppercase = false
+	if self.Uppercase == nil {
+		self.Uppercase = new(bool)
+		*self.Uppercase = false
 	}
 
-	if self.PasswordSettings.Symbol == nil {
-		self.PasswordSettings.Symbol = new(bool)
-		*self.PasswordSettings.Symbol = false
+	if self.Symbol == nil {
+		self.Symbol = new(bool)
+		*self.Symbol = false
 	}
 }
 
-func (self *PasswordSettings) IsValidate() utils.AppError {
-	if *self.PasswordSettings.MinimumLength < PASSWORD_MINIMUM_LENGTH || *self.PasswordSettings.MinimumLength > PASSWORD_MAXIMUM_LENGTH {
+func (self *PasswordSettings) IsValidate() *utils.AppError {
+	if *self.MinimumLength < PASSWORD_MINIMUM_LENGTH || *self.MinimumLength > PASSWORD_MAXIMUM_LENGTH {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.password_length.app_error", map[string]interface{}{"MinLength": PASSWORD_MINIMUM_LENGTH, "MaxLength": PASSWORD_MAXIMUM_LENGTH}, "")
 	}
+	return nil
 }
 
 type FileSettings struct {
@@ -108,7 +108,7 @@ type FileSettings struct {
 	AmazonS3SSL             *bool
 }
 
-func (self *FileSettings) setDefault() {
+func (self *FileSettings) SetDefault() {
 	if self.AmazonS3Endpoint == "" {
 		// Defaults to "s3.amazonaws.com"
 		self.AmazonS3Endpoint = "s3.amazonaws.com"
@@ -186,6 +186,7 @@ func (self *FileSettings) IsValidate() *utils.AppError {
 	if len(*self.PublicLinkSalt) < 32 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.file_salt.app_error", nil, "")
 	}
+	return nil
 }
 
 type EmailSettings struct {
@@ -212,9 +213,9 @@ type EmailSettings struct {
 	SkipServerCertificateVerification *bool
 }
 
-func (self *EmailSettings) setDefault() {
+func (self *EmailSettings) SetDefault() {
 	if len(self.InviteSalt) == 0 {
-		self.InviteSalt = NewRandomString(32)
+		self.InviteSalt = utils.NewRandomString(32)
 	}
 
 	if self.EnableSignInWithEmail == nil {
@@ -290,6 +291,7 @@ func (self *EmailSettings) IsValidate() *utils.AppError {
 	if *self.EmailBatchingInterval < 30 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.email_batching_interval.app_error", nil, "")
 	}
+	return nil
 }
 
 type RateLimitSettings struct {
@@ -301,7 +303,7 @@ type RateLimitSettings struct {
 	VaryByHeader     string
 }
 
-func (self *RateLimitSettings) setDefault() {
+func (self *RateLimitSettings) SetDefault() {
 	if self.Enable == nil {
 		self.Enable = new(bool)
 		*self.Enable = false
@@ -324,4 +326,33 @@ func (self *RateLimitSettings) IsValidate() *utils.AppError {
 	if *self.MaxBurst <= 0 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.max_burst.app_error", nil, "")
 	}
+	return nil
+}
+
+type LocalizationSettings struct {
+	DefaultServerLocale *string
+	DefaultClientLocale *string
+	AvailableLocales    *string
+}
+
+func (self *LocalizationSettings) SetDefault() {
+
+	if self.DefaultServerLocale == nil {
+		self.DefaultServerLocale = new(string)
+		*self.DefaultServerLocale = utils.DEFAULT_LOCALE
+	}
+
+	if self.DefaultClientLocale == nil {
+		self.DefaultClientLocale = new(string)
+		*self.DefaultClientLocale = utils.DEFAULT_LOCALE
+	}
+
+	if self.AvailableLocales == nil {
+		self.AvailableLocales = new(string)
+		*self.AvailableLocales = ""
+	}
+}
+
+func (self *LocalizationSettings) IsValidate() *utils.AppError {
+	return nil
 }

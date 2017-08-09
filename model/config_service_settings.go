@@ -1,9 +1,7 @@
 package model
 
 import (
-	"encoding/json"
 	"github.com/primefour/xserver/utils"
-	"io"
 	"net/url"
 )
 
@@ -54,7 +52,7 @@ type ServiceSettings struct {
 	ClusterLogTimeoutMilliseconds            *int
 }
 
-func (self *ServiceSettings) setDefault() {
+func (self *ServiceSettings) SetDefault() {
 
 	if self.SiteURL == nil {
 		self.SiteURL = new(string)
@@ -234,7 +232,7 @@ func (self *ServiceSettings) setDefault() {
 	}
 }
 
-func (self *ServiceSettings) IsValidate() utils.AppError {
+func (self *ServiceSettings) IsValidate() *utils.AppError {
 
 	if self.MaximumLoginAttempts <= 0 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.login_attempts.app_error", nil, "")
@@ -269,4 +267,5 @@ func (self *ServiceSettings) IsValidate() utils.AppError {
 	if *self.TimeBetweenUserTypingUpdatesMilliseconds < 1000 {
 		return utils.NewLocAppError("Config.IsValid", "model.config.is_valid.time_between_user_typing.app_error", nil, "")
 	}
+	return nil
 }

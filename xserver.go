@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	l4g "github.com/alecthomas/log4go"
+	"github.com/primefour/xserver/apps/simpleapp"
 	"github.com/primefour/xserver/utils"
 	"os"
 	"os/signal"
@@ -17,17 +18,17 @@ const (
 )
 
 type WebAppIntf interface {
-	NewInstance() bool
 	InitStores() bool
 	InitRouter() bool
 	InitApi() bool
 	StartServer() bool
 	StopServer()
-	LoadConfig() bool
 	GetAppName() string
 }
 
-var xserver_apps = map[string]WebAppIntf{}
+var xserver_apps = map[string]WebAppIntf{
+	"SimpleServer": simpleapp.GetInstance(),
+}
 
 func initServer() {
 	defer func() {
@@ -48,15 +49,6 @@ func runApps() {
 		name := appIntf.GetAppName()
 		if appName != name {
 			l4g.Error("Register Name is not consistent with actual name")
-			continue
-		}
-		if !appIntf.LoadConfig() {
-			l4g.Error(fmt.Sprintf("%s load config fail ", appName))
-			continue
-		}
-
-		if !appIntf.NewInstance() {
-			l4g.Error(fmt.Sprintf("%s new Instance fail ", appName))
 			continue
 		}
 
