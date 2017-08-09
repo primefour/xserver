@@ -77,6 +77,7 @@ func NewXConfig(app, dir string, isW bool, parser ConfigParserFpn) (*XConfig, er
 func (self *XConfig) checkExist() bool {
 	//check
 	if len(self.AppName) == 0 {
+		l4g.Error("xconfig app name is empty")
 		return false
 	}
 	//check
@@ -98,7 +99,9 @@ func (self *XConfig) checkExist() bool {
 			self.ActivePath = configPath
 			return true
 		}
+
 	}
+	l4g.Error(fmt.Sprintf("%s use config file is %s ", self.AppName, configPath))
 	return false
 }
 

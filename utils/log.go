@@ -24,7 +24,7 @@ type LogSettings struct {
 	EnableDiagnostics      *bool
 }
 
-func (self *LogSettings) setDefault() {
+func (self *LogSettings) SetDefault() {
 	if self.EnableDiagnostics == nil {
 		self.EnableDiagnostics = new(bool)
 		*self.EnableDiagnostics = true
@@ -47,7 +47,8 @@ func (self *LogSettings) isValidate() *AppError {
 var defaultLogSetting = LogSettings{}
 
 func init() {
-	defaultLogSetting.setDefault()
+	defaultLogSetting.SetDefault()
+	configureLog(&defaultLogSetting)
 }
 
 func InitLogSystem() {

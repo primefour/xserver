@@ -9,7 +9,9 @@ import (
 )
 
 var configFileName = "simple_server"
-var configFilePath = "/home/crazyhorse/go/testGo/src/github.com/primefour/xserver/apps/simpleapp"
+
+//var configFilePath = "/home/crazyhorse/go/testGo/src/github.com/primefour/xserver/apps/simpleapp"
+var configFilePath = "./config"
 var SServConfig SimpleServConfig = SimpleServConfig{}
 var ssxconfig *utils.XConfig = nil
 
