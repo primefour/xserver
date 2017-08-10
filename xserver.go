@@ -72,7 +72,6 @@ func runApps() {
 				l4g.Error(fmt.Sprintf("%s start server fail ", appName))
 				return
 			}
-			appIntf.StopServer()
 		}()
 	}
 }

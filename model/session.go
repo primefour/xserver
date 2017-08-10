@@ -70,7 +70,6 @@ func (me *Session) Sanitize() {
 }
 
 func (me *Session) IsExpired() bool {
-
 	if me.ExpiresAt <= 0 {
 		return false
 	}

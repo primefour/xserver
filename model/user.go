@@ -13,17 +13,16 @@ import (
 )
 
 const (
-	ME                      = "me"
-	USER_NOTIFY_ALL         = "all"
-	USER_NOTIFY_MENTION     = "mention"
-	USER_NOTIFY_NONE        = "none"
-	DESKTOP_NOTIFY_PROP     = "desktop"
-	MARK_UNREAD_NOTIFY_PROP = "mark_unread"
-	PUSH_NOTIFY_PROP        = "push"
-	EMAIL_NOTIFY_PROP       = "email"
-
-	USER_AUTH_SERVICE_EMAIL = "email"
-
+	ME                        = "me"
+	USER_NOTIFY_ALL           = "all"
+	USER_NOTIFY_MENTION       = "mention"
+	USER_NOTIFY_NONE          = "none"
+	DESKTOP_NOTIFY_PROP       = "desktop"
+	MARK_UNREAD_NOTIFY_PROP   = "mark_unread"
+	PUSH_NOTIFY_PROP          = "push"
+	EMAIL_NOTIFY_PROP         = "email"
+	USER_AUTH_SERVICE_EMAIL   = "email"
+	USER_AUTH_SERVICE_GITLAB  = "gitlab"
 	USER_EMAIL_MAX_LENGTH     = 128
 	USER_NICKNAME_MAX_RUNES   = 64
 	USER_POSITION_MAX_RUNES   = 64
@@ -383,7 +382,6 @@ func (u *User) GetDisplayName() string {
 	}
 }
 
-/*
 func (u *User) GetDisplayNameForPreference(nameFormat string) string {
 	displayName := u.Username
 
@@ -401,7 +399,6 @@ func (u *User) GetDisplayNameForPreference(nameFormat string) string {
 
 	return displayName
 }
-*/
 
 func (u *User) GetRoles() []string {
 	return strings.Fields(u.Roles)
@@ -430,7 +427,8 @@ func IsValidUserRoles(userRoles string) bool {
 }
 
 func isValidRole(roleId string) bool {
-	return true
+	_, ok := BuiltInRoles[roleId]
+	return ok
 }
 
 // Make sure you acually want to use this function. In context.go there are functions to check permissions
@@ -461,14 +459,12 @@ func (u *User) IsSSOUser() bool {
 	return false
 }
 
-/*
 func (u *User) IsOAuthUser() bool {
 	if u.AuthService == USER_AUTH_SERVICE_GITLAB {
 		return true
 	}
 	return false
 }
-*/
 
 // UserFromJson will decode the input and return a User
 func UserFromJson(data io.Reader) *User {
@@ -562,6 +558,16 @@ var restrictedUsernames = []string{
 	"matterbot",
 }
 
+var reservedName = []string{
+	"signup",
+	"login",
+	"admin",
+	"channel",
+	"post",
+	"api",
+	"oauth",
+}
+
 func IsValidUsername(s string) bool {
 	if len(s) < USER_NAME_MIN_LENGTH || len(s) > USER_NAME_MAX_LENGTH {
 		return false
@@ -582,13 +588,12 @@ func IsValidUsername(s string) bool {
 
 func CleanUsername(s string) string {
 	s = strings.ToLower(strings.Replace(s, " ", "-", -1))
-	/*
-		for _, value := range utils.reservedName {
-			if s == value {
-				s = strings.Replace(s, value, "", -1)
-			}
+
+	for _, value := range reservedName {
+		if s == value {
+			s = strings.Replace(s, value, "", -1)
 		}
-	*/
+	}
 
 	s = strings.TrimSpace(s)
 

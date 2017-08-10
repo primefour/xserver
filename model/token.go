@@ -34,6 +34,5 @@ func (t *Token) IsValid() *utils.AppError {
 	if t.CreateAt == 0 {
 		return utils.NewAppError("Token.IsValid", "model.token.is_valid.expiry", nil, "", http.StatusInternalServerError)
 	}
-
 	return nil
 }

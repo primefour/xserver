@@ -27,6 +27,7 @@ func NewSqlTokenStore(sqlStore *SqlStore) TokenStore {
 }
 
 func (s SqlTokenStore) CreateIndexesIfNotExists() {
+
 }
 
 func (s SqlTokenStore) Save(token *model.Token) StoreChannel {

@@ -359,9 +359,7 @@ func IsValidAlphaNumHyphenUnderscore(s string, withFormat bool) bool {
 }
 
 func Etag(parts ...interface{}) string {
-
 	etag := CurrentVersion
-
 	for _, part := range parts {
 		etag += fmt.Sprintf(".%v", part)
 	}

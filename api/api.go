@@ -26,8 +26,8 @@ type Routes struct {
 }
 
 const (
-	CLIENT_DIR        = "/home/crazyhorse/CodeWork/GoWorkSpace/case/src/github.com/mattermost/platform/webapp/dist"
-	API_URL_SUFFIX_V1 = "/api/v1"
+	CLIENT_DIR        = "./dist/"
+	API_URL_SUFFIX_V1 = "/api/v1/"
 	API_URL_SUFFIX    = API_URL_SUFFIX_V1
 )
 
