@@ -3,11 +3,12 @@ package main
 import (
 	"fmt"
 	l4g "github.com/alecthomas/log4go"
-	"github.com/primefour/xserver/apps/simpleapp"
+	//	"github.com/primefour/xserver/apps/simpleapp"
+	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/utils"
-	"os"
-	"os/signal"
-	"syscall"
+	//	"os"
+	//	"os/signal"
+	//	"syscall"
 )
 
 const (
@@ -16,6 +17,22 @@ const (
 	MODE_BETA       = "beta"
 	MODE_PROD       = "prod"
 )
+
+func initServer() {
+	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Sprintf("%v", r)
+			l4g.Error(err)
+		}
+	}()
+	utils.InitLogSystem()
+	//init locale
+	utils.InitTranslations()
+	//init html templates
+	//utils.InitHTML()
+}
+
+/*
 
 type WebAppIntf interface {
 	InitStores() bool
@@ -30,19 +47,6 @@ var xserver_apps = map[string]WebAppIntf{
 	"SimpleServer": simpleapp.GetInstance(),
 }
 
-func initServer() {
-	defer func() {
-		if r := recover(); r != nil {
-			err := fmt.Sprintf("%v", r)
-			l4g.Error(err)
-		}
-	}()
-	utils.InitLogSystem()
-	//init locale
-	utils.InitTranslations()
-	//init html templates
-	utils.InitHTML()
-}
 
 func runApps() {
 	for appName, appIntf := range xserver_apps {
@@ -94,7 +98,10 @@ func runServer() {
 	stopApps()
 }
 
+*/
 func main() {
 	initServer()
-	runServer()
+	client := model.NewAPIv4Client("https://www.pfbbc.com")
+	client.SetOAuthToken("hello world")
+	//runServer()
 }

@@ -1,4 +1,3 @@
-
 package model
 
 import (
@@ -10,7 +9,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/mattermost/mattermost-server/utils/markdown"
+	"github.com/primefour/xserver/utils/markdown"
 )
 
 const (
