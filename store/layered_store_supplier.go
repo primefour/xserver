@@ -1,9 +1,6 @@
-// Copyright (c) 2016-present Mattermost, Inc. All Rights Reserved.
-// See License.txt for license information.
-
 package store
 
-import "github.com/mattermost/mattermost-server/model"
+import "github.com/primefour/xserver/model"
 import "context"
 
 type ResultHandler func(*StoreResult)

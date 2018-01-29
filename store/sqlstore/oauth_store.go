@@ -6,7 +6,7 @@ import (
 
 	"github.com/mattermost/gorp"
 	"github.com/primefour/xserver/model"
-	"ithub.com/primefour/xserver/store"
+	"github.com/primefour/xserver/store"
 )
 
 type SqlOAuthStore struct {

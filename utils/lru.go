@@ -4,7 +4,6 @@
 // This package provides a simple LRU cache. It is based on the
 // LRU implementation in groupcache:
 // https://github.com/golang/groupcache/tree/master/lru
-
 package utils
 
 import (
@@ -14,13 +13,28 @@ import (
 	"time"
 )
 
+// Caching Interface
+type ObjectCache interface {
+	AddWithExpiresInSecs(key, value interface{}, expireAtSecs int64) bool
+	AddWithDefaultExpires(key, value interface{}) bool
+	Purge()
+	Get(key interface{}) (value interface{}, ok bool)
+	Remove(key interface{})
+	Len() int
+	Name() string
+	GetInvalidateClusterEvent() string
+}
+
 // Cache is a thread-safe fixed size LRU cache.
 type Cache struct {
-	size      int
-	evictList *list.List
-	items     map[interface{}]*list.Element
-	lock      sync.RWMutex
-	onEvicted func(key interface{}, value interface{})
+	size                   int
+	evictList              *list.List
+	items                  map[interface{}]*list.Element
+	lock                   sync.RWMutex
+	onEvicted              func(key interface{}, value interface{})
+	name                   string
+	defaultExpiry          int64
+	invalidateClusterEvent string
 }
 
 // entry is used to hold a value in the evictList
@@ -49,6 +63,14 @@ func NewLruWithEvict(size int, onEvicted func(key interface{}, value interface{}
 	return c, nil
 }
 
+func NewLruWithParams(size int, name string, defaultExpiry int64, invalidateClusterEvent string) *Cache {
+	lru := NewLru(size)
+	lru.name = name
+	lru.defaultExpiry = defaultExpiry
+	lru.invalidateClusterEvent = invalidateClusterEvent
+	return lru
+}
+
 // Purge is used to completely clear the cache
 func (c *Cache) Purge() {
 	c.lock.Lock()
@@ -66,6 +88,10 @@ func (c *Cache) Purge() {
 
 func (c *Cache) Add(key, value interface{}) bool {
 	return c.AddWithExpiresInSecs(key, value, 0)
+}
+
+func (c *Cache) AddWithDefaultExpires(key, value interface{}) bool {
+	return c.AddWithExpiresInSecs(key, value, c.defaultExpiry)
 }
 
 // Add adds a value to the cache.  Returns true if an eviction occurred.
@@ -157,6 +183,14 @@ func (c *Cache) Len() int {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
 	return c.evictList.Len()
+}
+
+func (c *Cache) Name() string {
+	return c.name
+}
+
+func (c *Cache) GetInvalidateClusterEvent() string {
+	return c.invalidateClusterEvent
 }
 
 // removeOldest removes the oldest item from the cache.

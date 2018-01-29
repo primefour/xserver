@@ -93,6 +93,7 @@ func databaseSettings(driver, dataSource string) *model.SqlSettings {
 func runContainer(args []string) (*RunningContainer, error) {
 	name := "mattermost-storetest-" + model.NewId()
 	dockerArgs := append([]string{"run", "-d", "-P", "--name", name}, args...)
+	l4g.Debug("dockerArgs is %s ", dockerArgs)
 	out, err := exec.Command("docker", dockerArgs...).Output()
 	if err != nil {
 		return nil, err

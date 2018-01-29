@@ -3,7 +3,7 @@ package storetest
 import (
 	"testing"
 
-	"github.com/mprimefour/xserver/model"
+	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/store"
 
 	"github.com/stretchr/testify/assert"
