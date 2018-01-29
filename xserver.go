@@ -112,10 +112,12 @@ var storeTypes = []*struct {
 		Name: "MySQL",
 		Func: storetest.NewMySQLContainer,
 	},
-	{
-		Name: "PostgreSQL",
-		Func: storetest.NewPostgreSQLContainer,
-	},
+	/*
+		{
+			Name: "PostgreSQL",
+			Func: storetest.NewPostgreSQLContainer,
+		},
+	*/
 }
 
 func initStores() {
@@ -139,7 +141,6 @@ func initStores() {
 			}
 			st.Container = container
 			st.Store = store.NewLayeredStore(sqlstore.NewSqlSupplier(*settings, nil), nil, nil)
-			st.Store.MarkSystemRanUnitTests()
 		}()
 	}
 	wg.Wait()
