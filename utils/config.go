@@ -9,102 +9,98 @@ import (
 	"sync"
 )
 
-type ConfigParserFpn func(buff []byte) //load config from file
-var fileXConfigMap = map[string]*XConfig{}
-var config_mutex = sync.Mutex{}
+type ConfigEntry struct {
+	IsWatch  bool         //watch or not
+	FilePath string       //config file dir
+	Name     string       //config name
+	Parser   ConfigParser //parse function
+}
 
-//default is ./config/
-func findConfigFile(fileName string) string {
-	if _, err := os.Stat("./config/" + fileName); err == nil {
-		fileName, _ = filepath.Abs("./config/" + fileName)
-	} else if _, err := os.Stat("../config/" + fileName); err == nil {
-		fileName, _ = filepath.Abs("../config/" + fileName)
-	} else if _, err := os.Stat(fileName); err == nil {
-		fileName, _ = filepath.Abs(fileName)
+type ConfigParser func(buff []byte) (interface{}, error) //load config from file
+
+//store config entries
+var configEntries = map[string]*ConfigEntry{}
+
+//cache settings
+var configSettings = map[string]interface{}{}
+
+var configMutex = sync.Mutex{}
+
+func GetSettings(name string) interface{} {
+	settings, ok := configSettings[name]
+	if ok {
+		return settings
 	}
-	return fileName
+	return nil
 }
 
-type XConfig struct {
-	IsWatch    bool
-	FileDir    string //config file dir
-	AppName    string //app name and config name is appname.json
-	ActivePath string //actually use by server
-	Parser     ConfigParserFpn
-}
+func onFileUpdate(fullPath string) error {
+	file, err := os.Open(fullPath)
 
-func onFileUpdate(fileName string) {
-	file, err := os.Open(fileName)
 	if err != nil {
-		l4g.Error(fmt.Sprintf("open config file fail %s ", fileName))
-		return
+		return l4g.Error(fmt.Sprintf("open config file fail %s ", fullPath))
 	}
 
 	defer file.Close()
-	xc, ok := fileXConfigMap[fileName]
+	configEntry, ok := configEntries[fullPath]
 
 	if !ok {
-		l4g.Warn(fmt.Sprintf("get xconfig of config file fail %s %v", fileName, ok))
-		return
+		return l4g.Warn(fmt.Sprintf("get config entry fail %s %v", fullPath, ok))
 	}
 
 	buff, err := ioutil.ReadAll(file)
-	xc.Parser(buff)
+	if err == nil {
+		setting, perr := configEntry.Parser(buff)
+		if perr == nil {
+			configSettings[configEntry.Name] = setting
+			return nil
+		}
+	}
+	return l4g.Error(fmt.Sprintf("%s parser failed", fullPath))
 }
 
-func NewXConfig(app, dir string, isW bool, parser ConfigParserFpn) (*XConfig, error) {
-	config_mutex.Lock()
-	defer config_mutex.Unlock()
+func AddConfigEntry(name, filePath string, isW bool, parser ConfigParser) (*ConfigEntry, error) {
+	configMutex.Lock()
+	defer configMutex.Unlock()
 
-	xc := &XConfig{
-		IsWatch: isW,
-		AppName: app,
-		FileDir: dir,
-		Parser:  parser,
+	entry := &ConfigEntry{
+		IsWatch:  isW,
+		Name:     name,
+		FilePath: filePath,
+		Parser:   parser,
 	}
-	if !xc.checkExist() {
+
+	if !entry.checkExist() {
 		return nil, l4g.Error(fmt.Sprintf("fail to load config for config file not exist"))
 	}
 
-	if xc.IsWatch {
-		AddFileWatch(xc.ActivePath, onFileUpdate)
+	if entry.IsWatch {
+		AddFileWatch(entry.FilePath, onFileUpdate)
 	}
-	l4g.Info("xc.ActivePath is %s ", xc.ActivePath)
-	fileXConfigMap[xc.ActivePath] = xc
-	return xc, nil
+
+	l4g.Info("setting name %s config file is %s ", entry.Name, entry.FilePath)
+	configEntries[entry.Name] = entry
+	//parse setting
+	err := onFileUpdate(entry.FilePath)
+	return entry, err
 }
 
-func (self *XConfig) checkExist() bool {
+func (self *ConfigEntry) checkExist() bool {
 	//check
-	if len(self.AppName) == 0 {
-		l4g.Error("xconfig app name is empty")
+	if len(self.Name) == 0 {
+		l4g.Error("Setting name is empty")
 		return false
 	}
 	//check
-	var configPath string
-	if len(self.FileDir) != 0 {
-		configPath = self.FileDir + "/" + self.AppName + ".json"
-		if _, err := os.Stat(configPath); err == nil {
-			configPath, _ = filepath.Abs(configPath)
-			configPath := filepath.Clean(configPath)
-			l4g.Info(fmt.Sprintf("%s use config file is %s ", self.AppName, configPath))
-			self.ActivePath = configPath
+	if len(self.FilePath) != 0 {
+		if _, err := os.Stat(self.FilePath); err == nil {
+			self.FilePath, _ = filepath.Abs(self.FilePath)
+			self.FilePath = filepath.Clean(self.FilePath)
+			l4g.Info(fmt.Sprintf("%s use config file is %s ", self.Name, self.FilePath))
 			return true
 		}
-	} else {
-		configPath = findConfigFile(self.AppName + ".json")
-		if _, err := os.Stat(configPath); err == nil {
-			configPath := filepath.Clean(configPath)
-			l4g.Info(fmt.Sprintf("%s use config file is %s ", self.AppName, configPath))
-			self.ActivePath = configPath
-			return true
-		}
-
 	}
-	l4g.Error(fmt.Sprintf("%s use config file is %s ", self.AppName, configPath))
-	return false
-}
 
-func (self *XConfig) UpdateForce() {
-	onFileUpdate(self.ActivePath)
+	l4g.Error(fmt.Sprintf("%s settings no config file path", self.Name))
+	return false
 }

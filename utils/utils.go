@@ -494,3 +494,17 @@ func IsValidWebsocketUrl(rawUrl string) bool {
 
 	return true
 }
+
+func AbsPath(filePath string) string {
+	fullPath, _ := filepath.Abs(filePath)
+	return fullPath
+}
+
+func CheckFile(filePath string) bool {
+	_, err := os.Stat(filePath)
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
+}

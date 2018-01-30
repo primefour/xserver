@@ -50,7 +50,6 @@ func initHTMLWithDir(dir string) {
 	if htmlTemplates, err = template.ParseGlob(dir + "*.html"); err != nil {
 		l4g.Error(T("api.api.init.parsing_templates.error"), err)
 	}
-	AddDirWatch(dir, dirChangeNotify)
 }
 
 func NewHTMLTemplate(templateName string, locale string) *HTMLTemplate {

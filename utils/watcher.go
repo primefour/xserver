@@ -4,33 +4,19 @@ import (
 	"fmt"
 	l4g "github.com/alecthomas/log4go"
 	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/viper"
-	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 )
 
-type FileUpdateFpn func(file string)
-
-type DirUpdateFpn func(file string)
+type onFileUpdateFunc func(fullPath string) error
 
 var fileWatcher *fsnotify.Watcher = nil
-var watcher_mutex sync.Mutex = sync.Mutex{}
-var fileNameMap map[string]FileUpdateFpn = map[string]FileUpdateFpn{}
-var dirNameMap map[string]DirUpdateFpn = map[string]DirUpdateFpn{}
-var dirMap map[string]int = map[string]int{}
+var watchMutex sync.Mutex = sync.Mutex{}
+var onFilesUpdateMap map[string]onFileUpdateFunc = map[string]onFileUpdateFunc{}
 var onceNotifyInit = sync.Once{}
-
-func EnableConfigFromEnviromentVars() {
-	viper.SetEnvPrefix("xs")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.AutomaticEnv()
-}
 
 func init() {
 	fw, err := fsnotify.NewWatcher()
-	fileWatcher = nil
 	if err == nil {
 		fileWatcher = fw
 	} else {
@@ -40,10 +26,10 @@ func init() {
 }
 
 func watcherOnce() {
-	go WatcherNotify()
+	go watchNotify()
 }
 
-func WatcherNotify() {
+func watchNotify() {
 	if fileWatcher == nil {
 		l4g.Warn("file watcher object is nil ")
 		return
@@ -53,122 +39,43 @@ func WatcherNotify() {
 	for {
 		select {
 		case event := <-fileWatcher.Events:
-			watcher_mutex.Lock()
+			watchMutex.Lock()
 			// we only care about the register file
-			cfn := filepath.Clean(event.Name)
-			fpn, ok := fileNameMap[cfn]
-			if ok && fpn != nil {
-				if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create {
-					l4g.Info(fmt.Sprintf("file watcher detected a change reloading %v", cfn))
-					fpn(cfn)
+			filePath := filepath.Clean(event.Name)
+			fileUpdate, ok := onFilesUpdateMap[filePath]
+			if ok && fileUpdate != nil {
+				if event.Op&fsnotify.Write == fsnotify.Write ||
+					event.Op&fsnotify.Create == fsnotify.Create {
+					l4g.Info(fmt.Sprintf("file watcher detected a change reloading %v", filePath))
+					fileUpdate(filePath)
 				}
 			}
-			//we only care about the directory we register
-			l4g.Debug("event.Name = %s ", event.Name)
-			edir, _ := filepath.Split(event.Name)
-			l4g.Debug("event.Name = edir %s ", edir)
-			dpn, eok := dirNameMap[edir]
-			if eok && dpn != nil {
-				if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create {
-					l4g.Info(fmt.Sprintf("dir watcher detected a change reloading %v", edir))
-					dpn(edir)
-				}
-			}
-			watcher_mutex.Unlock()
+			watchMutex.Unlock()
 		case err := <-fileWatcher.Errors:
 			l4g.Error(fmt.Sprintf("Failed while watching file with err=%v", err.Error()))
 		}
 	}
 }
 
-func AddFileWatch(file string, updateFpn FileUpdateFpn) {
-	watcher_mutex.Lock()
-	defer watcher_mutex.Unlock()
+func AddFileWatch(file string, updateFunc onFileUpdateFunc) {
+	watchMutex.Lock()
+	defer watchMutex.Unlock()
 	file, _ = filepath.Abs(file)
+
 	if fileWatcher != nil {
-		fileDir, _ := filepath.Split(file)
-		_, ok := dirMap[fileDir]
-		if ok {
-			dirMap[fileDir]++
-		} else {
-			dirMap[fileDir] = 1
-			fileWatcher.Add(fileDir)
-		}
+		fileWatcher.Add(file)
 	}
 	l4g.Debug("add watcher for file %s ", file)
-	fileNameMap[file] = updateFpn
+	onFilesUpdateMap[file] = updateFunc
 	onceNotifyInit.Do(watcherOnce)
 }
 
 func RemoveFileWatch(file string) {
-	watcher_mutex.Lock()
-	defer watcher_mutex.Unlock()
+	watchMutex.Lock()
+	defer watchMutex.Unlock()
 	file, _ = filepath.Abs(file)
 	if fileWatcher != nil {
-		fileDir, _ := filepath.Split(file)
-		value, ok := dirMap[fileDir]
-		if ok {
-			if value == 1 {
-				delete(dirMap, fileDir)
-				fileWatcher.Remove(fileDir)
-			} else {
-				dirMap[fileDir]--
-			}
-		} else {
-			return
-		}
+		fileWatcher.Remove(file)
 	}
-	delete(fileNameMap, file)
-}
-
-func AddDirWatch(dir string, updatefpn DirUpdateFpn) {
-	watcher_mutex.Lock()
-	defer watcher_mutex.Unlock()
-	dir, _ = filepath.Abs(dir)
-	var fileDir string
-	if fileWatcher != nil {
-		fileInfo, err := os.Lstat(dir)
-
-		if err != nil {
-			l4g.Warn("the watched file not create or destroy %s ", dir)
-		}
-
-		if fileInfo != nil && !fileInfo.Mode().IsDir() {
-			fileDir, _ = filepath.Split(dir)
-		} else {
-			fileDir = dir
-		}
-		_, ok := dirMap[fileDir]
-		if ok {
-			dirMap[fileDir]++
-		} else {
-			dirMap[fileDir] = 1
-			fileWatcher.Add(fileDir)
-		}
-	}
-	l4g.Debug("watch fileDir = %s ", fileDir)
-	dirNameMap[fileDir] = updatefpn
-	onceNotifyInit.Do(watcherOnce)
-}
-
-func RemoveDirWatch(dir string) {
-	watcher_mutex.Lock()
-	defer watcher_mutex.Unlock()
-	dir, _ = filepath.Abs(dir)
-	var fileDir string
-	if fileWatcher != nil {
-		fileDir, _ = filepath.Split(dir)
-		value, ok := dirMap[fileDir]
-		if ok {
-			if value == 1 {
-				delete(dirMap, fileDir)
-				fileWatcher.Remove(fileDir)
-			} else {
-				dirMap[fileDir]--
-			}
-		} else {
-			return
-		}
-	}
-	delete(dirNameMap, fileDir)
+	delete(onFilesUpdateMap, file)
 }
