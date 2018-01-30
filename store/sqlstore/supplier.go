@@ -58,7 +58,7 @@ const (
 	EXIT_REMOVE_TABLE                = 134
 )
 
-type SqlSupplierOldStores struct {
+type SqlSupplierStores struct {
 	team                 store.TeamStore
 	channel              store.ChannelStore
 	post                 store.PostStore
@@ -94,7 +94,7 @@ type SqlSupplier struct {
 	master         *gorp.DbMap
 	replicas       []*gorp.DbMap
 	searchReplicas []*gorp.DbMap
-	oldStores      SqlSupplierOldStores
+	sqlImples      SqlSupplierStores
 	settings       *model.SqlSettings
 }
 
@@ -107,29 +107,29 @@ func NewSqlSupplier(settings model.SqlSettings, metrics einterfaces.MetricsInter
 
 	supplier.initConnection()
 
-	supplier.oldStores.team = NewSqlTeamStore(supplier)
-	supplier.oldStores.channel = NewSqlChannelStore(supplier, metrics)
-	supplier.oldStores.post = NewSqlPostStore(supplier, metrics)
-	supplier.oldStores.user = NewSqlUserStore(supplier, metrics)
-	supplier.oldStores.audit = NewSqlAuditStore(supplier)
-	supplier.oldStores.cluster = NewSqlClusterDiscoveryStore(supplier)
-	supplier.oldStores.compliance = NewSqlComplianceStore(supplier)
-	supplier.oldStores.session = NewSqlSessionStore(supplier)
-	supplier.oldStores.oauth = NewSqlOAuthStore(supplier)
-	supplier.oldStores.system = NewSqlSystemStore(supplier)
-	supplier.oldStores.webhook = NewSqlWebhookStore(supplier, metrics)
-	supplier.oldStores.command = NewSqlCommandStore(supplier)
-	supplier.oldStores.commandWebhook = NewSqlCommandWebhookStore(supplier)
-	supplier.oldStores.preference = NewSqlPreferenceStore(supplier)
-	supplier.oldStores.license = NewSqlLicenseStore(supplier)
-	supplier.oldStores.token = NewSqlTokenStore(supplier)
-	supplier.oldStores.emoji = NewSqlEmojiStore(supplier, metrics)
-	supplier.oldStores.status = NewSqlStatusStore(supplier)
-	supplier.oldStores.fileInfo = NewSqlFileInfoStore(supplier, metrics)
-	supplier.oldStores.job = NewSqlJobStore(supplier)
-	supplier.oldStores.userAccessToken = NewSqlUserAccessTokenStore(supplier)
-	supplier.oldStores.channelMemberHistory = NewSqlChannelMemberHistoryStore(supplier)
-	supplier.oldStores.plugin = NewSqlPluginStore(supplier)
+	supplier.sqlImples.team = NewSqlTeamStore(supplier)
+	supplier.sqlImples.channel = NewSqlChannelStore(supplier, metrics)
+	supplier.sqlImples.post = NewSqlPostStore(supplier, metrics)
+	supplier.sqlImples.user = NewSqlUserStore(supplier, metrics)
+	supplier.sqlImples.audit = NewSqlAuditStore(supplier)
+	supplier.sqlImples.cluster = NewSqlClusterDiscoveryStore(supplier)
+	supplier.sqlImples.compliance = NewSqlComplianceStore(supplier)
+	supplier.sqlImples.session = NewSqlSessionStore(supplier)
+	supplier.sqlImples.oauth = NewSqlOAuthStore(supplier)
+	supplier.sqlImples.system = NewSqlSystemStore(supplier)
+	supplier.sqlImples.webhook = NewSqlWebhookStore(supplier, metrics)
+	supplier.sqlImples.command = NewSqlCommandStore(supplier)
+	supplier.sqlImples.commandWebhook = NewSqlCommandWebhookStore(supplier)
+	supplier.sqlImples.preference = NewSqlPreferenceStore(supplier)
+	supplier.sqlImples.license = NewSqlLicenseStore(supplier)
+	supplier.sqlImples.token = NewSqlTokenStore(supplier)
+	supplier.sqlImples.emoji = NewSqlEmojiStore(supplier, metrics)
+	supplier.sqlImples.status = NewSqlStatusStore(supplier)
+	supplier.sqlImples.fileInfo = NewSqlFileInfoStore(supplier, metrics)
+	supplier.sqlImples.job = NewSqlJobStore(supplier)
+	supplier.sqlImples.userAccessToken = NewSqlUserAccessTokenStore(supplier)
+	supplier.sqlImples.channelMemberHistory = NewSqlChannelMemberHistoryStore(supplier)
+	supplier.sqlImples.plugin = NewSqlPluginStore(supplier)
 
 	initSqlSupplierReactions(supplier)
 
@@ -142,29 +142,29 @@ func NewSqlSupplier(settings model.SqlSettings, metrics einterfaces.MetricsInter
 
 	UpgradeDatabase(supplier)
 
-	supplier.oldStores.team.(*SqlTeamStore).CreateIndexesIfNotExists()
-	supplier.oldStores.channel.(*SqlChannelStore).CreateIndexesIfNotExists()
-	supplier.oldStores.post.(*SqlPostStore).CreateIndexesIfNotExists()
-	supplier.oldStores.user.(*SqlUserStore).CreateIndexesIfNotExists()
-	supplier.oldStores.audit.(*SqlAuditStore).CreateIndexesIfNotExists()
-	supplier.oldStores.compliance.(*SqlComplianceStore).CreateIndexesIfNotExists()
-	supplier.oldStores.session.(*SqlSessionStore).CreateIndexesIfNotExists()
-	supplier.oldStores.oauth.(*SqlOAuthStore).CreateIndexesIfNotExists()
-	supplier.oldStores.system.(*SqlSystemStore).CreateIndexesIfNotExists()
-	supplier.oldStores.webhook.(*SqlWebhookStore).CreateIndexesIfNotExists()
-	supplier.oldStores.command.(*SqlCommandStore).CreateIndexesIfNotExists()
-	supplier.oldStores.commandWebhook.(*SqlCommandWebhookStore).CreateIndexesIfNotExists()
-	supplier.oldStores.preference.(*SqlPreferenceStore).CreateIndexesIfNotExists()
-	supplier.oldStores.license.(*SqlLicenseStore).CreateIndexesIfNotExists()
-	supplier.oldStores.token.(*SqlTokenStore).CreateIndexesIfNotExists()
-	supplier.oldStores.emoji.(*SqlEmojiStore).CreateIndexesIfNotExists()
-	supplier.oldStores.status.(*SqlStatusStore).CreateIndexesIfNotExists()
-	supplier.oldStores.fileInfo.(*SqlFileInfoStore).CreateIndexesIfNotExists()
-	supplier.oldStores.job.(*SqlJobStore).CreateIndexesIfNotExists()
-	supplier.oldStores.userAccessToken.(*SqlUserAccessTokenStore).CreateIndexesIfNotExists()
-	supplier.oldStores.plugin.(*SqlPluginStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.team.(*SqlTeamStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.channel.(*SqlChannelStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.post.(*SqlPostStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.user.(*SqlUserStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.audit.(*SqlAuditStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.compliance.(*SqlComplianceStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.session.(*SqlSessionStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.oauth.(*SqlOAuthStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.system.(*SqlSystemStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.webhook.(*SqlWebhookStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.command.(*SqlCommandStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.commandWebhook.(*SqlCommandWebhookStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.preference.(*SqlPreferenceStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.license.(*SqlLicenseStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.token.(*SqlTokenStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.emoji.(*SqlEmojiStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.status.(*SqlStatusStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.fileInfo.(*SqlFileInfoStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.job.(*SqlJobStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.userAccessToken.(*SqlUserAccessTokenStore).CreateIndexesIfNotExists()
+	supplier.sqlImples.plugin.(*SqlPluginStore).CreateIndexesIfNotExists()
 
-	supplier.oldStores.preference.(*SqlPreferenceStore).DeleteUnusedFeatures()
+	supplier.sqlImples.preference.(*SqlPreferenceStore).DeleteUnusedFeatures()
 
 	return supplier
 }
@@ -282,7 +282,6 @@ func (ss *SqlSupplier) TotalMasterDbConnections() int {
 }
 
 func (ss *SqlSupplier) TotalReadDbConnections() int {
-
 	if len(ss.settings.DataSourceReplicas) == 0 {
 		return 0
 	}
@@ -713,99 +712,99 @@ func (ss *SqlSupplier) Close() {
 }
 
 func (ss *SqlSupplier) Team() store.TeamStore {
-	return ss.oldStores.team
+	return ss.sqlImples.team
 }
 
 func (ss *SqlSupplier) Channel() store.ChannelStore {
-	return ss.oldStores.channel
+	return ss.sqlImples.channel
 }
 
 func (ss *SqlSupplier) Post() store.PostStore {
-	return ss.oldStores.post
+	return ss.sqlImples.post
 }
 
 func (ss *SqlSupplier) User() store.UserStore {
-	return ss.oldStores.user
+	return ss.sqlImples.user
 }
 
 func (ss *SqlSupplier) Session() store.SessionStore {
-	return ss.oldStores.session
+	return ss.sqlImples.session
 }
 
 func (ss *SqlSupplier) Audit() store.AuditStore {
-	return ss.oldStores.audit
+	return ss.sqlImples.audit
 }
 
 func (ss *SqlSupplier) ClusterDiscovery() store.ClusterDiscoveryStore {
-	return ss.oldStores.cluster
+	return ss.sqlImples.cluster
 }
 
 func (ss *SqlSupplier) Compliance() store.ComplianceStore {
-	return ss.oldStores.compliance
+	return ss.sqlImples.compliance
 }
 
 func (ss *SqlSupplier) OAuth() store.OAuthStore {
-	return ss.oldStores.oauth
+	return ss.sqlImples.oauth
 }
 
 func (ss *SqlSupplier) System() store.SystemStore {
-	return ss.oldStores.system
+	return ss.sqlImples.system
 }
 
 func (ss *SqlSupplier) Webhook() store.WebhookStore {
-	return ss.oldStores.webhook
+	return ss.sqlImples.webhook
 }
 
 func (ss *SqlSupplier) Command() store.CommandStore {
-	return ss.oldStores.command
+	return ss.sqlImples.command
 }
 
 func (ss *SqlSupplier) CommandWebhook() store.CommandWebhookStore {
-	return ss.oldStores.commandWebhook
+	return ss.sqlImples.commandWebhook
 }
 
 func (ss *SqlSupplier) Preference() store.PreferenceStore {
-	return ss.oldStores.preference
+	return ss.sqlImples.preference
 }
 
 func (ss *SqlSupplier) License() store.LicenseStore {
-	return ss.oldStores.license
+	return ss.sqlImples.license
 }
 
 func (ss *SqlSupplier) Token() store.TokenStore {
-	return ss.oldStores.token
+	return ss.sqlImples.token
 }
 
 func (ss *SqlSupplier) Emoji() store.EmojiStore {
-	return ss.oldStores.emoji
+	return ss.sqlImples.emoji
 }
 
 func (ss *SqlSupplier) Status() store.StatusStore {
-	return ss.oldStores.status
+	return ss.sqlImples.status
 }
 
 func (ss *SqlSupplier) FileInfo() store.FileInfoStore {
-	return ss.oldStores.fileInfo
+	return ss.sqlImples.fileInfo
 }
 
 func (ss *SqlSupplier) Reaction() store.ReactionStore {
-	return ss.oldStores.reaction
+	return ss.sqlImples.reaction
 }
 
 func (ss *SqlSupplier) Job() store.JobStore {
-	return ss.oldStores.job
+	return ss.sqlImples.job
 }
 
 func (ss *SqlSupplier) UserAccessToken() store.UserAccessTokenStore {
-	return ss.oldStores.userAccessToken
+	return ss.sqlImples.userAccessToken
 }
 
 func (ss *SqlSupplier) ChannelMemberHistory() store.ChannelMemberHistoryStore {
-	return ss.oldStores.channelMemberHistory
+	return ss.sqlImples.channelMemberHistory
 }
 
 func (ss *SqlSupplier) Plugin() store.PluginStore {
-	return ss.oldStores.plugin
+	return ss.sqlImples.plugin
 }
 
 func (ss *SqlSupplier) DropAllTables() {

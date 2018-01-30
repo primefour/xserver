@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+/*
+ *store api interface for tables
+ */
+
 type StoreResult struct {
 	Data interface{}
 	Err  *model.AppError

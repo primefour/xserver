@@ -3,7 +3,7 @@ start-docker: ## Starts the docker containers for local development.
 
 	@if [ $(shell docker ps -a | grep -ci xserver-mysql) -eq 0 ]; then \
 		echo starting xserver-mysql; \
-		docker run --name xserver-mysql -p 65500:3306 -e MYSQL_ROOT_PASSWORD=alltheday \
+		docker run --name xserver-mysql -p 65500:3306 -v ${PWD}/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=alltheday \
 		-e MYSQL_USER=xserver_user -e MYSQL_PASSWORD=xserver_password -e MYSQL_DATABASE=xserver_dev_database -d mysql:5.7 > /dev/null; \
 	elif [ $(shell docker ps | grep -ci xserver-mysql) -eq 0 ]; then \
 		echo restarting xserver-mysql; \

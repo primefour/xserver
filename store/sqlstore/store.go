@@ -8,38 +8,13 @@ import (
 	"github.com/primefour/xserver/store"
 )
 
-/*type SqlStore struct {
-	master         *gorp.DbMap
-	replicas       []*gorp.DbMap
-	searchReplicas []*gorp.DbMap
-	team           TeamStore
-	channel        ChannelStore
-	post           PostStore
-	user           UserStore
-	audit          AuditStore
-	compliance     ComplianceStore
-	session        SessionStore
-	oauth          OAuthStore
-	system         SystemStore
-	webhook        WebhookStore
-	command        CommandStore
-	preference     PreferenceStore
-	license        LicenseStore
-	token          TokenStore
-	emoji          EmojiStore
-	status         StatusStore
-	fileInfo       FileInfoStore
-	reaction       ReactionStore
-	jobStatus      JobStatusStore
-	SchemaVersion  string
-	rrCounter      int64
-	srCounter      int64
-}*/
-
+/*
+ *this is unique stucture for database manage
+ */
 type SqlStore interface {
-	DriverName() string
-	GetCurrentSchemaVersion() string
-	GetMaster() *gorp.DbMap
+	DriverName() string              //get current driver name
+	GetCurrentSchemaVersion() string //get database schemea version
+	GetMaster() *gorp.DbMap          //connect to master
 	GetSearchReplica() *gorp.DbMap
 	GetReplica() *gorp.DbMap
 	TotalMasterDbConnections() int
@@ -59,11 +34,11 @@ type SqlStore interface {
 	CreateCompositeIndexIfNotExists(indexName string, tableName string, columnNames []string) bool
 	CreateFullTextIndexIfNotExists(indexName string, tableName string, columnName string) bool
 	RemoveIndexIfExists(indexName string, tableName string) bool
-	GetAllConns() []*gorp.DbMap
+	GetAllConns() []*gorp.DbMap //get all database instance
 	Close()
-	Team() store.TeamStore
-	Channel() store.ChannelStore
-	Post() store.PostStore
+	Team() store.TeamStore       //get team database interface
+	Channel() store.ChannelStore //get channel database interface
+	Post() store.PostStore       //get post databawse interface
 	User() store.UserStore
 	Audit() store.AuditStore
 	ClusterDiscovery() store.ClusterDiscoveryStore

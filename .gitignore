@@ -1,2 +1,6 @@
 *.swp
 vendor/
+mysql/
+cscope*
+tags
+xserver.log

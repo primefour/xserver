@@ -1,0 +1,8 @@
+ mysql -u xserver_user -h 172.17.42.1 -pxserver_password
+ mysql -u xserver_user -h 172.17.42.1 -P 65500 -pxserver_password
+ mysql -u root -h 172.17.42.1 -P 65500 -palltheday
+ docker exec -it xserver_mysql /bin/sh
+ docker ps
+ docker images
+
+
