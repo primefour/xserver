@@ -1,5 +1,13 @@
 package model
 
+import (
+	l4g "github.com/alecthomas/log4go"
+	"github.com/primefour/xserver/utils"
+	"github.com/spf13/viper"
+	"net/http"
+	"os"
+)
+
 const (
 	DATABASE_DRIVER_MYSQL            = "mysql"
 	DATABASE_DRIVER_POSTGRES         = "postgres"
@@ -18,6 +26,34 @@ type SqlSettings struct {
 	Trace                    bool
 	AtRestEncryptKey         string
 	QueryTimeout             *int
+}
+
+func (ss *SqlSettings) isValid() *AppError {
+	if len(ss.AtRestEncryptKey) < 32 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.encrypt_sql.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if !(*ss.DriverName == DATABASE_DRIVER_MYSQL || *ss.DriverName == DATABASE_DRIVER_POSTGRES) {
+		return NewAppError("Config.IsValid", "model.config.is_valid.sql_driver.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if *ss.MaxIdleConns <= 0 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.sql_idle.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if *ss.QueryTimeout <= 0 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.sql_query_timeout.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if len(*ss.DataSource) == 0 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.sql_data_src.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if *ss.MaxOpenConns <= 0 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.sql_max_conn.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	return nil
 }
 
 func (s *SqlSettings) SetDefaults() {
@@ -46,14 +82,23 @@ func (s *SqlSettings) SetDefaults() {
 	}
 }
 
-func dbConfigParser(buff []byte) (interface{}, error) {
-	settings = &SqlSettings{}
-	settings.SetDefault()
-	return settings, nil
+func dbConfigParser(f *os.File) (interface{}, error) {
+	settings := &SqlSettings{}
+	v := viper.New()
+	v.SetConfigType("json")
+	if err := v.ReadConfig(f); err != nil {
+		return nil, err
+	}
+	unmarshalErr := v.Unmarshal(settings)
+	settings.SetDefaults()
+	l4g.Debug("database settings is DriverName:%s  ", *(settings.DriverName))
+	l4g.Debug("database settings is DataSource:%s  ", *(settings.DataSource))
+	l4g.Debug("database settings is:%v  ", *settings)
+	return settings, unmarshalErr
 }
 
 func GetDBSettings() *SqlSettings {
-	settings := GetSettings(DATABASE_CONFIG_NAME)
+	settings := utils.GetSettings(DATABASE_CONFIG_NAME)
 	if settings != nil {
 		tmp := settings.(*SqlSettings)
 		return tmp
@@ -62,8 +107,8 @@ func GetDBSettings() *SqlSettings {
 }
 
 func init() {
-	_, err := AddConfigEntry(DATABASE_CONFIG_NAME, DATABASE_CONFIG_FILE_PATH, true, dbConfigParser)
+	_, err := utils.AddConfigEntry(DATABASE_CONFIG_NAME, DATABASE_CONFIG_FILE_PATH, true, dbConfigParser)
 	if err != nil {
-		l4g.Error(fmt.Sprintf("%v ", err))
+		return
 	}
 }

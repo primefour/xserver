@@ -11,6 +11,7 @@ import (
 	"github.com/primefour/xserver/utils"
 	"os"
 	"sync"
+	//	"time"
 )
 
 const (
@@ -186,6 +187,11 @@ func main() {
 	initServer()
 	client := model.NewAPIv4Client("https://www.pfbbc.com")
 	client.SetOAuthToken("hello world")
-	launchStore()
-	//runServer()
+	//time.Sleep(2000)
+	//launchStore()
+	databaseSettings := model.GetDBSettings()
+	l4g.Debug(">>>>>>>>>>>>>>>>>>> %v ", databaseSettings)
+	logSettings := model.GetLogSettings()
+	l4g.Debug(">>>>>> %v ", logSettings)
+	l4g.Close()
 }

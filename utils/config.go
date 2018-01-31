@@ -3,7 +3,6 @@ package utils
 import (
 	"fmt"
 	l4g "github.com/alecthomas/log4go"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sync"
@@ -16,7 +15,7 @@ type ConfigEntry struct {
 	Parser   ConfigParser //parse function
 }
 
-type ConfigParser func(buff []byte) (interface{}, error) //load config from file
+type ConfigParser func(f *os.File) (interface{}, error) //load config from file
 
 //store config entries
 var configEntries = map[string]*ConfigEntry{}
@@ -48,15 +47,15 @@ func onFileUpdate(fullPath string) error {
 		return l4g.Warn(fmt.Sprintf("get config entry fail %s %v", fullPath, ok))
 	}
 
-	buff, err := ioutil.ReadAll(file)
+	//buff, err := ioutil.ReadAll(file)
 	if err == nil {
-		setting, perr := configEntry.Parser(buff)
+		setting, perr := configEntry.Parser(file)
 		if perr == nil {
 			configSettings[configEntry.Name] = setting
 			return nil
 		}
 	}
-	return l4g.Error(fmt.Sprintf("%s parser failed", fullPath))
+	return l4g.Error("%s parser failed", fullPath)
 }
 
 func AddConfigEntry(name, filePath string, isW bool, parser ConfigParser) (*ConfigEntry, error) {
@@ -73,15 +72,14 @@ func AddConfigEntry(name, filePath string, isW bool, parser ConfigParser) (*Conf
 	if !entry.checkExist() {
 		return nil, l4g.Error(fmt.Sprintf("fail to load config for config file not exist"))
 	}
+	configEntries[entry.FilePath] = entry
 
 	if entry.IsWatch {
 		AddFileWatch(entry.FilePath, onFileUpdate)
 	}
 
-	l4g.Info("setting name %s config file is %s ", entry.Name, entry.FilePath)
-	configEntries[entry.Name] = entry
-	//parse setting
 	err := onFileUpdate(entry.FilePath)
+
 	return entry, err
 }
 
@@ -91,6 +89,7 @@ func (self *ConfigEntry) checkExist() bool {
 		l4g.Error("Setting name is empty")
 		return false
 	}
+
 	//check
 	if len(self.FilePath) != 0 {
 		if _, err := os.Stat(self.FilePath); err == nil {

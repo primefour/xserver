@@ -1153,8 +1153,6 @@ type Config struct {
 	ServiceSettings       ServiceSettings
 	TeamSettings          TeamSettings
 	ClientRequirements    ClientRequirements
-	SqlSettings           SqlSettings
-	LogSettings           LogSettings
 	PasswordSettings      PasswordSettings
 	FileSettings          FileSettings
 	EmailSettings         EmailSettings
@@ -1235,7 +1233,6 @@ func (o *Config) SetDefaults() {
 		}
 	}
 
-	o.SqlSettings.SetDefaults()
 	o.FileSettings.SetDefaults()
 	o.EmailSettings.SetDefaults()
 	o.ServiceSettings.SetDefaults()
@@ -1254,7 +1251,6 @@ func (o *Config) SetDefaults() {
 	o.NativeAppSettings.SetDefaults()
 	o.DataRetentionSettings.SetDefaults()
 	o.RateLimitSettings.SetDefaults()
-	o.LogSettings.SetDefaults()
 	o.JobSettings.SetDefaults()
 	o.WebrtcSettings.SetDefaults()
 	o.MessageExportSettings.SetDefaults()
@@ -1270,10 +1266,6 @@ func (o *Config) IsValid() *AppError {
 	}
 
 	if err := o.TeamSettings.isValid(); err != nil {
-		return err
-	}
-
-	if err := o.SqlSettings.isValid(); err != nil {
 		return err
 	}
 
@@ -1351,34 +1343,6 @@ func (ts *TeamSettings) isValid() *AppError {
 
 	if len(ts.SiteName) > SITENAME_MAX_LENGTH {
 		return NewAppError("Config.IsValid", "model.config.is_valid.sitename_length.app_error", map[string]interface{}{"MaxLength": SITENAME_MAX_LENGTH}, "", http.StatusBadRequest)
-	}
-
-	return nil
-}
-
-func (ss *SqlSettings) isValid() *AppError {
-	if len(ss.AtRestEncryptKey) < 32 {
-		return NewAppError("Config.IsValid", "model.config.is_valid.encrypt_sql.app_error", nil, "", http.StatusBadRequest)
-	}
-
-	if !(*ss.DriverName == DATABASE_DRIVER_MYSQL || *ss.DriverName == DATABASE_DRIVER_POSTGRES) {
-		return NewAppError("Config.IsValid", "model.config.is_valid.sql_driver.app_error", nil, "", http.StatusBadRequest)
-	}
-
-	if *ss.MaxIdleConns <= 0 {
-		return NewAppError("Config.IsValid", "model.config.is_valid.sql_idle.app_error", nil, "", http.StatusBadRequest)
-	}
-
-	if *ss.QueryTimeout <= 0 {
-		return NewAppError("Config.IsValid", "model.config.is_valid.sql_query_timeout.app_error", nil, "", http.StatusBadRequest)
-	}
-
-	if len(*ss.DataSource) == 0 {
-		return NewAppError("Config.IsValid", "model.config.is_valid.sql_data_src.app_error", nil, "", http.StatusBadRequest)
-	}
-
-	if *ss.MaxOpenConns <= 0 {
-		return NewAppError("Config.IsValid", "model.config.is_valid.sql_max_conn.app_error", nil, "", http.StatusBadRequest)
 	}
 
 	return nil
@@ -1696,17 +1660,6 @@ func (o *Config) Sanitize() {
 
 	if len(o.GitLabSettings.Secret) > 0 {
 		o.GitLabSettings.Secret = FAKE_SETTING
-	}
-
-	*o.SqlSettings.DataSource = FAKE_SETTING
-	o.SqlSettings.AtRestEncryptKey = FAKE_SETTING
-
-	for i := range o.SqlSettings.DataSourceReplicas {
-		o.SqlSettings.DataSourceReplicas[i] = FAKE_SETTING
-	}
-
-	for i := range o.SqlSettings.DataSourceSearchReplicas {
-		o.SqlSettings.DataSourceSearchReplicas[i] = FAKE_SETTING
 	}
 
 	*o.ElasticsearchSettings.Password = FAKE_SETTING

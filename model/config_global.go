@@ -349,23 +349,6 @@ func (s *MetricsSettings) SetDefaults() {
 	}
 }
 
-type LogSettings struct {
-	EnableConsole          bool
-	ConsoleLevel           string
-	EnableFile             bool
-	FileLevel              string
-	FileFormat             string
-	FileLocation           string
-	EnableWebhookDebugging bool
-	EnableDiagnostics      *bool
-}
-
-func (s *LogSettings) SetDefaults() {
-	if s.EnableDiagnostics == nil {
-		s.EnableDiagnostics = NewBool(true)
-	}
-}
-
 type FileSettings struct {
 	EnableFileAttachments   *bool
 	EnableMobileUpload      *bool

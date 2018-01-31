@@ -1,0 +1,11 @@
+{
+    "DriverName": "mysql",
+    "DataSource": "xserver_user:xserver_password@tcp(dockerhost:65500)/xserver_dev_database?charset=utf8mb4,utf8&readTimeout=30s&writeTimeout=30s",
+    "DataSourceReplicas": [],
+    "DataSourceSearchReplicas": [],
+    "MaxIdleConns": 20,
+    "MaxOpenConns": 300,
+    "Trace": false,
+    "AtRestEncryptKey": "",
+    "QueryTimeout": 30
+}

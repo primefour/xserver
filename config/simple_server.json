@@ -105,16 +105,6 @@
         "AtRestEncryptKey": "",
         "QueryTimeout": 30
     },
-    "LogSettings": {
-        "EnableConsole": true,
-        "ConsoleLevel": "DEBUG",
-        "EnableFile": true,
-        "FileLevel": "INFO",
-        "FileFormat": "",
-        "FileLocation": "",
-        "EnableWebhookDebugging": true,
-        "EnableDiagnostics": true
-    },
     "PasswordSettings": {
         "MinimumLength": 5,
         "Lowercase": false,
