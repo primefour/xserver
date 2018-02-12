@@ -53,6 +53,8 @@ func onFileUpdate(fullPath string) error {
 		if perr == nil {
 			configSettings[configEntry.Name] = setting
 			return nil
+		} else {
+			l4g.Error("parser config file %s failed %v ", fullPath, perr)
 		}
 	}
 	return l4g.Error("%s parser failed", fullPath)
