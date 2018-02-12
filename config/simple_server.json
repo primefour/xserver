@@ -27,80 +27,12 @@
         "ExperimentalTownSquareIsReadOnly": false,
         "ExperimentalPrimaryTeam": ""
     },
-    "ClientRequirements": {
-        "AndroidLatestVersion": "",
-        "AndroidMinVersion": "",
-        "DesktopLatestVersion": "",
-        "DesktopMinVersion": "",
-        "IosLatestVersion": "",
-        "IosMinVersion": ""
-    },
-    "SqlSettings": {
-        "DriverName": "mysql",
-        "DataSource": "xserver_user:xserver_password@tcp(dockerhost:65500)/xserver_dev_database?charset=utf8mb4,utf8&readTimeout=30s&writeTimeout=30s",
-        "DataSourceReplicas": [],
-        "DataSourceSearchReplicas": [],
-        "MaxIdleConns": 20,
-        "MaxOpenConns": 300,
-        "Trace": false,
-        "AtRestEncryptKey": "",
-        "QueryTimeout": 30
-    },
     "PasswordSettings": {
         "MinimumLength": 5,
         "Lowercase": false,
         "Number": false,
         "Uppercase": false,
         "Symbol": false
-    },
-    "FileSettings": {
-        "EnableFileAttachments": true,
-        "EnableMobileUpload": true,
-        "EnableMobileDownload": true,
-        "MaxFileSize": 52428800,
-        "DriverName": "local",
-        "Directory": "./data/",
-        "EnablePublicLink": false,
-        "PublicLinkSalt": "",
-        "InitialFont": "luximbi.ttf",
-        "AmazonS3AccessKeyId": "",
-        "AmazonS3SecretAccessKey": "",
-        "AmazonS3Bucket": "",
-        "AmazonS3Region": "",
-        "AmazonS3Endpoint": "s3.amazonaws.com",
-        "AmazonS3SSL": true,
-        "AmazonS3SignV2": false,
-        "AmazonS3SSE": false,
-        "AmazonS3Trace": false
-    },
-    "EmailSettings": {
-        "EnableSignUpWithEmail": true,
-        "EnableSignInWithEmail": true,
-        "EnableSignInWithUsername": true,
-        "SendEmailNotifications": true,
-        "UseChannelInEmailNotifications": false,
-        "RequireEmailVerification": false,
-        "FeedbackName": "",
-        "FeedbackEmail": "test@example.com",
-        "FeedbackOrganization": "",
-        "EnableSMTPAuth": false,
-        "SMTPUsername": "",
-        "SMTPPassword": "",
-        "SMTPServer": "dockerhost",
-        "SMTPPort": "2500",
-        "ConnectionSecurity": "",
-        "InviteSalt": "",
-        "SendPushNotifications": false,
-        "PushNotificationServer": "",
-        "PushNotificationContents": "generic",
-        "EnableEmailBatching": false,
-        "EmailBatchingBufferSize": 256,
-        "EmailBatchingInterval": 30,
-        "SkipServerCertificateVerification": false,
-        "EmailNotificationContentsType": "full",
-        "LoginButtonColor": "",
-        "LoginButtonBorderColor": "",
-        "LoginButtonTextColor": ""
     },
     "RateLimitSettings": {
         "Enable": false,
@@ -113,14 +45,6 @@
     "PrivacySettings": {
         "ShowEmailAddress": true,
         "ShowFullName": true
-    },
-    "SupportSettings": {
-        "TermsOfServiceLink": "https://www.pfbbc.com/default-terms/",
-        "PrivacyPolicyLink": "https://www.pfbbc.com/default-privacy-policy/",
-        "AboutLink": "https://www.pfbbc.com/default-about/",
-        "HelpLink": "https://www.pfbbc.com/default-help/",
-        "ReportAProblemLink": "https://www.pfbbc.com/default-report-a-problem/",
-        "SupportEmail": "primefour@163.com"
     },
     "AnnouncementSettings": {
         "EnableBanner": false,
@@ -135,140 +59,13 @@
         "AllowCustomThemes": true,
         "AllowedThemes": []
     },
-    "GitLabSettings": {
-        "Enable": false,
-        "Secret": "",
-        "Id": "",
-        "Scope": "",
-        "AuthEndpoint": "",
-        "TokenEndpoint": "",
-        "UserApiEndpoint": ""
-    },
-    "GoogleSettings": {
-        "Enable": false,
-        "Secret": "",
-        "Id": "",
-        "Scope": "profile email",
-        "AuthEndpoint": "https://accounts.google.com/o/oauth2/v2/auth",
-        "TokenEndpoint": "https://www.googleapis.com/oauth2/v4/token",
-        "UserApiEndpoint": "https://www.googleapis.com/plus/v1/people/me"
-    },
-    "Office365Settings": {
-        "Enable": false,
-        "Secret": "",
-        "Id": "",
-        "Scope": "User.Read",
-        "AuthEndpoint": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-        "TokenEndpoint": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
-        "UserApiEndpoint": "https://graph.microsoft.com/v1.0/me"
-    },
-    "LdapSettings": {
-        "Enable": false,
-        "EnableSync": false,
-        "LdapServer": "",
-        "LdapPort": 389,
-        "ConnectionSecurity": "",
-        "BaseDN": "",
-        "BindUsername": "",
-        "BindPassword": "",
-        "UserFilter": "",
-        "FirstNameAttribute": "",
-        "LastNameAttribute": "",
-        "EmailAttribute": "",
-        "UsernameAttribute": "",
-        "NicknameAttribute": "",
-        "IdAttribute": "",
-        "PositionAttribute": "",
-        "SyncIntervalMinutes": 60,
-        "SkipCertificateVerification": false,
-        "QueryTimeout": 60,
-        "MaxPageSize": 0,
-        "LoginFieldName": "",
-        "LoginButtonColor": "",
-        "LoginButtonBorderColor": "",
-        "LoginButtonTextColor": ""
-    },
-    "ComplianceSettings": {
-        "Enable": false,
-        "Directory": "./data/",
-        "EnableDaily": false
-    },
     "LocalizationSettings": {
         "DefaultServerLocale": "en",
         "DefaultClientLocale": "en",
         "AvailableLocales": ""
     },
-    "SamlSettings": {
-        "Enable": false,
-        "EnableSyncWithLdap": false,
-        "Verify": true,
-        "Encrypt": true,
-        "IdpUrl": "",
-        "IdpDescriptorUrl": "",
-        "AssertionConsumerServiceURL": "",
-        "IdpCertificateFile": "",
-        "PublicCertificateFile": "",
-        "PrivateKeyFile": "",
-        "FirstNameAttribute": "",
-        "LastNameAttribute": "",
-        "EmailAttribute": "",
-        "UsernameAttribute": "",
-        "NicknameAttribute": "",
-        "LocaleAttribute": "",
-        "PositionAttribute": "",
-        "LoginButtonText": "With SAML",
-        "LoginButtonColor": "",
-        "LoginButtonBorderColor": "",
-        "LoginButtonTextColor": ""
-    },
-    "NativeAppSettings": {
-        "AppDownloadLink": "https://www.pfbbc.com/downloads/",
-        "AndroidAppDownloadLink": "https://www.pfbbc.com/android-app/",
-        "IosAppDownloadLink": "https://www.pfbbc.com/ios-app/"
-    },
-    "ClusterSettings": {
-        "Enable": false,
-        "ClusterName": "",
-        "OverrideHostname": "",
-        "UseIpAddress": true,
-        "UseExperimentalGossip": false,
-        "ReadOnlyConfig": true,
-        "GossipPort": 8074,
-        "StreamingPort": 8075
-    },
-    "MetricsSettings": {
-        "Enable": false,
-        "BlockProfileRate": 0,
-        "ListenAddress": ":8067"
-    },
     "AnalyticsSettings": {
         "MaxUsersForStatistics": 2500
-    },
-    "WebrtcSettings": {
-        "Enable": false,
-        "GatewayWebsocketUrl": "",
-        "GatewayAdminUrl": "",
-        "GatewayAdminSecret": "",
-        "StunURI": "",
-        "TurnURI": "",
-        "TurnUsername": "",
-        "TurnSharedKey": ""
-    },
-    "ElasticsearchSettings": {
-        "ConnectionUrl": "http://dockerhost:9200",
-        "Username": "elastic",
-        "Password": "changeme",
-        "EnableIndexing": false,
-        "EnableSearching": false,
-        "Sniff": true,
-        "PostIndexReplicas": 1,
-        "PostIndexShards": 1,
-        "AggregatePostsAfterDays": 365,
-        "PostsAggregatorJobStartTime": "03:00",
-        "IndexPrefix": "",
-        "LiveIndexingBatchSize": 1,
-        "BulkIndexingTimeWindowSeconds": 3600,
-        "RequestTimeoutSeconds": 30
     },
     "DataRetentionSettings": {
         "EnableMessageDeletion": false,
@@ -287,13 +84,5 @@
     "JobSettings": {
         "RunJobs": true,
         "RunScheduler": true
-    },
-    "PluginSettings": {
-        "Enable": true,
-        "EnableUploads": false,
-        "Directory": "./plugins",
-        "ClientDirectory": "./client/plugins",
-        "Plugins": {},
-        "PluginStates": {}
     }
 }

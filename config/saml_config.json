@@ -1,0 +1,23 @@
+{
+    "Enable": false,
+    "EnableSyncWithLdap": false,
+    "Verify": true,
+    "Encrypt": true,
+    "IdpUrl": "",
+    "IdpDescriptorUrl": "",
+    "AssertionConsumerServiceURL": "",
+    "IdpCertificateFile": "",
+    "PublicCertificateFile": "",
+    "PrivateKeyFile": "",
+    "FirstNameAttribute": "",
+    "LastNameAttribute": "",
+    "EmailAttribute": "",
+    "UsernameAttribute": "",
+    "NicknameAttribute": "",
+    "LocaleAttribute": "",
+    "PositionAttribute": "",
+    "LoginButtonText": "With SAML",
+    "LoginButtonColor": "",
+    "LoginButtonBorderColor": "",
+    "LoginButtonTextColor": ""
+}

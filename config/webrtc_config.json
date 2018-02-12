@@ -1,0 +1,10 @@
+{
+    "Enable": false,
+    "GatewayWebsocketUrl": "",
+    "GatewayAdminUrl": "",
+    "GatewayAdminSecret": "",
+    "StunURI": "",
+    "TurnURI": "",
+    "TurnUsername": "",
+    "TurnSharedKey": ""
+}

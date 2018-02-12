@@ -1,0 +1,28 @@
+{
+    "NativeAppSettings": {
+        "AppDownloadLink": "https://www.pfbbc.com/downloads/",
+        "AndroidAppDownloadLink": "https://www.pfbbc.com/android-app/",
+        "IosAppDownloadLink": "https://www.pfbbc.com/ios-app/"
+    },
+    "ComplianceSettings": {
+        "Enable": false,
+        "Directory": "./data/",
+        "EnableDaily": false
+    },
+    "SupportSettings": {
+        "TermsOfServiceLink": "https://www.pfbbc.com/default-terms/",
+        "PrivacyPolicyLink": "https://www.pfbbc.com/default-privacy-policy/",
+        "AboutLink": "https://www.pfbbc.com/default-about/",
+        "HelpLink": "https://www.pfbbc.com/default-help/",
+        "ReportAProblemLink": "https://www.pfbbc.com/default-report-a-problem/",
+        "SupportEmail": "primefour@163.com"
+    },
+    "ClientRequirements": {
+        "AndroidLatestVersion": "",
+        "AndroidMinVersion": "",
+        "DesktopLatestVersion": "",
+        "DesktopMinVersion": "",
+        "IosLatestVersion": "",
+        "IosMinVersion": ""
+    }
+}

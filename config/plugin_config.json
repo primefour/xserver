@@ -1,0 +1,8 @@
+{
+    "Enable": true,
+    "EnableUploads": false,
+    "Directory": "./plugins",
+    "ClientDirectory": "./client/plugins",
+    "Plugins": {},
+    "PluginStates": {}
+}

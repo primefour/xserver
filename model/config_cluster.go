@@ -1,5 +1,18 @@
 package model
 
+import (
+	l4g "github.com/alecthomas/log4go"
+	"github.com/primefour/xserver/utils"
+	"github.com/spf13/viper"
+	"os"
+)
+
+const (
+	//cluster config
+	CLUSTER_CONFIG_FILE_PATH = "./config/cluster_config.json"
+	CLUSTER_CONFIG_NAME      = "CLUSTER_SETTINGS"
+)
+
 type ClusterSettings struct {
 	Enable                *bool
 	ClusterName           *string
@@ -45,22 +58,31 @@ func (s *ClusterSettings) SetDefaults() {
 	}
 }
 
-type MetricsSettings struct {
-	Enable           *bool
-	BlockProfileRate *int
-	ListenAddress    *string
+func clusterConfigParser(f *os.File) (interface{}, error) {
+	settings := &ClusterSettings{}
+	v := viper.New()
+	v.SetConfigType("json")
+	if err := v.ReadConfig(f); err != nil {
+		return nil, err
+	}
+	unmarshalErr := v.Unmarshal(settings)
+	settings.SetDefaults()
+	l4g.Debug("cluster settings is:%v  ", *settings)
+	return settings, unmarshalErr
 }
 
-func (s *MetricsSettings) SetDefaults() {
-	if s.ListenAddress == nil {
-		s.ListenAddress = NewString(":8067")
+func GetClusterSettings() *ClusterSettings {
+	settings := utils.GetSettings(CLUSTER_CONFIG_NAME)
+	if settings != nil {
+		tmp := settings.(*ClusterSettings)
+		return tmp
 	}
+	return nil
+}
 
-	if s.Enable == nil {
-		s.Enable = NewBool(false)
-	}
-
-	if s.BlockProfileRate == nil {
-		s.BlockProfileRate = NewInt(0)
+func init() {
+	_, err := utils.AddConfigEntry(CLUSTER_CONFIG_NAME, CLUSTER_CONFIG_FILE_PATH, true, clusterConfigParser)
+	if err != nil {
+		return
 	}
 }
