@@ -4,6 +4,8 @@ import (
 	l4g "github.com/alecthomas/log4go"
 	"github.com/primefour/xserver/utils"
 	"github.com/spf13/viper"
+	"net/http"
+	"net/url"
 	"os"
 )
 

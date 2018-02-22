@@ -1,11 +1,10 @@
-
 package model
 
 import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"time"
+	//	"time"
 )
 
 const (
@@ -119,7 +118,7 @@ type Worker interface {
 type Scheduler interface {
 	Name() string
 	JobType() string
-	Enabled(cfg *Config) bool
-	NextScheduleTime(cfg *Config, now time.Time, pendingJobs bool, lastSuccessfulJob *Job) *time.Time
-	ScheduleJob(cfg *Config, pendingJobs bool, lastSuccessfulJob *Job) (*Job, *AppError)
+	//Enabled(cfg *Config) bool
+	//NextScheduleTime(cfg *Config, now time.Time, pendingJobs bool, lastSuccessfulJob *Job) *time.Time
+	//ScheduleJob(cfg *Config, pendingJobs bool, lastSuccessfulJob *Job) (*Job, *AppError)
 }

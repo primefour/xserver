@@ -1,5 +1,9 @@
 package model
 
+import (
+	"net/http"
+)
+
 const (
 	LDAP_SETTINGS_DEFAULT_FIRST_NAME_ATTRIBUTE = ""
 	LDAP_SETTINGS_DEFAULT_LAST_NAME_ATTRIBUTE  = ""

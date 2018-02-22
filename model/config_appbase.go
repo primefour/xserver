@@ -42,6 +42,9 @@ const (
 	PERMISSIONS_CHANNEL_ADMIN = "channel_admin"
 	PERMISSIONS_TEAM_ADMIN    = "team_admin"
 	PERMISSIONS_SYSTEM_ADMIN  = "system_admin"
+
+	APPBASE_CONFIG_FILE_PATH = "./config/appbase_config.json"
+	APPBASE_CONFIG_NAME      = "APPBASE_SETTINGS"
 )
 
 type AnalyticsSettings struct {
@@ -218,7 +221,7 @@ type TeamSettings struct {
 
 func (s *TeamSettings) SetDefaults() {
 	if s.TeammateNameDisplay == nil {
-		s.TeamSettings.TeammateNameDisplay = NewString(SHOW_USERNAME)
+		s.TeammateNameDisplay = NewString(SHOW_USERNAME)
 	}
 	if s.MaxUsersPerTeam == nil {
 		s.MaxUsersPerTeam = NewInt(TEAM_SETTINGS_DEFAULT_MAX_USERS_PER_TEAM)
@@ -506,7 +509,6 @@ func (s *AppBaseSettings) SetDefaults() {
 	s.TeamSettings.SetDefaults()
 	s.PasswordSettings.SetDefaults()
 	s.RateLimitSettings.SetDefaults()
-	s.PrivacySettings.SetDefaults()
 	s.AnnouncementSettings.SetDefaults()
 	s.ThemeSettings.SetDefaults()
 	s.LocalizationSettings.SetDefaults()

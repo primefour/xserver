@@ -1,4 +1,3 @@
-
 package model
 
 import (
@@ -2084,6 +2083,7 @@ func (c *Client4) TestEmail() (bool, *Response) {
 }
 
 // GetConfig will retrieve the server config with some sanitized items.
+/*
 func (c *Client4) GetConfig() (*Config, *Response) {
 	if r, err := c.DoApiGet(c.GetConfigRoute(), ""); err != nil {
 		return nil, BuildErrorResponse(r, err)
@@ -2092,6 +2092,7 @@ func (c *Client4) GetConfig() (*Config, *Response) {
 		return ConfigFromJson(r.Body), BuildResponse(r)
 	}
 }
+*/
 
 // ReloadConfig will reload the server configuration.
 func (c *Client4) ReloadConfig() (bool, *Response) {
@@ -2146,6 +2147,7 @@ func (c *Client4) InvalidateCaches() (bool, *Response) {
 }
 
 // UpdateConfig will update the server configuration.
+/*
 func (c *Client4) UpdateConfig(config *Config) (*Config, *Response) {
 	if r, err := c.DoApiPut(c.GetConfigRoute(), config.ToJson()); err != nil {
 		return nil, BuildErrorResponse(r, err)
@@ -2154,6 +2156,7 @@ func (c *Client4) UpdateConfig(config *Config) (*Config, *Response) {
 		return ConfigFromJson(r.Body), BuildResponse(r)
 	}
 }
+*/
 
 // UploadLicenseFile will add a license file to the system.
 func (c *Client4) UploadLicenseFile(data []byte) (bool, *Response) {
