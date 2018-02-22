@@ -1,5 +1,18 @@
 package model
 
+import (
+	l4g "github.com/alecthomas/log4go"
+	"github.com/primefour/xserver/utils"
+	"github.com/spf13/viper"
+	"os"
+)
+
+const (
+	//metrics config
+	FILES_CONFIG_FILE_PATH = "./config/files_config.json"
+	FILES_CONFIG_NAME      = "FILES_SETTINGS"
+)
+
 type FileSettings struct {
 	EnableFileAttachments   *bool
 	EnableMobileUpload      *bool
@@ -19,6 +32,22 @@ type FileSettings struct {
 	AmazonS3SignV2          *bool
 	AmazonS3SSE             *bool
 	AmazonS3Trace           *bool
+}
+
+func (fs *FileSettings) isValid() *AppError {
+	if *fs.MaxFileSize <= 0 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.max_file_size.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if !(*fs.DriverName == IMAGE_DRIVER_LOCAL || *fs.DriverName == IMAGE_DRIVER_S3) {
+		return NewAppError("Config.IsValid", "model.config.is_valid.file_driver.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if len(*fs.PublicLinkSalt) < 32 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.file_salt.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	return nil
 }
 
 func (s *FileSettings) SetDefaults() {
@@ -75,5 +104,34 @@ func (s *FileSettings) SetDefaults() {
 
 	if s.Directory == "" {
 		s.Directory = "./data/"
+	}
+}
+
+func filesConfigParser(f *os.File) (interface{}, error) {
+	settings := &FileSettings{}
+	v := viper.New()
+	v.SetConfigType("json")
+	if err := v.ReadConfig(f); err != nil {
+		return nil, err
+	}
+	unmarshalErr := v.Unmarshal(settings)
+	settings.SetDefaults()
+	l4g.Debug("files settings is:%v  ", *settings)
+	return settings, unmarshalErr
+}
+
+func GetfilesSettings() *FileSettings {
+	settings := utils.GetSettings(FILES_CONFIG_NAME)
+	if settings != nil {
+		tmp := settings.(*FileSettings)
+		return tmp
+	}
+	return nil
+}
+
+func init() {
+	_, err := utils.AddConfigEntry(FILES_CONFIG_NAME, FILES_CONFIG_FILE_PATH, true, filesConfigParser)
+	if err != nil {
+		return
 	}
 }

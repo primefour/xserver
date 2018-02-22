@@ -312,6 +312,50 @@ func (s *ServiceSettings) SetDefaults() {
 	}
 }
 
+func (ss *ServiceSettings) isValid() *AppError {
+	if !(*ss.ConnectionSecurity == CONN_SECURITY_NONE || *ss.ConnectionSecurity == CONN_SECURITY_TLS) {
+		return NewAppError("Config.IsValid", "model.config.is_valid.webserver_security.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if *ss.ReadTimeout <= 0 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.read_timeout.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if *ss.WriteTimeout <= 0 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.write_timeout.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if *ss.TimeBetweenUserTypingUpdatesMilliseconds < 1000 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.time_between_user_typing.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if *ss.MaximumLoginAttempts <= 0 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.login_attempts.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if len(*ss.SiteURL) != 0 {
+		if _, err := url.ParseRequestURI(*ss.SiteURL); err != nil {
+			return NewAppError("Config.IsValid", "model.config.is_valid.site_url.app_error", nil, "", http.StatusBadRequest)
+		}
+	}
+
+	if len(*ss.ListenAddress) == 0 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.listen_address.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	switch *ss.ImageProxyType {
+	case "", "willnorris/imageproxy":
+	case "atmos/camo":
+		if *ss.ImageProxyOptions == "" {
+			return NewAppError("Config.IsValid", "model.config.is_valid.atmos_camo_image_proxy_options.app_error", nil, "", http.StatusBadRequest)
+		}
+	default:
+		return NewAppError("Config.IsValid", "model.config.is_valid.image_proxy_type.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	return nil
+}
+
 func servConfigParser(f *os.File) (interface{}, error) {
 	settings := &ServiceSettings{}
 	v := viper.New()
@@ -321,7 +365,7 @@ func servConfigParser(f *os.File) (interface{}, error) {
 	}
 	unmarshalErr := v.Unmarshal(settings)
 	settings.SetDefaults()
-	l4g.Debug("system settings is:%v  ", *settings)
+	l4g.Debug("service settings is:%v  ", *settings)
 	return settings, unmarshalErr
 }
 

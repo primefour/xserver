@@ -148,3 +148,41 @@ func (s *LdapSettings) SetDefaults() {
 		s.LoginButtonTextColor = NewString("#2389D7")
 	}
 }
+
+func (ls *LdapSettings) isValid() *AppError {
+	if !(*ls.ConnectionSecurity == CONN_SECURITY_NONE || *ls.ConnectionSecurity == CONN_SECURITY_TLS || *ls.ConnectionSecurity == CONN_SECURITY_STARTTLS) {
+		return NewAppError("Config.IsValid", "model.config.is_valid.ldap_security.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if *ls.SyncIntervalMinutes <= 0 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.ldap_sync_interval.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if *ls.MaxPageSize < 0 {
+		return NewAppError("Config.IsValid", "model.config.is_valid.ldap_max_page_size.app_error", nil, "", http.StatusBadRequest)
+	}
+
+	if *ls.Enable {
+		if *ls.LdapServer == "" {
+			return NewAppError("Config.IsValid", "model.config.is_valid.ldap_server", nil, "", http.StatusBadRequest)
+		}
+
+		if *ls.BaseDN == "" {
+			return NewAppError("Config.IsValid", "model.config.is_valid.ldap_basedn", nil, "", http.StatusBadRequest)
+		}
+
+		if *ls.EmailAttribute == "" {
+			return NewAppError("Config.IsValid", "model.config.is_valid.ldap_email", nil, "", http.StatusBadRequest)
+		}
+
+		if *ls.UsernameAttribute == "" {
+			return NewAppError("Config.IsValid", "model.config.is_valid.ldap_username", nil, "", http.StatusBadRequest)
+		}
+
+		if *ls.IdAttribute == "" {
+			return NewAppError("Config.IsValid", "model.config.is_valid.ldap_id", nil, "", http.StatusBadRequest)
+		}
+	}
+
+	return nil
+}
