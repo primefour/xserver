@@ -24,7 +24,7 @@ type ClusterSettings struct {
 	StreamingPort         *int
 }
 
-func (s *ClusterSettings) SetDefaults() {
+func (s *ClusterSettings) setDefaults() {
 	if s.Enable == nil {
 		s.Enable = NewBool(false)
 	}
@@ -66,7 +66,7 @@ func clusterConfigParser(f *os.File) (interface{}, error) {
 		return nil, err
 	}
 	unmarshalErr := v.Unmarshal(settings)
-	settings.SetDefaults()
+	settings.setDefaults()
 	l4g.Debug("cluster settings is:%v  ", *settings)
 	return settings, unmarshalErr
 }

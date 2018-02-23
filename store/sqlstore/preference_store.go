@@ -5,10 +5,8 @@ import (
 
 	l4g "github.com/alecthomas/log4go"
 	"github.com/mattermost/gorp"
-
 	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/store"
-	"github.com/primefour/xserver/utils"
 )
 
 type SqlPreferenceStore struct {
@@ -36,7 +34,7 @@ func (s SqlPreferenceStore) CreateIndexesIfNotExists() {
 }
 
 func (s SqlPreferenceStore) DeleteUnusedFeatures() {
-	l4g.Debug(utils.T("store.sql_preference.delete_unused_features.debug"))
+	l4g.Debug(model.T("store.sql_preference.delete_unused_features.debug"))
 
 	sql := `DELETE
 		FROM Preferences

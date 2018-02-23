@@ -6,9 +6,7 @@ import (
 	"time"
 
 	l4g "github.com/alecthomas/log4go"
-
 	"github.com/primefour/xserver/model"
-	"github.com/primefour/xserver/utils"
 )
 
 const (
@@ -71,12 +69,12 @@ func UpgradeDatabase(sqlStore SqlStore) {
 			os.Exit(EXIT_VERSION_SAVE_MISSING)
 		}
 
-		l4g.Info(utils.T("store.sql.schema_set.info"), model.CurrentVersion)
+		l4g.Info(model.T("store.sql.schema_set.info"), model.CurrentVersion)
 	}
 
 	// If we're not on the current version then it's too old to be upgraded
 	if sqlStore.GetCurrentSchemaVersion() != model.CurrentVersion {
-		l4g.Critical(utils.T("store.sql.schema_version.critical"), sqlStore.GetCurrentSchemaVersion(), OLDEST_SUPPORTED_VERSION, model.CurrentVersion, OLDEST_SUPPORTED_VERSION)
+		l4g.Critical(model.T("store.sql.schema_version.critical"), sqlStore.GetCurrentSchemaVersion(), OLDEST_SUPPORTED_VERSION, model.CurrentVersion, OLDEST_SUPPORTED_VERSION)
 		time.Sleep(time.Second)
 		os.Exit(EXIT_TOO_OLD)
 	}
@@ -89,13 +87,13 @@ func saveSchemaVersion(sqlStore SqlStore, version string) {
 		os.Exit(EXIT_VERSION_SAVE)
 	}
 
-	l4g.Warn(utils.T("store.sql.upgraded.warn"), version)
+	l4g.Warn(model.T("store.sql.upgraded.warn"), version)
 }
 
 func shouldPerformUpgrade(sqlStore SqlStore, currentSchemaVersion string, expectedSchemaVersion string) bool {
 	if sqlStore.GetCurrentSchemaVersion() == currentSchemaVersion {
-		l4g.Warn(utils.T("store.sql.schema_out_of_date.warn"), currentSchemaVersion)
-		l4g.Warn(utils.T("store.sql.schema_upgrade_attempt.warn"), expectedSchemaVersion)
+		l4g.Warn(model.T("store.sql.schema_out_of_date.warn"), currentSchemaVersion)
+		l4g.Warn(model.T("store.sql.schema_upgrade_attempt.warn"), expectedSchemaVersion)
 
 		return true
 	}
@@ -119,7 +117,7 @@ func UpgradeDatabaseToVersion32(sqlStore SqlStore) {
 }
 
 func themeMigrationFailed(err error) {
-	l4g.Critical(utils.T("store.sql_user.migrate_theme.critical"), err)
+	l4g.Critical(model.T("store.sql_user.migrate_theme.critical"), err)
 	time.Sleep(time.Second)
 	os.Exit(EXIT_THEME_MIGRATION)
 }

@@ -1,4 +1,3 @@
-
 package model
 
 import (
@@ -32,7 +31,7 @@ const (
 	COMMENTS_NOTIFY_ROOT         = "root"
 	COMMENTS_NOTIFY_ANY          = "any"
 
-	DEFAULT_LOCALE          = "en"
+	USER_DEFAULT_LOCALE     = "en"
 	USER_AUTH_SERVICE_EMAIL = "email"
 
 	USER_EMAIL_MAX_LENGTH     = 128
@@ -187,7 +186,7 @@ func (u *User) PreSave() {
 	u.MfaActive = false
 
 	if u.Locale == "" {
-		u.Locale = DEFAULT_LOCALE
+		u.Locale = USER_DEFAULT_LOCALE
 	}
 
 	if u.Props == nil {

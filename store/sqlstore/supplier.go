@@ -19,7 +19,6 @@ import (
 	"github.com/primefour/xserver/einterfaces"
 	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/store"
-	"github.com/primefour/xserver/utils"
 )
 
 const (
@@ -135,7 +134,7 @@ func NewSqlSupplier(settings model.SqlSettings, metrics einterfaces.MetricsInter
 
 	err := supplier.GetMaster().CreateTablesIfNotExists()
 	if err != nil {
-		l4g.Critical(utils.T("store.sql.creating_tables.critical"), err)
+		l4g.Critical(model.T("store.sql.creating_tables.critical"), err)
 		time.Sleep(time.Second)
 		os.Exit(EXIT_CREATE_TABLE)
 	}
@@ -180,7 +179,7 @@ func (s *SqlSupplier) Next() store.LayeredStoreSupplier {
 func setupConnection(con_type string, dataSource string, settings *model.SqlSettings) *gorp.DbMap {
 	db, err := dbsql.Open(*settings.DriverName, dataSource)
 	if err != nil {
-		l4g.Critical(utils.T("store.sql.open_conn.critical"), err)
+		l4g.Critical(model.T("store.sql.open_conn.critical"), err)
 		time.Sleep(time.Second)
 		os.Exit(EXIT_DB_OPEN)
 	}
@@ -219,7 +218,7 @@ func setupConnection(con_type string, dataSource string, settings *model.SqlSett
 	} else if *settings.DriverName == model.DATABASE_DRIVER_POSTGRES {
 		dbmap = &gorp.DbMap{Db: db, TypeConverter: mattermConverter{}, Dialect: gorp.PostgresDialect{}, QueryTimeout: connectionTimeout}
 	} else {
-		l4g.Critical(utils.T("store.sql.dialect_driver.critical"))
+		l4g.Critical(model.T("store.sql.dialect_driver.critical"))
 		time.Sleep(time.Second)
 		os.Exit(EXIT_NO_DRIVER)
 	}
@@ -326,7 +325,7 @@ func (ss *SqlSupplier) DoesTableExist(tableName string) bool {
 		)
 
 		if err != nil {
-			l4g.Critical(utils.T("store.sql.table_exists.critical"), err)
+			l4g.Critical(model.T("store.sql.table_exists.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_TABLE_EXISTS)
 		}
@@ -348,7 +347,7 @@ func (ss *SqlSupplier) DoesTableExist(tableName string) bool {
 		)
 
 		if err != nil {
-			l4g.Critical(utils.T("store.sql.table_exists.critical"), err)
+			l4g.Critical(model.T("store.sql.table_exists.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_TABLE_EXISTS_MYSQL)
 		}
@@ -356,7 +355,7 @@ func (ss *SqlSupplier) DoesTableExist(tableName string) bool {
 		return count > 0
 
 	} else {
-		l4g.Critical(utils.T("store.sql.column_exists_missing_driver.critical"))
+		l4g.Critical(model.T("store.sql.column_exists_missing_driver.critical"))
 		time.Sleep(time.Second)
 		os.Exit(EXIT_COLUMN_EXISTS)
 		return false
@@ -380,7 +379,7 @@ func (ss *SqlSupplier) DoesColumnExist(tableName string, columnName string) bool
 				return false
 			}
 
-			l4g.Critical(utils.T("store.sql.column_exists.critical"), err)
+			l4g.Critical(model.T("store.sql.column_exists.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_DOES_COLUMN_EXISTS_POSTGRES)
 		}
@@ -403,7 +402,7 @@ func (ss *SqlSupplier) DoesColumnExist(tableName string, columnName string) bool
 		)
 
 		if err != nil {
-			l4g.Critical(utils.T("store.sql.column_exists.critical"), err)
+			l4g.Critical(model.T("store.sql.column_exists.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_DOES_COLUMN_EXISTS_MYSQL)
 		}
@@ -411,7 +410,7 @@ func (ss *SqlSupplier) DoesColumnExist(tableName string, columnName string) bool
 		return count > 0
 
 	} else {
-		l4g.Critical(utils.T("store.sql.column_exists_missing_driver.critical"))
+		l4g.Critical(model.T("store.sql.column_exists_missing_driver.critical"))
 		time.Sleep(time.Second)
 		os.Exit(EXIT_DOES_COLUMN_EXISTS_MISSING)
 		return false
@@ -427,7 +426,7 @@ func (ss *SqlSupplier) CreateColumnIfNotExists(tableName string, columnName stri
 	if ss.DriverName() == model.DATABASE_DRIVER_POSTGRES {
 		_, err := ss.GetMaster().ExecNoTimeout("ALTER TABLE " + tableName + " ADD " + columnName + " " + postgresColType + " DEFAULT '" + defaultValue + "'")
 		if err != nil {
-			l4g.Critical(utils.T("store.sql.create_column.critical"), err)
+			l4g.Critical(model.T("store.sql.create_column.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_CREATE_COLUMN_POSTGRES)
 		}
@@ -437,7 +436,7 @@ func (ss *SqlSupplier) CreateColumnIfNotExists(tableName string, columnName stri
 	} else if ss.DriverName() == model.DATABASE_DRIVER_MYSQL {
 		_, err := ss.GetMaster().ExecNoTimeout("ALTER TABLE " + tableName + " ADD " + columnName + " " + mySqlColType + " DEFAULT '" + defaultValue + "'")
 		if err != nil {
-			l4g.Critical(utils.T("store.sql.create_column.critical"), err)
+			l4g.Critical(model.T("store.sql.create_column.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_CREATE_COLUMN_MYSQL)
 		}
@@ -445,7 +444,7 @@ func (ss *SqlSupplier) CreateColumnIfNotExists(tableName string, columnName stri
 		return true
 
 	} else {
-		l4g.Critical(utils.T("store.sql.create_column_missing_driver.critical"))
+		l4g.Critical(model.T("store.sql.create_column_missing_driver.critical"))
 		time.Sleep(time.Second)
 		os.Exit(EXIT_CREATE_COLUMN_MISSING)
 		return false
@@ -496,7 +495,7 @@ func (ss *SqlSupplier) RenameColumnIfExists(tableName string, oldColumnName stri
 	}
 
 	if err != nil {
-		l4g.Critical(utils.T("store.sql.rename_column.critical"), err)
+		l4g.Critical(model.T("store.sql.rename_column.critical"), err)
 		time.Sleep(time.Second)
 		os.Exit(EXIT_RENAME_COLUMN)
 	}
@@ -518,7 +517,7 @@ func (ss *SqlSupplier) GetMaxLengthOfColumnIfExists(tableName string, columnName
 	}
 
 	if err != nil {
-		l4g.Critical(utils.T("store.sql.maxlength_column.critical"), err)
+		l4g.Critical(model.T("store.sql.maxlength_column.critical"), err)
 		time.Sleep(time.Second)
 		os.Exit(EXIT_MAX_COLUMN)
 	}
@@ -539,7 +538,7 @@ func (ss *SqlSupplier) AlterColumnTypeIfExists(tableName string, columnName stri
 	}
 
 	if err != nil {
-		l4g.Critical(utils.T("store.sql.alter_column_type.critical"), err)
+		l4g.Critical(model.T("store.sql.alter_column_type.critical"), err)
 		time.Sleep(time.Second)
 		os.Exit(EXIT_ALTER_COLUMN)
 	}
@@ -592,8 +591,8 @@ func (ss *SqlSupplier) createIndexIfNotExists(indexName string, tableName string
 
 		_, err := ss.GetMaster().ExecNoTimeout(query)
 		if err != nil {
-			l4g.Critical(utils.T("store.sql.create_index.critical"), errExists)
-			l4g.Critical(utils.T("store.sql.create_index.critical"), err)
+			l4g.Critical(model.T("store.sql.create_index.critical"), errExists)
+			l4g.Critical(model.T("store.sql.create_index.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_CREATE_INDEX_POSTGRES)
 		}
@@ -601,7 +600,7 @@ func (ss *SqlSupplier) createIndexIfNotExists(indexName string, tableName string
 
 		count, err := ss.GetMaster().SelectInt("SELECT COUNT(0) AS index_exists FROM information_schema.statistics WHERE TABLE_SCHEMA = DATABASE() and table_name = ? AND index_name = ?", tableName, indexName)
 		if err != nil {
-			l4g.Critical(utils.T("store.sql.check_index.critical"), err)
+			l4g.Critical(model.T("store.sql.check_index.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_CREATE_INDEX_MYSQL)
 		}
@@ -617,12 +616,12 @@ func (ss *SqlSupplier) createIndexIfNotExists(indexName string, tableName string
 
 		_, err = ss.GetMaster().ExecNoTimeout("CREATE  " + uniqueStr + fullTextIndex + " INDEX " + indexName + " ON " + tableName + " (" + strings.Join(columnNames, ", ") + ")")
 		if err != nil {
-			l4g.Critical(utils.T("store.sql.create_index.critical"), err)
+			l4g.Critical(model.T("store.sql.create_index.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_CREATE_INDEX_FULL_MYSQL)
 		}
 	} else {
-		l4g.Critical(utils.T("store.sql.create_index_missing_driver.critical"))
+		l4g.Critical(model.T("store.sql.create_index_missing_driver.critical"))
 		time.Sleep(time.Second)
 		os.Exit(EXIT_CREATE_INDEX_MISSING)
 	}
@@ -641,7 +640,7 @@ func (ss *SqlSupplier) RemoveIndexIfExists(indexName string, tableName string) b
 
 		_, err = ss.GetMaster().ExecNoTimeout("DROP INDEX " + indexName)
 		if err != nil {
-			l4g.Critical(utils.T("store.sql.remove_index.critical"), err)
+			l4g.Critical(model.T("store.sql.remove_index.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_REMOVE_INDEX_POSTGRES)
 		}
@@ -651,7 +650,7 @@ func (ss *SqlSupplier) RemoveIndexIfExists(indexName string, tableName string) b
 
 		count, err := ss.GetMaster().SelectInt("SELECT COUNT(0) AS index_exists FROM information_schema.statistics WHERE TABLE_SCHEMA = DATABASE() and table_name = ? AND index_name = ?", tableName, indexName)
 		if err != nil {
-			l4g.Critical(utils.T("store.sql.check_index.critical"), err)
+			l4g.Critical(model.T("store.sql.check_index.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_REMOVE_INDEX_MYSQL)
 		}
@@ -662,12 +661,12 @@ func (ss *SqlSupplier) RemoveIndexIfExists(indexName string, tableName string) b
 
 		_, err = ss.GetMaster().ExecNoTimeout("DROP INDEX " + indexName + " ON " + tableName)
 		if err != nil {
-			l4g.Critical(utils.T("store.sql.remove_index.critical"), err)
+			l4g.Critical(model.T("store.sql.remove_index.critical"), err)
 			time.Sleep(time.Second)
 			os.Exit(EXIT_REMOVE_INDEX_MYSQL)
 		}
 	} else {
-		l4g.Critical(utils.T("store.sql.create_index_missing_driver.critical"))
+		l4g.Critical(model.T("store.sql.create_index_missing_driver.critical"))
 		time.Sleep(time.Second)
 		os.Exit(EXIT_REMOVE_INDEX_MISSING)
 	}
@@ -704,7 +703,7 @@ func (ss *SqlSupplier) GetAllConns() []*gorp.DbMap {
 }
 
 func (ss *SqlSupplier) Close() {
-	l4g.Info(utils.T("store.sql.closing.info"))
+	l4g.Info(model.T("store.sql.closing.info"))
 	ss.master.Db.Close()
 	for _, replica := range ss.replicas {
 		replica.Db.Close()
@@ -837,7 +836,7 @@ func (me mattermConverter) FromDb(target interface{}) (gorp.CustomScanner, bool)
 		binder := func(holder, target interface{}) error {
 			s, ok := holder.(*string)
 			if !ok {
-				return errors.New(utils.T("store.sql.convert_string_map"))
+				return errors.New(model.T("store.sql.convert_string_map"))
 			}
 			b := []byte(*s)
 			return json.Unmarshal(b, target)
@@ -847,7 +846,7 @@ func (me mattermConverter) FromDb(target interface{}) (gorp.CustomScanner, bool)
 		binder := func(holder, target interface{}) error {
 			s, ok := holder.(*string)
 			if !ok {
-				return errors.New(utils.T("store.sql.convert_string_map"))
+				return errors.New(model.T("store.sql.convert_string_map"))
 			}
 			b := []byte(*s)
 			return json.Unmarshal(b, target)
@@ -857,7 +856,7 @@ func (me mattermConverter) FromDb(target interface{}) (gorp.CustomScanner, bool)
 		binder := func(holder, target interface{}) error {
 			s, ok := holder.(*string)
 			if !ok {
-				return errors.New(utils.T("store.sql.convert_string_array"))
+				return errors.New(model.T("store.sql.convert_string_array"))
 			}
 			b := []byte(*s)
 			return json.Unmarshal(b, target)
@@ -867,7 +866,7 @@ func (me mattermConverter) FromDb(target interface{}) (gorp.CustomScanner, bool)
 		binder := func(holder, target interface{}) error {
 			s, ok := holder.(*string)
 			if !ok {
-				return errors.New(utils.T("store.sql.convert_string_interface"))
+				return errors.New(model.T("store.sql.convert_string_interface"))
 			}
 			b := []byte(*s)
 			return json.Unmarshal(b, target)
@@ -877,7 +876,7 @@ func (me mattermConverter) FromDb(target interface{}) (gorp.CustomScanner, bool)
 		binder := func(holder, target interface{}) error {
 			s, ok := holder.(*string)
 			if !ok {
-				return errors.New(utils.T("store.sql.convert_string_interface"))
+				return errors.New(model.T("store.sql.convert_string_interface"))
 			}
 			b := []byte(*s)
 			return json.Unmarshal(b, target)

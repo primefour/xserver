@@ -9,7 +9,6 @@ import (
 	"github.com/mattermost/gorp"
 	"github.com/primefour/xserver/model"
 	"github.com/primefour/xserver/store"
-	"github.com/primefour/xserver/utils"
 )
 
 func initSqlSupplierReactions(sqlStore SqlStore) {
@@ -133,7 +132,7 @@ func (s *SqlSupplier) ReactionDeleteAllWithEmojiName(ctx context.Context, emojiN
 	for _, reaction := range reactions {
 		if _, err := s.GetMaster().Exec(UPDATE_POST_HAS_REACTIONS_QUERY,
 			map[string]interface{}{"PostId": reaction.PostId, "UpdateAt": model.GetMillis()}); err != nil {
-			l4g.Warn(utils.T("store.sql_reaction.delete_all_with_emoji_name.update_post.warn"), reaction.PostId, err.Error())
+			l4g.Warn(model.T("store.sql_reaction.delete_all_with_emoji_name.update_post.warn"), reaction.PostId, err.Error())
 		}
 	}
 

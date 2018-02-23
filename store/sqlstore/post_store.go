@@ -862,7 +862,7 @@ func (s SqlPostStore) Search(teamId string, userId string, params *model.SearchP
 
 		_, err := s.GetSearchReplica().Select(&posts, searchQuery, queryParams)
 		if err != nil {
-			l4g.Warn(utils.T("store.sql_post.search.warn"), err.Error())
+			l4g.Warn(model.T("store.sql_post.search.warn"), err.Error())
 			// Don't return the error to the caller as it is of no use to the user. Instead return an empty set of search results.
 		} else {
 			for _, p := range posts {

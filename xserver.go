@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	//	"fmt"
 	l4g "github.com/alecthomas/log4go"
 	//	"github.com/primefour/xserver/apps/simpleapp"
 	"github.com/primefour/xserver/model"
@@ -170,13 +170,11 @@ func launchStore() {
 }
 
 func main() {
-	client := model.NewAPIv4Client("https://www.pfbbc.com")
-	client.SetOAuthToken("hello world")
+	//client := model.NewAPIv4Client("https://www.pfbbc.com")
+	//client.SetOAuthToken("hello world")
 	//time.Sleep(2000)
-	//launchStore()
-	databaseSettings := model.GetDBSettings()
-	l4g.Debug(">>>>>>>>>>>>>>>>>>> %v ", databaseSettings)
-	logSettings := model.GetLogSettings()
-	l4g.Debug(">>>>>> %v ", logSettings)
+	launchStore()
+	model.GetDBSettings()
+	model.GetLogSettings()
 	l4g.Close()
 }
