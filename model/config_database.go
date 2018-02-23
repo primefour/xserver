@@ -56,7 +56,7 @@ func (ss *SqlSettings) isValid() *AppError {
 	return nil
 }
 
-func (s *SqlSettings) SetDefaults() {
+func (s *SqlSettings) setDefaults() {
 	if s.DriverName == nil {
 		s.DriverName = NewString(DATABASE_DRIVER_MYSQL)
 	}
@@ -90,7 +90,7 @@ func dbConfigParser(f *os.File) (interface{}, error) {
 		return nil, err
 	}
 	unmarshalErr := v.Unmarshal(settings)
-	settings.SetDefaults()
+	settings.setDefaults()
 	l4g.Debug("database settings is DriverName:%s  ", *(settings.DriverName))
 	l4g.Debug("database settings is DataSource:%s  ", *(settings.DataSource))
 	l4g.Debug("database settings is:%v  ", *settings)

@@ -49,13 +49,13 @@ type App struct {
 
 	newStore func() store.Store
 
-	htmlTemplateWatcher *utils.HTMLTemplateWatcher
-	sessionCache        *utils.Cache
-	roles               map[string]*model.Role
-	configListenerId    string
-	licenseListenerId   string
-	disableConfigWatch  bool
-	configWatcher       *utils.ConfigWatcher
+	//htmlTemplateWatcher *utils.HTMLTemplateWatcher
+	sessionCache       *utils.Cache
+	roles              map[string]*model.Role
+	configListenerId   string
+	licenseListenerId  string
+	disableConfigWatch bool
+	configWatcher      *utils.ConfigWatcher
 
 	pluginCommands     []*PluginCommand
 	pluginCommandsLock sync.RWMutex
@@ -90,16 +90,8 @@ func New(options ...Option) (*App, error) {
 
 	model.AppErrorInit(utils.T)
 
-	if err := utils.InitTranslations(model.GetAppBaseSettings().LocalizationSettings); err != nil {
-		return nil, errors.Wrapf(err, "unable to load Mattermost translation files")
-	}
-
-	app.configListenerId = app.AddConfigListener(func(_, _ *model.Config) {
-		app.configOrLicenseListener()
-	})
-	app.licenseListenerId = utils.AddLicenseListener(app.configOrLicenseListener)
-	app.regenerateClientConfig()
-	app.SetDefaultRolesBasedOnConfig()
+	//app.regenerateClientConfig()
+	//app.SetDefaultRolesBasedOnConfig()
 
 	l4g.Info(utils.T("api.server.new_server.init.info"))
 
@@ -107,36 +99,41 @@ func New(options ...Option) (*App, error) {
 
 	if app.newStore == nil {
 		app.newStore = func() store.Store {
-			return store.NewLayeredStore(sqlstore.NewSqlSupplier(app.Config().SqlSettings, app.Metrics), app.Metrics, app.Cluster)
+			return store.NewLayeredStore(sqlstore.NewSqlSupplier(*model.GetDBSettings(), app.Metrics), app.Metrics, app.Cluster)
 		}
 	}
 
-	if htmlTemplateWatcher, err := utils.NewHTMLTemplateWatcher("templates"); err != nil {
-		l4g.Error(utils.T("api.api.init.parsing_templates.error"), err)
-	} else {
-		app.htmlTemplateWatcher = htmlTemplateWatcher
-	}
+	/*
+		if htmlTemplateWatcher, err := utils.NewHTMLTemplateWatcher("templates"); err != nil {
+			l4g.Error(utils.T("api.api.init.parsing_templates.error"), err)
+		} else {
+			app.htmlTemplateWatcher = htmlTemplateWatcher
+		}
+	*/
 
 	app.Srv.Store = app.newStore()
 
-	app.initBuiltInPlugins()
-	app.Srv.Router.HandleFunc("/plugins/{plugin_id:[A-Za-z0-9\\_\\-\\.]+}", app.ServePluginRequest)
-	app.Srv.Router.HandleFunc("/plugins/{plugin_id:[A-Za-z0-9\\_\\-\\.]+}/{anything:.*}", app.ServePluginRequest)
+	//app.initBuiltInPlugins()
+	//app.Srv.Router.HandleFunc("/plugins/{plugin_id:[A-Za-z0-9\\_\\-\\.]+}", app.ServePluginRequest)
+	//app.Srv.Router.HandleFunc("/plugins/{plugin_id:[A-Za-z0-9\\_\\-\\.]+}/{anything:.*}", app.ServePluginRequest)
 
 	app.Srv.Router.NotFoundHandler = http.HandlerFunc(app.Handle404)
-
-	app.Srv.WebSocketRouter = &WebSocketRouter{
-		app:      app,
-		handlers: make(map[string]webSocketHandler),
-	}
+	/*
+		app.Srv.WebSocketRouter = &WebSocketRouter{
+			app:      app,
+			handlers: make(map[string]webSocketHandler),
+		}
+	*/
 
 	return app, nil
 }
 
+/*
 func (a *App) configOrLicenseListener() {
 	a.regenerateClientConfig()
 	a.SetDefaultRolesBasedOnConfig()
 }
+*/
 
 func (a *App) Shutdown() {
 	appCount--
@@ -146,7 +143,7 @@ func (a *App) Shutdown() {
 	a.StopServer()
 	a.HubStop()
 
-	a.ShutDownPlugins()
+	//a.ShutDownPlugins()
 	a.WaitForGoroutines()
 
 	a.Srv.Store.Close()
