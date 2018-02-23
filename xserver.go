@@ -8,7 +8,7 @@ import (
 	"github.com/primefour/xserver/store"
 	"github.com/primefour/xserver/store/sqlstore"
 	"github.com/primefour/xserver/store/storetest"
-	"github.com/primefour/xserver/utils"
+	//"github.com/primefour/xserver/utils"
 	"os"
 	"sync"
 	//	"time"
@@ -20,20 +20,6 @@ const (
 	MODE_BETA       = "beta"
 	MODE_PROD       = "prod"
 )
-
-func initServer() {
-	defer func() {
-		if r := recover(); r != nil {
-			err := fmt.Sprintf("%v", r)
-			l4g.Error(err)
-		}
-	}()
-	utils.InitLogSystem()
-	//init locale
-	utils.InitTranslations()
-	//init html templates
-	//utils.InitHTML()
-}
 
 /*
 
@@ -184,7 +170,6 @@ func launchStore() {
 }
 
 func main() {
-	initServer()
 	client := model.NewAPIv4Client("https://www.pfbbc.com")
 	client.SetOAuthToken("hello world")
 	//time.Sleep(2000)

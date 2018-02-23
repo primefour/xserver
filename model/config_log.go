@@ -23,10 +23,23 @@ type LogSettings struct {
 	EnableDiagnostics      *bool
 }
 
-func (s *LogSettings) SetDefaults() {
-	if s.EnableDiagnostics == nil {
-		s.EnableDiagnostics = NewBool(true)
+func (self *LogSettings) isValid() *utils.AppError {
+	if self.FileLevel != "DEBUG" || self.FileLevel != "INFO" ||
+		self.FileLevel != "WARN" || self.FileLevel != "ERROR" {
+		return utils.NewLocAppError("Config.IsValid", "utils.logconfig.is_valid.level_error", nil, "")
 	}
+	return nil
+}
+
+func (self *LogSettings) setDefaults() {
+	if self.EnableDiagnostics == nil {
+		self.EnableDiagnostics = new(bool)
+		*self.EnableDiagnostics = true
+	}
+	self.EnableConsole = true
+	self.ConsoleLevel = "DEBUG"
+	self.EnableFile = true
+	self.FileLevel = "DEBUG"
 }
 
 func logConfigParser(f *os.File) (interface{}, error) {
@@ -37,7 +50,7 @@ func logConfigParser(f *os.File) (interface{}, error) {
 		return nil, err
 	}
 	unmarshalErr := v.Unmarshal(settings)
-	settings.SetDefaults()
+	settings.setDefaults()
 	l4g.Debug("log settings is:%v  ", *settings)
 	return settings, unmarshalErr
 }

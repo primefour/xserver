@@ -1,8 +1,9 @@
-package utils
+package model
 
 import (
 	"bytes"
 	l4g "github.com/alecthomas/log4go"
+	"github.com/primefour/xserver/utils"
 	"io"
 	"io/ioutil"
 )
@@ -12,48 +13,6 @@ const (
 	LOG_FILENAME    = "xserver.log"
 	LOG_DIRNAME     = "sklog"
 )
-
-type LogSettings struct {
-	EnableConsole          bool
-	ConsoleLevel           string
-	EnableFile             bool
-	FileLevel              string
-	FileFormat             string
-	FileLocation           string
-	EnableWebhookDebugging bool
-	EnableDiagnostics      *bool
-}
-
-func (self *LogSettings) SetDefault() {
-	if self.EnableDiagnostics == nil {
-		self.EnableDiagnostics = new(bool)
-		*self.EnableDiagnostics = true
-	}
-	self.EnableConsole = true
-	self.ConsoleLevel = "DEBUG"
-	self.EnableFile = true
-	self.FileLevel = "DEBUG"
-
-}
-
-func (self *LogSettings) isValidate() *AppError {
-	if self.FileLevel != "DEBUG" || self.FileLevel != "INFO" ||
-		self.FileLevel != "WARN" || self.FileLevel != "ERROR" {
-		return NewLocAppError("Config.IsValid", "utils.logconfig.is_valid.level_error", nil, "")
-	}
-	return nil
-}
-
-var defaultLogSetting = LogSettings{}
-
-func init() {
-	defaultLogSetting.SetDefault()
-	configureLog(&defaultLogSetting)
-}
-
-func InitLogSystem() {
-	configureLog(&defaultLogSetting)
-}
 
 func DisableDebugLogForTest() {
 	if l4g.Global["stdout"] != nil {
@@ -87,14 +46,23 @@ func configureLog(s *LogSettings) {
 		}
 
 		lw := l4g.NewConsoleLogWriter()
-		lw.SetFormat("[%D %T] [%L] %M")
+		if s.ConsoleLevel != "DEBUG" {
+			//remove source line log
+			lw.SetFormat("[%D %T] [%L] %M")
+		}
 		l4g.AddFilter("stdout", level, lw)
 	}
 
 	if s.EnableFile {
 		var fileFormat = s.FileFormat
+
 		if fileFormat == "" {
 			fileFormat = "[%D %T] [%L] %M"
+		}
+
+		if s.FileLevel == "DEBUG" {
+			//add line msg
+			fileFormat = "[%D %T] [%L] (%S) %M"
 		}
 
 		level := l4g.DEBUG
@@ -116,7 +84,7 @@ func configureLog(s *LogSettings) {
 
 func getLogFileLocation(fileLocation string) string {
 	if fileLocation == "" {
-		return FindDir(LOG_DIRNAME) + LOG_FILENAME
+		return utils.FindDir(LOG_DIRNAME) + LOG_FILENAME
 	} else {
 		return fileLocation + LOG_FILENAME
 	}
@@ -140,4 +108,9 @@ func DebugReader(reader io.Reader, message string) (io.Reader, error) {
 	})
 
 	return reader, err
+}
+
+func init() {
+	settings := GetLogSettings()
+	configureLog(settings)
 }
