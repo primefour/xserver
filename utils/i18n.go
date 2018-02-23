@@ -22,15 +22,27 @@ var locales map[string]string = make(map[string]string)
 // "zh-CN"
 func tfuncWithFallback(pref string) i18n.TranslateFunc {
 	//try prefer language to translate
-	T, _ = i18n.Tfunc(pref)
+	l4g.Debug("pref language is  %s ", pref)
+	xt, err := i18n.Tfunc(pref)
+
+	if err != nil {
+		l4g.Error("get pref language translate failed %v ", err)
+	}
+
 	return func(translationID string, args ...interface{}) string {
-		if translated := T(translationID, args...); translated != translationID {
+		if translated := xt(translationID, args...); translated != translationID {
 			return translated
+		} else {
+			//don't support prefer language,use default
+			l4g.Warn("don't support prefer language %s ", pref)
+
+			if T != nil {
+				return T(translationID, args...)
+			} else {
+				t, _ := i18n.Tfunc(DEFAULT_LOCALE)
+				return t(translationID, args...)
+			}
 		}
-		//don't support prefer language,use default
-		l4g.Warn("don't support prefer language %s ", pref)
-		t, _ := i18n.Tfunc(DEFAULT_LOCALE)
-		return t(translationID, args...)
 	}
 }
 
@@ -52,7 +64,7 @@ func initTranslationsWithDir(dir string) {
 			i18n.MustLoadTranslationFile(dir + filename)
 		}
 	}
-	GetUserTranslations(DEFAULT_LOCALE)
+	T = GetUserTranslations(DEFAULT_LOCALE)
 }
 
 func GetUserTranslations(locale string) i18n.TranslateFunc {
@@ -76,7 +88,10 @@ func GetTranslationsAndLocale(w http.ResponseWriter, r *http.Request) (i18n.Tran
 		translations := tfuncWithFallback(headerLocale)
 		return translations, headerLocale
 	}
-
 	translations := tfuncWithFallback(DEFAULT_LOCALE)
 	return translations, DEFAULT_LOCALE
+}
+
+func init() {
+	InitTranslations()
 }
